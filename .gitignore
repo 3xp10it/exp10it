@@ -2,7 +2,7 @@
 2.py
 3.py
 4.py
-*.tmp
+phantomjs*.tmp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
