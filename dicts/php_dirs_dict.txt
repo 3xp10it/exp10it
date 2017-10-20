@@ -1,0 +1,13 @@
+/config.php.bak
+/backup.zip
+/backup.tar.gz
+/backup.rar
+/bak.7z
+/phpinfo.php
+/test.php
+/l.php
+/1.php
+/bak.zip
+/bak.rar
+/bak.7z
+/bak.tar.gz

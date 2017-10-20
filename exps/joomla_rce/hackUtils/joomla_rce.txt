@@ -1,0 +1,1 @@
+[+] vuls found! url: http://localhost/joomla34/, System: Linux x0day 4.4.0-38-generic #57-Ubuntu SMP Tue Sep 6 15:42:33 UTC 2016 x86_64 , document_root: /phpstudy/www , script_filename: /phpstudy/www/joomla34/index.php , shell_file: http://localhost/joomla34/images/1ndex.php

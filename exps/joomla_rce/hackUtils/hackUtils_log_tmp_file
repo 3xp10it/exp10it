@@ -1,0 +1,5 @@
+[20:37:21] [INFO] Checking Joomla 1.5 - 3.4.5 Remote Code Execution...
+[!] no vuls! url: http://www.baidu.com/
+
+[INFO] Scanned Vuls:
+[*] Output File: /root/mypypi/exps/joomla_rce/hackUtils/joomla_rce.txt
