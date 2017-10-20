@@ -1,30 +1,23 @@
 #### 数据库设置相关:
 
+```
 eg.主要目标为http://www.freebuf.com
 
-1.targets或first_targets表中存放有http_domain="http://www.freebuf.com"的项,且表中的sub_domains和pang_domains中
-  没有www.freebuf.com
+将生成如下表:
+tarets,first_targets,www_freebuf_com_pang,www_freebuf_com_sub
+默认主要目标存放在targets表中,first_targets为优先级高的表
+也即targets或first_targets表中存放有start_url="http://www.freebuf.com"的项
 
-2.www_freebuf_com_pang和www_freebuf_com_sub表中没有http_domain="http://www.freebuf.com"的项
+www_freebuf_com_pang存放www.freebuf.com的旁站列表
+www_freebuf_com_sub存放www.freebuf.com的子站列表
+www_freebuf_com_pang和www_freebuf_com_sub表中没有http_domain="http://www.freebuf.com"的项
 
-3.本地文件pang/www_freebuf_com_pang.txt和sub/www_freebuf_com_sub.txt中都有www.freebuf.com的条目,其中
-  www_freebuf_com_pang.txt中为http+domain形式,www_freebuf_com_sub.txt中没有http,只有纯domain,因为sub domains是由
-  第三方工具获得的,如果需要可后期添加
+本地文件log/pang/www_freebuf_com_pang.txt和log/sub/www_freebuf_com_sub.txt中都有www.freebuf.com的条目,这两个txt文件的内容为http+domain格式的列表文件
+```
 
-#### 工具框架流程方案
+#### 相关输出文件
 
-1>pang_get(获取旁站模块)
-2>sub_get(获取子站模块)
-3>crawl(爬虫模块)
-4>risk_scan(高危漏洞扫描模块)
-5>sqli_scan(sql注入扫描模块)
-6>dirb_scan(目录扫描模块)
-7>cms_scan(cms信息相关模块)
-8>crack_scan(爆破模块)
-
-
-#### 输出文件
-
+```
 get_pang_domains:
 	log/pang
 get_sub_domains:
@@ -39,4 +32,4 @@ cms_scan
 		log/cms_scan_log/joomscan/www.freebuf.com-joexploit.txt
 	wpscan
 		log/cms_scan_log/wpscan/www.freebuf.com.txt
-
+````
