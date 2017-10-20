@@ -21,7 +21,7 @@ def read(fname):
 
 
 NAME = "exp10it"
-PACKAGES = ['cms_identify', 'dicts', 'exps', 'tools']
+PACKAGES = ['crawler', 'cms_identify', 'dicts', 'exps', 'tools']
 DESCRIPTION = "this is a package about web security"
 LONG_DESCRIPTION = read("README.md")
 KEYWORDS = "web security package"
