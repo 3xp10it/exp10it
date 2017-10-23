@@ -4,38 +4,27 @@ from scrapy_splash import SplashRequest
 from exp10it import collect_urls_from_url
 from exp10it import RESOURCE_FILE_PATTERN
 
+
 class Exp10itSpider(scrapy.Spider):
     name = "exp10it"
+    lua_script = """
+    function main(splash, args)
+      assert(splash:go(args.url))
+      assert(splash:wait(0.5))
+      return splash:html()
+    end
+    """
 
     def start_requests(self):
         urls = [
-                'http://192.168.8.240:8000/xxxx'
+            'http://192.168.89.190:8000/xxxx'
         ]
         for url in urls:
-
-            #yield SplashRequest(url, self.parse, args={'wait': 0.5, 'dont_redirect': True},meta={'handle_httpstatus_all': True})
-            #yield scrapy.Request(url, self.parse, meta={'handle_httpstatus_all': True})
-            yield scrapy.Request(url, self.parse, meta={'handle_httpstatus_all': True,'splash': {
-                'args': {
-                    'html': 1,
-                    'png': 1,
-                    },
-                'splash_url': url
-            }
-            }
-            )
-
+            yield SplashRequest(url, self.parse, endpoint='execute', magic_response=True, meta={'handle_httpstatus_all': True},args={'lua_source': self.lua_script})
 
     def parse(self, response):
-        input("start .........")
-        print("status code is:\n")
-        #input(response.code)
-        print("body is:\n")
-        #input(response.body)
-        help(response.meta)
-        print(response.meta)
-        input(6666666)
-        urls=collect_urls_from_url(response.url)['y1']
+        input(response.body)
+        urls = collect_urls_from_url(response.url)['y1']
         for url in urls:
             '''
             # 两类url不访问

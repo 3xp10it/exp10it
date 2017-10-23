@@ -116,6 +116,7 @@ from concurrent import futures
 from time import sleep
 import selenium
 import requests
+from scrapy_splash import SplashRequest
 
 
 from colorama import *
@@ -1946,6 +1947,7 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
 
     # 这里的delay用于所有用到get_request函数的http请求的时间隔,eg:在3xp10it扫描工具的爬虫模块中用到这里
 
+    print(7777777)
     global DELAY
     if delaySwitcher == 1:
         # 如果打开了delay开关则需要根据配置文件中的delay参数来延时访问
@@ -1962,6 +1964,7 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
     hasFormAction = False
     formActionValue = ""
     current_url=url
+
 
     if by == "seleniumPhantomJS":
 
@@ -2093,6 +2096,24 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
             # 上面?表示formAction对应get请求,^表示formAction对应post请求
             'formActionValue': formActionValue,
             'currentUrl':current_url}
+
+    elif by=="scrapy_splash":
+        print(6666666)
+        lua_script = """
+        function main(splash, args)
+          assert(splash:go(args.url))
+          assert(splash:wait(0.5))
+          return splash:html()
+        end
+        """
+
+        def parse(response):
+            print(response.body)
+            print(1111)
+        yield SplashRequest(url, parse, endpoint='execute', magic_response=True, meta={'handle_httpstatus_all': True},args={'lua_source': lua_script})
+
+
+
 
     else:
         import mechanicalsoup
@@ -4834,7 +4855,7 @@ def get_value_from_url(url):
         'y1': y1,
         'y2': y2}
 
-def collect_urls_from_url(url):
+def collect_urls_from_url(url,by="seleniumPhantomJS"):
     # 从url所在的html内容中收集url到url队列
     # 返回值是一个字典,{'y1':y1,'y2':y2}
     # y1是根据参数url得到的html页面中的所有url,是个列表类型
@@ -4874,11 +4895,17 @@ def collect_urls_from_url(url):
     else:
         # 说明url是get类型的url
         if cookie != "":
-            result = get_request(url, by="seleniumPhantomJS", cookie=cookie)
+            if by=="seleniumPhantomJS":
+                result = get_request(url, by="seleniumPhantomJS", cookie=cookie)
+            if by=="scrapy_splash":
+                result = get_request(url, by="scrapy_splash", cookie=cookie)
             if result['hasFormAction'] == True:
                 all_uris.append(result['formActionValue'])
         else:
-            result = get_request(url, by="seleniumPhantomJS")
+            if by=="seleniumPhantomJS":
+                result = get_request(url, by="seleniumPhantomJS")
+            if by=="scrapy_splash":
+                result = get_request(url, by="scrapy_splash")
             if result['hasFormAction'] == True:
                 all_uris.append(result['formActionValue'])
         content = result['content']
