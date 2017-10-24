@@ -1,11 +1,12 @@
-def moduleExist(moduleName):
-    # 检测python模块是否已经安装
-    # 有则返回True
-    # 无则返回False
+```
 def get_string_from_command(command):
     # 不能执行which nihao,这样不会有输出,可nihao得到输出
     # 执行成功的命令有正常输出,执行不成功的命令得不到输出,得到输出为"",eg.command=which nihao
     # 判断程序有没有已经安装可eg.get_string_from_command("sqlmap --help")
+def moduleExist(moduleName):
+    # 检测python模块是否已经安装
+    # 有则返回True
+    # 无则返回False
 def getModulePath():
     # 得到当前文件的路径
 def getHomePath():
@@ -17,6 +18,10 @@ def getHomePath():
     # 返回~目录的具体值,eg./var/root
     #a=get_string_from_command("cd ~ && pwd")
     # 后来发现os.path.expanduser函数可以认识~
+def base64Str(string):
+    # 得到base64的字符串
+    # 输入为str类型
+    # 返回为str类型
 def string2argv(string):
     # 将string转化成argv格式
     # 返回一个列表
@@ -69,12 +74,14 @@ def save2github(file_abs_path, repo_name, comment):
     # 提交的commit注释
 def get_os_type():
     # 获取操作系统类型,返回结果为"Windows"或"Linux"
-def post_request(url, data):
+def post_request(url, data, verify=True):
     # 发出post请求
     # 第二个参数是要提交的数据,要求为字典格式
     # 返回值为post响应的html正文内容,返回内容为str类型
     # print("当前使用的data:")
     # print(data)
+    # 这里的verify=False是为了防止https服务器证书无法通过校验导致无法完成https会话而设置的,并不一定有效,后期可能
+    # 要改
 def get_random_ua():
     # 得到随机user-agent值
 def get_random_x_forwarded_for():
@@ -87,26 +94,21 @@ def get_proxy_list():
     # 尝试一直获取并初步验证代理,直到得到10个代理
 def get_one_useful_proxy():
     # 相比get_one_proxy函数,这个函数得到的是经过验证的有效的代理
+def test_speed(address):
+    # test ping speed
 def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=1):
+    # 如果用在爬虫或其他需要页面执行js的场合,用by="seleniumPhantomJS",此外用by="MechanicalSoup"
+    # 因为by="seleniumPhantomJS"无法得到http的响应的code(状态码)
     # 如果用selenium,用firefox打开可直接访问,要是用ie或chrome打开则要先安装相应浏览器驱动
     # 默认用MechanicalSoup方式访问url
-    # 发出get请求,返回值为一个字典,有三个键值对:eg.{"code":200,"title":None,"content":""}
+    # 发出get请求,返回值为一个字典,有5个键值对
+    # eg.{"code":200,"title":None,"content":"",'hasFormAction',"",'formActionValue':""}
     # code是int类型
     # title如果没有则返回None,有则返回str类型
     # content如果没有则返回""
-    # by是使用方法,有两种:MechanicalSoup|chromedriver
-    # https://github.com/hickford/MechanicalSoup
-    # selenium+chromedriver,chromedriver不能得到code,默认用MechanicalSoup方法
-    # delaySwitcher用于设置当前调用get_request函数时是否要按照延时设置来延时,如果设置为0则不需要延时,这种情况用于
+    # hasFormAction的值为True或False,True代表url对应的html中有表单可提交
 def keepSession(url, cookie):
     # 保持服务器上的session长久有效
-def get_response_key_value_from_url(url):
-    # 得到url响应的关键参数的值
-    # 包括:响应状态码,url的title,响应的html内容
-    # 发出get请求,返回值为一个字典,有三个键值对:eg.{"code":200,"title":None,"content":content}
-    # code是int类型
-    # title如果没有则返回None,有则返回str类型
-    # content如果没有则返回""
 def get_urls_from_file(file):
     # 从文件中获取所有url
 def get_title_from_file(file):
@@ -211,12 +213,18 @@ def get_user_and_pass_form_from_html(html):
     #"user_form_name":"" 没有则相应返回值为"None",不是返回""(空字符串)
     #"pass_form_name":"" 没有则相应返回值为"None",不是返回""(空字符串)
     #"form_action_url":"" 没有则相应返回值为"None",不是返回""(空字符串)
+def get_url_has_csrf_token(url):
+    # test if url has csrf token
+    # return a dict
+    # return dict['hasCsrfToken']=True for has
+    # return dict['hasCsrfToken']=False for has not
+    # return dict['csrfTokenName']="csrf token param name value" or ""
 def get_user_and_pass_form_from_url(url):
     # 从url的get请求中获取所有form表单
     # 返回结果为一个字典,包含3个键值对
     #"user_form_name":"" 没有则相应返回值为None,不是返回""(空字符串)
     #"pass_form_name":"" 没有则相应返回值为None,不是返回""(空字符串)
-    #"response_key_value":value 这个value的值是一个字典,也即get_response_key_value_from_url函数的返回结果
+    #"response_key_value":value 这个value的值是一个字典,也即get_request函数的返回结果
     # 之所以要每次在有访问url结果的函数里面返回url访问结果,这样是为了可以只访问一次url,这样就可以一直将访问的返\
     # 回结果传递下去,不用多访问,效率更高
 def get_yanzhengma_form_and_src_from_url(url):
@@ -243,10 +251,13 @@ def crack_webshell(url, anyway=0):
     # webshll爆破,第二个参数默认为0,如果设置不为0,则不考虑判断是否是webshll,如果设置为1,直接按direct_bao方式爆破
     # 如果设置为2,直接按biaodan_bao方式爆破
 def exist_database(db_name):
-    # 检测db_name名字的数据库是否存在
+    # 检测DB_NAME名字的数据库是否存在
     # 存在返回True,否则返回False
 def exist_table_in_db(table_name, db_name):
     # 检测数据库中存在表,存在返回True,否则返回False
+def set_column_name_scan_module_unfinished(column_name,scan_way):
+    #set the scan module which has column_name to be unfinished
+    #eg,column_name="cdn_scaned"
 def database_init():
     # 本地数据库初始化,完成数据库配置和建立数据(数据库和targets+first_targets表),以及目标导入
     # 完成这一步后需要从数据库中按优先级取出没有完成的任务
@@ -259,7 +270,7 @@ def get_value_from_url(url):
     # eg.从http://www.baidu.com/12/2/3.php?a=1&b=2中得到
     #'y1':"http://www.baidu.com/12/2/3.php"
     #'y2':"http://www.baidu.com/12/2"
-def collect_urls_from_url(url):
+def collect_urls_from_url(url,by="seleniumPhantomJS"):
     # 从url所在的html内容中收集url到url队列
     # 返回值是一个字典,{'y1':y1,'y2':y2}
     # y1是根据参数url得到的html页面中的所有url,是个列表类型
@@ -275,12 +286,12 @@ def like_admin_login_url(url):
 def get_domain_key_value_from_url(url):
     # 从url中得到域名的关键值
     # eg.从http://www.baidu.com中得到baidu
-def crawl_url(url):
-    # 爬虫,可获取url对应网站的所有可抓取的url和所有网页三元素:code,title,content
-def crawl_scan(target):
+def post_html_handler(html):
+    # 处理爬虫遇到包含post数据的html(url)的情况
+def crawl_scan(start_url):
     # target是主要目标
     # 对target目标的爬虫扫描,称为爬虫扫描而不是爬虫是因为这里不只是对一个eg.http://www.freebuf.com的扫描
-    # 而是根据scan_way来对目标以及目标的旁站或子站的爬虫
+    # 而是根据SCAN_WAY来对目标以及目标的旁站或子站的爬虫
     # target要求是http格式
 def get_yanzhengma_from_pic(img, cleanup=True, plus=''):
     # 调用系统安装的tesseract来识别验证码
@@ -320,17 +331,17 @@ def get_url_belong_main_target_domain(url):
     # 的主目标的域名,如得到http://wit.freebuf.com/1.php的所属主目标为www.freebuf.com
 def get_sqlmap_result_and_save_result(url):
     # 得到sqlmap对url对应target的扫描结果,并将相关结果存入数据库
-    # url可以是包含http形式的url，也可以是纯domain形式
+    # url is start_url value
     # py3
     # 这个import有可能会因为最开始有过import相同文件的动作而两次的文件不同,导致自己的罗辑错误
     # 这里的import要求是有配置参数的config
-def get_scan_finished(scaned_column_name, db, table, http_domain_value):
+def get_scan_finished(scaned_column_name, db, table, column_name,column_value):
     # 检测扫描是否完成,返回结果为0或1,0代表没有扫描完,1代表扫描完成
     # scaned_column_name代表对应是否扫描完的字段
     # http_domain_value为表的主键值,http_domain列对应的值
-def set_scan_finished(scaned_column_name, db, table, http_domain_value):
+def set_scan_finished(scaned_column_name, db, table,column_name, column_value):
     # 设置相应的扫描完成列值为1代表扫描完成,参数意义同上一个函数
-def set_scan_unfinished(scaned_column_name, db, table, http_domain_value):
+def set_scan_unfinished(scaned_column_name, db, table, column_name,column_value):
     # 设置相应的扫描完成列值为1代表扫描完成,参数意义同上一个函数
 def get_one_target_from_db(db, target_table):
     # 从数据库db中的target表中按优先级取出目标
@@ -364,13 +375,13 @@ def bing_search(query, search_type):
     # search_type: Web, Image, News, Video
 def get_ip_domains_list(ip):
     # 不再用bing接口查询旁站
-def get_pang_domains(target):
+def get_pang_domains(start_url):
     # 得到target的旁站列表
     # target为如http://www.baidu.com的域名,含http
 def get_root_domain(domain):
     # 得到domain的根域名,eg.www.baidu.com得到baidu.com
     # domain可为http开头或纯domain,不能是非http://+domain的url
-def get_sub_domains(target, use_tool="Sublist3r"):
+def get_sub_domains(start_url, use_tool="Sublist3r"):
     # target为http开头+domain
     # 注意target(http://www.baidu.com)要换成如baidu.com的结果,然后再当作参数传入下面可能用的工具中
     # www.baidu.com--->baidu.com,baidu.com是下面工具的参数
@@ -381,10 +392,10 @@ def get_sub_domains(target, use_tool="Sublist3r"):
     # works in python2,use os.system get the execute output
 def get_main_target_table_name(target):
     # 返回targets或first_targets
-    # 得到主要目标的数据库中所在表的名字,结果为eval(get_key_value_from_config_file(configIniPath,'default','targets_table_name'))或eval(get_key_value_from_config_file(configIniPath,'default','first_targets_table_name'))
-    # 由于主要目标存放在eval(get_key_value_from_config_file(configIniPath,'default','targets_table_name'))或eval(get_key_value_from_config_file(configIniPath,'default','first_targets_table_name'))当中,所以这样检测
+    # 得到主要目标的数据库中所在表的名字,结果为eval(get_key_value_from_config_file(configIniPath,'default','TARGETS_TABLE_NAME'))或eval(get_key_value_from_config_file(configIniPath,'default','FIRST_TARGETS_TABLE_NAME'))
+    # 由于主要目标存放在eval(get_key_value_from_config_file(configIniPath,'default','TARGETS_TABLE_NAME'))或eval(get_key_value_from_config_file(configIniPath,'default','FIRST_TARGETS_TABLE_NAME'))当中,所以这样检测
     # target可为domain或http domain格式
-def get_target_table_name_list(target):
+def get_target_table_name_list(start_url):
     # 得到target所在的表名,检索的表包括targets,first_targets,xxx_pang,xxx_sub
     # 返回一个列表,如果target是主要目标,则该列表中只有一个表名,targets或是first_targets
     # 如果target是子站或旁站且该子站如wit.freebuf.com既是子站又是旁站值,则返回的列表中有两个表名,xxx_pang和
@@ -396,7 +407,9 @@ def get_target_table_name_info(target):
     #'target_is_main_and_table_is_first_targets':target_is_main_and_table_is_first_targets,
     #'target_is_pang_and_sub':target_is_pang_and_sub,
     #'target_is_only_pang':target_is_only_pang,
-    #'target_is_only_sub':target_is_only_sub
+    #'target_is_only_sub':target_is_only_sub,
+    # 'target_is_main':target_is_main_target,
+    # 'target_is_pang_or_sub':target_is_pang_or_sub
 def get_target_urls_from_db(target, db):
     # 从数据库中得到一个目标爬完虫后的的urls,返回结果是个列表
     # tareget可以是主要目标或者主要目标的旁站或子站
@@ -424,9 +437,8 @@ def single_dirb_scan(target):
 def cms_identify(target):
     # 对target进行cms识别
     # target可以是主要目标,也可以是主要目标的旁站或子站
-def single_cms_scan(target):
-    # 对target根据taret的cms类型进行cms识别及相应第三方工具扫描,target可以是主要目标或者是旁站或是子站
-    # target要求为http+domain格式
+def single_cms_scan(start_url):
+    # 对target根据target的cms类型进行cms识别及相应第三方工具扫描,target可以是主要目标或者是旁站或是子站
 def static_sqli(url):
     # re.search("",url)
 def sqlmap_g_nohuman(http_url_or_file, tor_or_not, post_or_not):
@@ -440,9 +452,12 @@ def sqlmap_g_human(http_url_or_file, tor_or_not, post_or_not):
     # urls,in this mode,we need input the yanzhengma by human,not robot,coz
     # sqlmap's -g option can only get the former 100 results,this function will
     # get almost the all results.
-def sqli_scan(target):
-    # 根据scan_way而采取相应的扫描sqli模式
+def sqli_scan(start_url):
+    # 根据SCAN_WAY而采取相应的扫描sqli模式
     # target要求是http...格式,不能是纯domain
+def single_xss_scan(start_url):
+    # 这里进行xss漏洞检测
+    # target可以是主要目标或是主要目标的旁站或子站
 def getServerType(url):
     # 得到url对应web服务器的类型,eg.apache,iis,nginx,lighttpd
     # phpstudy中试验上面4种的php默认post参数最大个数为1000个
@@ -469,15 +484,15 @@ def get_http_pang_domains_list_from_db(target, db):
 def get_http_sub_domains_list_from_db(target, db):
     # 从数据库中获取主要目标的子站列表
     # target要是主要目标
-def get_domainUrl_cookie(domainUrl):
-    # 得到domainUrl的cookie,目前为从config.ini文件中获取
-    # eg.domainUrl=https://www.baidu.com:8080
-    # 如果domainUrl在config.ini中没有cookie,则查找config.ini中是否有domainUrl对应的主站有cookie，如果有对应的主站
-    # 有cookie,则用domainUrl对应的主站的cookie
+def get_url_cookie(url):
+    # 得到url的cookie,目前为从config.ini文件中获取
+    # eg.url=https://www.baidu.com:8080/dvwa/1.php
+    # 如果url在config.ini中没有cookie,则查找config.ini中是否有url对应的主站有cookie，如果有对应的主站
+    # 有cookie,则用url对应的start_url的cookie
     # 如果没有则返回""空字符串
-def set_target_scan_finished(target):
+def set_target_scan_finished(start_url):
     # 根据扫描模式设置扫描完成
-def auto_attack(target):
+def auto_attack(start_url):
     # 自动化检测target流程
     # 根据扫描模式进行cdn情况扫描,如果有cdn,尝试获取真实ip
     # cdn模块的结果影响端口扫描模块,也影响是否进行旁站获取,cdn模块在获取旁站模块前要运行一次,
@@ -487,3 +502,4 @@ def scanInit():
     # 这个函数用于配置exp10itScanner要用到的参数
 def exp10itScanner():
     # 相当于扫描工具的main函数
+```
