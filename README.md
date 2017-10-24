@@ -21,8 +21,10 @@ www_freebuf_com_pang和www_freebuf_com_sub表中没有http_domain="http://www.fr
 ```
 get_pang_domains:
 	log/pang
+
 get_sub_domains:
 	log/sub
+
 dirb:
 	log/dirsearch_log/www.freebuf.com_log.txt
 
@@ -33,5 +35,4 @@ cms_scan
 		log/cms_scan_log/joomscan/www.freebuf.com-joexploit.txt
 	wpscan
 		log/cms_scan_log/wpscan/www.freebuf.com.txt
-
 ```

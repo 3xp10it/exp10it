@@ -1987,7 +1987,6 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
                     input("下载速度太慢,还是手工用迅雷下载吧,下载后将可执行文件phantomjs.exe存放到PATH中,再按任意键继续...")
         import time
 
-        input(22222222222222222333333333333333333)
         if proxyUrl == "" or proxyUrl == 0:
             service_args_value = ['--ignore-ssl-errors=true',
                                   '--ssl-protocol=any', '--web-security=false']
@@ -2003,7 +2002,6 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
             from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
             dcap = dict(DesiredCapabilities.PHANTOMJS)
 
-            input(44444444444444)
             ua = "Mozilla/4.0 (Windows; U; Windows NT 5.0; en-US) AppleWebKit/532.0 (KHTML, like Gecko) Chrome/3.0.195.33 Safari/532.0"
             #headers = {'User-Agent': '%s' % get_random_ua(),'Cookie': '%s' % cookie}
             if cookie!="":
@@ -2011,21 +2009,15 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
                         get_http_domain_from_url(url)}
             else:
                 headers = {'User-Agent': '%s' % ua,'Referer': '%s' % get_http_domain_from_url(url)}
-            input(55555555555555555)
             for key in headers:
                 capability_key = 'phantomjs.page.customHeaders.{}'.format(key)
                 webdriver.DesiredCapabilities.PHANTOMJS[capability_key] = headers[key]
             driver = webdriver.PhantomJS(service_args=service_args_value)
 
-            input(7777777777777777777)
-            a=time.time()
             #driver.implicitly_wait(20)
             #driver.set_page_load_timeout(20)
 
             driver.get(url)
-            b=time.time()
-            print(b-a)
-            input(6666666666666666666)
 
             import random
             # driver.get_screenshot_as_file("/tmp/PhantomJSPic" +
@@ -2036,7 +2028,6 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
             code = 200
             title = driver.title
             print(title)
-            input(2222222222222)
             content = driver.page_source
             #returnCurrentUrl is the true url the browser is visiting.
             # if redirect exist,returnCurrentUrl is not url
