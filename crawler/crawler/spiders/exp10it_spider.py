@@ -42,9 +42,8 @@ class Exp10itSpider(scrapy.Spider):
         item['resources_file_list'] = []
         if response.status == 200:
             urls = collect_urls_from_html(response.text, response.url)
-            item['title'] = response.xpath('//title/text()').extract()
-            #input("title")
-            #print(item['title'])
+            title = response.xpath('//title/text()').extract()
+            item['title'] = title if title != [] else None
             item['content'] = response.text
         else:
             a = get_request(response.url, cookie=cookie)
@@ -59,7 +58,7 @@ class Exp10itSpider(scrapy.Spider):
                 # yield SplashPostRequest()
             else:
                 # get请求
-                match_resource = re.match(RESOURCE_FILE_PATTERN,url)
+                match_resource = re.match(RESOURCE_FILE_PATTERN, url)
                 match_logoff = re.search(
                     r"(logout)|(logoff)|(exit)|(signout)|(signoff)", url, re.I)
                 if match_resource:
