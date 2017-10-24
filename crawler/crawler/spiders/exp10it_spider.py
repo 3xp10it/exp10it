@@ -1,8 +1,17 @@
 import re
+import sys
+import os
 import scrapy
 from scrapy_splash import SplashRequest
+from crawler.items import CrawlerItem
+exp10it_module_path = os.path.abspath(os.path.dirname(
+    __file__) + os.path.sep + ".." + os.path.sep + ".." + os.path.sep + "..")
+sys.path.insert(0, exp10it_module_path)
 from exp10it import collect_urls_from_url
 from exp10it import RESOURCE_FILE_PATTERN
+from exp10it import collect_urls_from_html
+from exp10it import get_request
+from exp10it import get_url_cookie
 
 
 class Exp10itSpider(scrapy.Spider):
@@ -17,35 +26,46 @@ class Exp10itSpider(scrapy.Spider):
 
     def start_requests(self):
         urls = [
-            'http://192.168.89.190:8000/xxxx'
+            'http://192.168.43.190/login.php'
+            #'https://www.bing.com'
         ]
         for url in urls:
-            yield SplashRequest(url, self.parse, endpoint='execute', magic_response=True, meta={'handle_httpstatus_all': True},args={'lua_source': self.lua_script})
+            yield SplashRequest(url, self.parse, endpoint='execute', magic_response=True, meta={'handle_httpstatus_all': True}, args={'lua_source': self.lua_script})
 
     def parse(self, response):
-        input(response.body)
-        urls = collect_urls_from_url(response.url)['y1']
+        item = CrawlerItem()
+        cookie = get_url_cookie(response.url)
+        print(6666666666666666)
+        print(response.url)
+        item['code'] = response.status
+        item['current_url'] = response.url
+        item['resources_file_list'] = []
+        if response.status == 200:
+            urls = collect_urls_from_html(response.text, response.url)
+            item['title'] = response.xpath('//title/text()').extract()
+            #input("title")
+            #print(item['title'])
+            item['content'] = response.text
+        else:
+            a = get_request(response.url, cookie=cookie)
+            item['title'] = a['title']
+            item['content'] = a['content']
+            urls = collect_urls_from_html(a['content'], response.url)
+        print(urls)
         for url in urls:
-            '''
-            # 两类url不访问
-            if re.search(r"(logout)|(logoff)|(exit)|(signout)|(signoff)", url, re.I):
-                print("current url is:%s,I will not crawl this url" % url)
-                continue
-            if re.match(RESOURCE_FILE_PATTERN, each):
-                if each not in resource_files:
-                    # 资源类型文件不放入任务队列里,直接写到数据库中
-                    resource_files.append(each)
-                    if url_belong_to_main_target[0]:
-                        auto_write_string_to_sql(each,DB_NAME,table_name[0],"resource_files","http_domain",http_domain)
-                    else:
-                        for each_table in current_not_main_target_table_name:
-                            auto_write_string_to_sql(each, DB_NAME, each_table, "resource_files", "http_domain", http_domain)
-                continue
-
-            # 正常递归爬取
-            a=SplashRequest(url, self.parse, args={'wait': 0.5})
-            help(a)
-            input(6666666)
-            yield a
-            '''
-            pass
+            if "^" in url:
+                # post请求
+                pass
+                # yield SplashPostRequest()
+            else:
+                # get请求
+                match_resource = re.match(RESOURCE_FILE_PATTERN,url)
+                match_logoff = re.search(
+                    r"(logout)|(logoff)|(exit)|(signout)|(signoff)", url, re.I)
+                if match_resource:
+                    item['resources_file_list'].append(url)
+                elif match_logoff:
+                    pass
+                else:
+                    yield SplashRequest(url, self.parse, endpoint='execute', magic_response=True, meta={'handle_httpstatus_all': True}, args={'lua_source': self.lua_script})
+        yield item

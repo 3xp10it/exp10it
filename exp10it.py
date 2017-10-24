@@ -1916,7 +1916,6 @@ def test_speed(address):
     return sum/12
 
 
-
     
 def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=1):
     # 如果用在爬虫或其他需要页面执行js的场合,用by="seleniumPhantomJS",此外用by="MechanicalSoup"
@@ -1947,7 +1946,6 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
 
     # 这里的delay用于所有用到get_request函数的http请求的时间隔,eg:在3xp10it扫描工具的爬虫模块中用到这里
 
-    print(7777777)
     global DELAY
     if delaySwitcher == 1:
         # 如果打开了delay开关则需要根据配置文件中的delay参数来延时访问
@@ -2096,23 +2094,6 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
             # 上面?表示formAction对应get请求,^表示formAction对应post请求
             'formActionValue': formActionValue,
             'currentUrl':current_url}
-
-    elif by=="scrapy_splash":
-        print(6666666)
-        lua_script = """
-        function main(splash, args)
-          assert(splash:go(args.url))
-          assert(splash:wait(0.5))
-          return splash:html()
-        end
-        """
-
-        def parse(response):
-            print(response.body)
-            print(1111)
-        yield SplashRequest(url, parse, endpoint='execute', magic_response=True, meta={'handle_httpstatus_all': True},args={'lua_source': lua_script})
-
-
 
 
     else:
@@ -4855,6 +4836,8 @@ def get_value_from_url(url):
         'y1': y1,
         'y2': y2}
 
+
+
 def collect_urls_from_url(url,by="seleniumPhantomJS"):
     # 从url所在的html内容中收集url到url队列
     # 返回值是一个字典,{'y1':y1,'y2':y2}
@@ -4897,15 +4880,11 @@ def collect_urls_from_url(url,by="seleniumPhantomJS"):
         if cookie != "":
             if by=="seleniumPhantomJS":
                 result = get_request(url, by="seleniumPhantomJS", cookie=cookie)
-            if by=="scrapy_splash":
-                result = get_request(url, by="scrapy_splash", cookie=cookie)
             if result['hasFormAction'] == True:
                 all_uris.append(result['formActionValue'])
         else:
             if by=="seleniumPhantomJS":
                 result = get_request(url, by="seleniumPhantomJS")
-            if by=="scrapy_splash":
-                result = get_request(url, by="scrapy_splash")
             if result['hasFormAction'] == True:
                 all_uris.append(result['formActionValue'])
         content = result['content']
@@ -4993,6 +4972,124 @@ def collect_urls_from_url(url,by="seleniumPhantomJS"):
         else:
             final_return_urls.append(each)
     return {'y1': final_return_urls, 'y2': result}
+
+
+
+def collect_urls_from_html(content,url):
+    import html
+    all_uris = []
+    return_all_urls = []
+    cookie = ""
+    if os.path.exists(configIniPath):
+        from urllib.parse import urlparse
+        cookie = get_url_cookie(url)
+
+    a = re.search(
+                r'''(<form[^<>]*action=('|")?([^\s'"<>]+)('|")?[^<>]*>)''', content, re.I)
+    if a:
+        pureActionValue = a.group(3)
+        if  pureActionValue[0]=='/':
+            pureActionValue=get_http_netloc_from_url(url)+pureActionValue
+        elif re.match(r"http(s)?://.*",pureActionValue,re.I):
+            pureActionValue=pureActionValue
+        elif re.match(r"#+",pureActionValue) or re.match(r"\s*",pureActionValue):
+            pureActionValue=url
+        else:
+            pureActionValue=get_value_from_url(url)['y2']+"/"+pureActionValue
+        
+        if re.search(r'''\smethod\s*=\s*('|")?POST('|")?''',a.group(1),re.I):
+            #post表单
+            formActionValue=pureActionValue+"^"+get_param_part_from_content(content)
+        
+        else:
+            #get表单
+            formActionValue=pureActionValue+"?"+get_param_part_from_content(content)
+        all_uris.append(formActionValue)
+
+    bs = BeautifulSoup(content, 'lxml')
+    if re.match(
+        r"%s/*((robots\.txt)|(sitemap\.xml))" %
+        get_http_domain_pattern_from_url(url),
+            url):
+        if re.search(r"(robots\.txt)$", url):
+            # 查找allow和disallow中的所有uri
+            find_uri_pattern = re.compile(
+                r"((Allow)|(Disallow)):[^\S\n]*(/[^?\*\n#]+)(/\?)?\s", re.I)
+            find_uri = re.findall(find_uri_pattern, content)
+            if find_uri:
+                for each in find_uri:
+                    all_uris.append(each[3])
+            # 查找robots.txt中可能存在的sitemap链接
+            find_sitemap_link_pattern = re.compile(
+                r"Sitemap:[^\S\n]*(http[\S]*)\s", re.I)
+            find_sitemap_link = re.findall(find_sitemap_link_pattern, content)
+            if find_sitemap_link:
+                for each in find_sitemap_link:
+                    all_uris.append(each)
+
+        if re.search(r"(sitemap\.xml)$", url):
+            find_url_pattern = re.compile(
+                r'''(http(s)?://[^\s'"#<>]+).*\s''', re.I)
+            find_url = re.findall(find_url_pattern, content)
+            if find_url:
+                for each in find_url:
+                    all_uris.append(each[0])
+
+    else:
+        for each in bs.find_all('a'):
+            # 收集a标签(bs可以收集到不带http_domain的a标签)
+            find_uri = each.get('href')
+            if find_uri is not None:
+                if re.match(r"^javascript:", find_uri):
+                    continue
+                else:
+                    all_uris.append(find_uri)
+        # 收集src="http:..."中的uri
+        for each in bs.find_all(src=True):
+            find_uri = each.get('src')
+            if find_uri is not None:
+                all_uris.append(find_uri)
+
+        # 收集如js|form表单中的=""或=''中的uri
+        a = re.findall(r'''=('|")([^'"\><\s]+)('|")''', content, re.I)
+        for each in a:
+            if each[1][:4] == "http":
+                all_uris.append(each[1])
+            elif each[1][:2] == "//":
+                all_uris.append(url.split(":")[0] + ":" + each[1])
+            else:
+                tmpNum = len(re.findall(
+                    r"/", each[1], re.I)) + len(re.findall(r"\.", each[1], re.I))
+                if tmpNum >= 2:
+                    all_uris.append(each[1])
+
+    # 整理uri,将不带http_domain的链接加上http_domain,并将多余的/去除
+    for each in all_uris:
+        if each is not None:
+            if not re.match(r"^http", each):
+                if each[:2] == "//":
+                    each = url.split(":")[0] + ":" + each
+                else:
+                    each = get_value_from_url(url)['y2'] + '/' + each
+            # 将多余的/去除
+            httpPrefix = each.split(":")[0] + "://"
+            nothttpPrefix = each[len(httpPrefix):]
+            nothttpPrefix = re.sub(r"/+", "/", nothttpPrefix)
+            each = httpPrefix + nothttpPrefix
+            each = html.unescape(each)
+            if each not in return_all_urls:
+                return_all_urls.append(each)
+    # 暂时不考虑将如http://www.baidu.com/1.php?a=1&b=2整理成http://www.baidu.com/1.php
+
+    # 整理所有url,将其中带有单引号和双引号和+号的url过滤掉
+    final_return_urls = []
+    for each in return_all_urls:
+        if "'" in each or '"' in each or "{" in each or "(" in each or "[" in each or each[-3:] == ".js" or ".js?" in each or each[-4:] == ".css" or ".css?" in each:
+            pass
+        else:
+            final_return_urls.append(each)
+    return final_return_urls
+    #return {'y1': final_return_urls, 'y2': result}
 
 
 def like_admin_login_content(html):

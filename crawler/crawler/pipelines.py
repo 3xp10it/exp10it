@@ -8,4 +8,6 @@
 
 class CrawlerPipeline(object):
     def process_item(self, item, spider):
+        input("below is a item")
+        print(item)
         return item
