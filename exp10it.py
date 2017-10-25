@@ -116,6 +116,7 @@ from concurrent import futures
 from time import sleep
 import selenium
 import requests
+import readline
 from scrapy_splash import SplashRequest
 
 
@@ -5821,112 +5822,49 @@ def mail_msg_to(msg, mailto='config', subject='test', user='config', password='c
         return False
 
 
-def get_input_intime1(default_choose, timeout=10):
-    # http://www.cnblogs.com/jefferybest/archive/2011/10/09/2204050.html
-    # 在一定时间内得到选择的值,如果没有选择则返回默认选择
-    # 第一个参数为默认选择值
-    # 第二个参数为设置超时后自动选择默认值的时间大小,单位为秒
-    # 返回选择的值,返回值是选择的值或是默认选择值,选择的值为str类型,默认的选择值可为任意类型
-    # 无法输入长字符串,适用于只输入1-2个字符长度的字符串,一般用于选项的选择
-    import readline
-    default_choose = [default_choose]
-    timeout = [timeout]
-    choosed = [0]
-    chioce = ['']
-
-    def print_time_func():
-        print(22222222)
-        while choosed[0] == 0 and timeout[0] > 0:
-            time.sleep(1)
-            #sys.stdout.write(' ' * (len(readline.get_line_buffer()) + 2))
-            sys.stdout.write("\r%s seconds left...please input your chioce:>" % timeout[0])
-            print(readline.get_line_buffer())
-            timeout[0] -= 1
-        if choosed[0] == 0:
-            chioce[0] = default_choose[0]
-
-    def input_func():
-        from select import select
-        rlist, _, _ = select([sys.stdin], [], [], timeout[0])
-        if rlist:
-            s = sys.stdin.readline()
-            if len(s) == 1:
-                chioce[0] = default_choose[0]
-                choosed[0] = 1
-                print("you choosed the default chioce:%s" % default_choose[0])
-            else:
-                chioce[0] = s[:-1]
-                choosed[0] = 1
-                print("you choosed %s" % chioce[0])
-        else:
-            pass
-            #print("you input nothing")
-
-    time_left_thread = MyThread(print_time_func, ())
-    input_thread = MyThread(input_func, ())
-    time_left_thread.start()
-    input_thread.start()
-    time_left_thread.join()
-
-    if choosed[0] == 0:
-        print("\n")
-        print("i choose the default chioce for you:>>>%s<<<" % chioce[0])
-    return chioce[0]
-
-
-
-
 def get_input_intime(default_choose, timeout=10):
     # http://www.cnblogs.com/jefferybest/archive/2011/10/09/2204050.html
     # 在一定时间内得到选择的值,如果没有选择则返回默认选择
     # 第一个参数为默认选择值
     # 第二个参数为设置超时后自动选择默认值的时间大小,单位为秒
     # 返回选择的值,返回值是选择的值或是默认选择值,选择的值为str类型,默认的选择值可为任意类型
-    # 无法输入长字符串,适用于只输入1-2个字符长度的字符串,一般用于选项的选择
-    import readline
+
     default_choose = [default_choose]
     timeout = [timeout]
     choosed = [0]
     chioce = ['']
 
     def print_time_func():
+        print("Please input your choice before timeout")
         while choosed[0] == 0 and timeout[0] > 0:
             time.sleep(1)
             sys.stdout.write(
-                '\r' + ' ' * (len(readline.get_line_buffer()) + 2))
-            sys.stdout.write(
-                "\r%s seconds left...please input your chioce:>" % timeout[0])
-            sys.stdout.write(readline.get_line_buffer())
+                '\r' + ' ' * (len(readline.get_line_buffer()) + 2) + '\r')
+            sys.stdout.write("\r%ss " % timeout[0])
+            sys.stdout.write('>>: ' + readline.get_line_buffer())
+            sys.stdout.flush()
             timeout[0] -= 1
         if choosed[0] == 0:
             chioce[0] = default_choose[0]
 
     def input_func():
-        from select import select
-        rlist, _, _ = select([sys.stdin], [], [], timeout[0])
-        if rlist:
-            s = sys.stdin.readline()
-            if len(s) == 1:
-                chioce[0] = default_choose[0]
-                choosed[0] = 1
-                print("you choosed the default chioce:%s" % default_choose[0])
+        while choosed[0] == 0 and timeout[0] > 0:
+            s = input('>>: ')
+            #rlist, _, _ = select([sys.stdin], [], [], timeout[0])
+            if len(s)==0:
+                chioce[0]=default_choose[0]
             else:
-                chioce[0] = s[:-1]
-                choosed[0] = 1
-                print("you choosed %s" % chioce[0])
-        else:
-            pass
-            #print("you input nothing")
-
+                chioce[0]=s
+                print("U choosed:-------------------------(%s)" % chioce[0])
+            choosed[0]=1
     time_left_thread = MyThread(print_time_func, ())
     input_thread = MyThread(input_func, ())
     time_left_thread.start()
+    input_thread.setDaemon(True)
     input_thread.start()
     time_left_thread.join()
-
-    if choosed[0] == 0:
-        print("\n")
-        print("i choose the default chioce for you:>>>%s<<<" % chioce[0])
+    if choosed[0] == 0 or chioce[0]==default_choose[0]:
+        print("U choose default:-------------------------(%s)" % chioce[0])
     return chioce[0]
 
 
