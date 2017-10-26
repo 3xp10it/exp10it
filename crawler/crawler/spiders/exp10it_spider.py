@@ -18,7 +18,7 @@ class Exp10itSpider(scrapy.Spider):
     name = "exp10it"
     lua_script = """
     function main(splash, args)
-      assert(splash:go(args.url))
+      assert(splash:go{splash.args.url,http_method=splash.args.http_method,body=splash.args.body})
       assert(splash:wait(0.5))
       return splash:html()
     end
@@ -26,8 +26,8 @@ class Exp10itSpider(scrapy.Spider):
 
     def start_requests(self):
         urls = [
-            'http://192.168.43.190/login.php'
-            #'https://www.bing.com'
+            'https://www.bing.com'
+            #'https://httpbin.org/post^sss=lalala'
         ]
         for url in urls:
             yield SplashRequest(url, self.parse, endpoint='execute', magic_response=True, meta={'handle_httpstatus_all': True}, args={'lua_source': self.lua_script})
@@ -35,8 +35,6 @@ class Exp10itSpider(scrapy.Spider):
     def parse(self, response):
         item = CrawlerItem()
         cookie = get_url_cookie(response.url)
-        print(6666666666666666)
-        print(response.url)
         item['code'] = response.status
         item['current_url'] = response.url
         item['resources_file_list'] = []
@@ -50,12 +48,13 @@ class Exp10itSpider(scrapy.Spider):
             item['title'] = a['title']
             item['content'] = a['content']
             urls = collect_urls_from_html(a['content'], response.url)
-        print(urls)
         for url in urls:
             if "^" in url:
                 # post请求
-                pass
-                # yield SplashPostRequest()
+                post_url_list = url.split("^")
+                post_url = post_url_list[0]
+                post_data = post_url_list[1]
+                yield SplashRequest(post_url, self.parse, endpoint='execute', magic_response=True, meta={'handle_httpstatus_all': True}, args={'lua_source': self.lua_script, 'http_method': 'POST', 'body': post_data})
             else:
                 # get请求
                 match_resource = re.match(RESOURCE_FILE_PATTERN, url)

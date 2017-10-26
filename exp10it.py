@@ -4940,7 +4940,7 @@ def collect_urls_from_url(url,by="seleniumPhantomJS"):
 
     # 整理uri,将不带http_domain的链接加上http_domain,并将多余的/去除
     for each in all_uris:
-        if each is not None:
+        if each not in [None,"http://","https://"]:
             if not re.match(r"^http", each):
                 if each[:2] == "//":
                     each = url.split(":")[0] + ":" + each
@@ -4959,7 +4959,7 @@ def collect_urls_from_url(url,by="seleniumPhantomJS"):
     # 整理所有url,将其中带有单引号和双引号和+号的url过滤掉
     final_return_urls = []
     for each in return_all_urls:
-        if "'" in each or '"' in each or "{" in each or "(" in each or "[" in each or each[-3:] == ".js" or ".js?" in each or each[-4:] == ".css" or ".css?" in each:
+        if "'" in each or '"' in each or "{" in each or "(" in each or "[" in each or each[-3:] == ".js" or ".js?" in each or each[-4:] == ".css" or ".css?" in each or '\\' in each:
             pass
         else:
             final_return_urls.append(each)
@@ -5057,7 +5057,7 @@ def collect_urls_from_html(content,url):
 
     # 整理uri,将不带http_domain的链接加上http_domain,并将多余的/去除
     for each in all_uris:
-        if each is not None:
+        if each not in [None,"http://","https://"]:
             if not re.match(r"^http", each):
                 if each[:2] == "//":
                     each = url.split(":")[0] + ":" + each
@@ -5076,7 +5076,7 @@ def collect_urls_from_html(content,url):
     # 整理所有url,将其中带有单引号和双引号和+号的url过滤掉
     final_return_urls = []
     for each in return_all_urls:
-        if "'" in each or '"' in each or "{" in each or "(" in each or "[" in each or each[-3:] == ".js" or ".js?" in each or each[-4:] == ".css" or ".css?" in each:
+        if "'" in each or '"' in each or "{" in each or "(" in each or "[" in each or each[-3:] == ".js" or ".js?" in each or each[-4:] == ".css" or ".css?" in each or '\\' in each:
             pass
         else:
             final_return_urls.append(each)
