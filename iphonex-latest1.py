@@ -1,10 +1,10 @@
-apple_id=""
-apple_id_pass=""
-zhifubao_username=""
-zhifumima=""
+apple_id="1731977663@qq.com"
+apple_id_pass="063913Dx"
+zhifubao_username="18013790233"
+zhifumima="zhifumima"
 
 likes_num=3
-try_index=3
+try_index=2
 
 
 import os
@@ -271,6 +271,7 @@ def buy_ipx():
 
 
 def checkStartTime():
+    return
     while True:
         a=time.strftime('%H:%M:%S',time.localtime(time.time()))
         print(a)
@@ -282,5 +283,6 @@ def checkStartTime():
             continue
 
 
+checkStartTime()
 buy_ipx()
 os.system("pkill phantomjs")
