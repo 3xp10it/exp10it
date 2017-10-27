@@ -204,10 +204,12 @@ def buy_ipx():
     #time.sleep(3)
 
     zhifubao_username_box=driver.find_element_by_id('J_tLoginId')
+    zhifubao_username_box.click()
     zhifubao_username_box.clear()
     zhifubao_username_box.send_keys('18013790233')
 
     zhifubao_pass_box=driver.find_element_by_id('payPasswd_rsainput')
+    zhifubao_pass_box.click()
     #zhifubao_pass_box.clear()
     zhifubao_pass_box.send_keys('zhifumima')
 
@@ -226,21 +228,24 @@ def buy_ipx():
     driver.find_element_by_id('J_newBtn').click()
     driver.get_screenshot_as_file("/tmp/PhantomJSPic5")
 
+    """
     zhifubao_pass_box=driver.find_element_by_id('payPasswd_rsainput')
     zhifubao_pass_box.clear()
     zhifubao_pass_box.send_keys('zhifumima')
 
     driver.find_element_by_id('J_newBtn').click()
     driver.get_screenshot_as_file("/tmp/PhantomJSPic5")
+    """
 
     WebDriverWait(driver, 300).until( 
-      expected_conditions.element_to_be_clickable( 
-        (By.ID,'J_authSubmit')
+      expected_conditions.url_contains( 
+        'standard/lightpay/lightPayCashier.htm'
       ) 
     )
 
+
     tmp=driver.find_element_by_id('payPassword_rsainput')
-    tmp.clear()
+    tmp.click()
     tmp.send_keys("zhifumima")
     driver.get_screenshot_as_file("/tmp/PhantomJSPic6")
 
