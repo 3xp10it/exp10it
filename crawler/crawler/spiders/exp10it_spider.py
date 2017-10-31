@@ -30,9 +30,20 @@ class Exp10itSpider(scrapy.Spider):
             #'https://httpbin.org/post^sss=lalala'
         ]
         for url in urls:
-            yield SplashRequest(url, self.parse, endpoint='execute', magic_response=True, meta={'handle_httpstatus_all': True}, args={'lua_source': self.lua_script})
+            if "^" in url:
+                post_url_list = url.split("^")
+                post_url = post_url_list[0]
+                post_data = post_url_list[1]
+                yield SplashRequest(post_url, callback=self.parse_post, endpoint='execute',
+                                    magic_response=True, meta={'handle_httpstatus_all': True, 'current_url': url},
+                                    args={'lua_source': self.lua_script, 'http_method': 'POST',
+                                          'body': post_data})
+            else:
+                yield SplashRequest(url, self.parse_get, endpoint='execute',
+                                    magic_response=True, meta={'handle_httpstatus_all': True},
+                                    args={'lua_source': self.lua_script})
 
-    def parse(self, response):
+    def parse_get(self, response):
         item = CrawlerItem()
         cookie = get_url_cookie(response.url)
         item['code'] = response.status
@@ -50,13 +61,16 @@ class Exp10itSpider(scrapy.Spider):
             urls = collect_urls_from_html(a['content'], response.url)
         for url in urls:
             if "^" in url:
-                # post请求
+                # post类型url
                 post_url_list = url.split("^")
                 post_url = post_url_list[0]
                 post_data = post_url_list[1]
-                yield SplashRequest(post_url, self.parse, endpoint='execute', magic_response=True, meta={'handle_httpstatus_all': True}, args={'lua_source': self.lua_script, 'http_method': 'POST', 'body': post_data})
+                yield SplashRequest(post_url, callback=self.parse_post, endpoint='execute',
+                                    magic_response=True, meta={'handle_httpstatus_all': True, 'current_url': url},
+                                    args={'lua_source': self.lua_script, 'http_method': 'POST',
+                                          'body': post_data})
             else:
-                # get请求
+                # get类型url
                 match_resource = re.match(RESOURCE_FILE_PATTERN, url)
                 match_logoff = re.search(
                     r"(logout)|(logoff)|(exit)|(signout)|(signoff)", url, re.I)
@@ -65,5 +79,16 @@ class Exp10itSpider(scrapy.Spider):
                 elif match_logoff:
                     pass
                 else:
-                    yield SplashRequest(url, self.parse, endpoint='execute', magic_response=True, meta={'handle_httpstatus_all': True}, args={'lua_source': self.lua_script})
+                    yield SplashRequest(url, self.parse_get, endpoint='execute', magic_response=True, meta={'handle_httpstatus_all': True}, args={'lua_source': self.lua_script})
+        yield item
+
+    def parse_post(self, response):
+        # post请求
+        item = CrawlerItem()
+        item['code'] = response.status
+        item['resources_file_list'] = []
+        title = response.xpath('//title/text()').extract()
+        item['title'] = title if title != [] else None
+        item['content'] = response.text
+        item['current_url'] = response.meta['current_url']
         yield item

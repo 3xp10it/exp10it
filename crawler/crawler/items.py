@@ -16,4 +16,3 @@ class CrawlerItem(scrapy.Item):
     content = scrapy.Field()
     current_url = scrapy.Field()
     resources_file_list = scrapy.Field()
-    #form_url_list = scrapy.Field()
