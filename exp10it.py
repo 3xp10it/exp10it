@@ -528,6 +528,7 @@ def base64Str(string):
     return base64Str
 
 
+
 class CLIOutput(object):
     # 一般用法:正常运行要输出的内容用该类的good_print函数,显示运行状态用new_thread_bottom_print函数,其中
     # 如果要终结new_thread_bottom_print线程,将sefl.stop_order置1即可
@@ -2183,7 +2184,27 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
             'currentUrl':current_url}
         return return_value
 
-
+def send_http_package(string,http_or_https):
+    # 发http请求包封装函数,string可以是burpsuite等截包工具中拦截到的包
+    # string最好是urlencode过的,当然没有urlencode的也是可以正常工作的,只不过一般浏览器会将空格等字符先urlencode再发送
+    # 返回的内容为html
+    string=re.sub(r"^\s","",string)
+    uri_line=re.search(r"(^.+)",string).group(1)
+    header_dict={}
+    header_list=re.findall(r"([^:\s]+): (.+)\n",string)
+    for each in header_list:
+        header_dict[each[0]]=each[1]
+    url=http_or_https+"://"+re.search(r"Host: (.+)",string,re.I).group(1)+re.search(r" (\S+)",uri_line,re.I).group(1)
+    if string[:3]=="GET":
+        res=requests.get(url,headers=header_dict)
+        html=res.text
+    elif string[:4]=="POST":
+        post_string=re.search(r"\n\n(.+)",string).group(1)
+        post_string_bytes=post_string.encode("utf8")
+        res=requests.post(url,headers=header_dict,data=post_string_bytes)
+        html=res.text
+    return html
+    
 def keepSession(url, cookie):
     # 保持服务器上的session长久有效
     import time
