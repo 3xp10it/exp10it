@@ -2186,7 +2186,7 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
 
 def send_http_package(string,http_or_https):
     # 发http请求包封装函数,string可以是burpsuite等截包工具中拦截到的包
-    # string最好是urlencode过的,当然没有urlencode的也是可以正常工作的,只不过一般浏览器会将空格等字符先urlencode再发送
+    # string要求是burpsuite中抓包抓到的字符串
     # 返回的内容为html
     string=re.sub(r"^\s","",string)
     uri_line=re.search(r"(^.+)",string).group(1)
