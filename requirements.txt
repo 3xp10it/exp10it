@@ -1,0 +1,16 @@
+requests
+bs4
+scrapy_splash
+colorama
+pymysql
+chardet
+requests
+blessings
+MechanicalSoup
+progressive
+selenium
+Scrapy
+MySQL-python
+MySQLdb
+dnspython
+lxml
