@@ -6,6 +6,8 @@
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
+import requests
+import random
 
 
 class CrawlerSpiderMiddleware(object):
@@ -54,3 +56,20 @@ class CrawlerSpiderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+'''
+class ProxyMiddleware(object):
+    def process_request(self, request, spider):
+        IPPOOL=eval(requests.get("http://192.168.89.190:8000/?types=0&count=50").text)
+        random_choose=random.choice(IPPOOL)
+        input("1111111111111111111111111111111111")
+        print(random_choose)
+        input("222222222222222222222222222222222")
+        print(request.meta)
+        input("3333333333333333333333333333333333")
+        logger.info("request.meta: %s", request.meta)
+        proxy_addr="http://"+str(random_choose[0])+":"+str(random_choose[1])
+        request.meta['splash']['args']['proxy'] = proxy_addr
+'''
+
+

@@ -8,14 +8,16 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
+from scrapy.spiders import Spider
 
-SPLASH_URL = 'http://127.0.0.1:8050'
+SPLASH_URL = 'http://192.168.89.190:8050'
 BOT_NAME = 'crawler'
 
 DOWNLOADER_MIDDLEWARES = {
     'scrapy_splash.SplashCookiesMiddleware': 723,
     'scrapy_splash.SplashMiddleware': 725,
     'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
+    #'crawler.middlewares.ProxyMiddleware': 843,
 }
 
 SPIDER_MIDDLEWARES = {

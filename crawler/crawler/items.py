@@ -16,3 +16,7 @@ class CrawlerItem(scrapy.Item):
     content = scrapy.Field()
     current_url = scrapy.Field()
     resources_file_list = scrapy.Field()
+    # eg.sub_domains_list=['http://wit.freebuf.com']
+    sub_domains_list = scrapy.Field()
+    like_admin_login_url=scrapy.Field()
+    like_webshell_url=scrapy.Field()

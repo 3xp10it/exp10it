@@ -14,24 +14,24 @@ def get_string_from_command(command):
 
 
 
-# systemPlatform为操作系统种类,x86orx64为系统位数
+# SystemPlatform为操作系统种类,x86orx64为系统位数
 #"Linux,Darwin,Windows"
-systemPlatform = platform.system()
+SystemPlatform = platform.system()
 x86orx64 = 0
-if systemPlatform in ["Linux", "Darwin"]:
+if SystemPlatform in ["Linux", "Darwin"]:
     a = get_string_from_command("uname -a")
     if re.search(r"x86_64", a):
         x86orx64 = 64
     else:
         x86orx64 = 32
-elif systemPlatform == "Windows":
+elif SystemPlatform == "Windows":
     if os.path.exists("c:\\Program Files(x86)"):
         x86orx64 = 64
     else:
         x86orx64 = 32
 
 
-def moduleExist(moduleName):
+def module_exist(moduleName):
     # 检测python模块是否已经安装
     # 有则返回True
     # 无则返回False
@@ -40,7 +40,7 @@ def moduleExist(moduleName):
     import sys
     out = get_string_from_command('''python3 -c "help('%s');"''' % moduleName)
     a = get_string_from_command("python3 --help")
-    if systemPlatform in ["Linux", "Darwin"]:
+    if SystemPlatform in ["Linux", "Darwin"]:
         if re.search(r"not found", a, re.I):
             print("Attention! I can not find `python3` in path,may be you didn't install it or didn't add it to PATH")
             sys.exit(1)
@@ -57,45 +57,45 @@ def moduleExist(moduleName):
         return True
 
 
-if not moduleExist("pymysql"):
+if not module_exist("pymysql"):
     os.system("pip3 install pymysql")
 
-if not moduleExist("chardet"):
+if not module_exist("chardet"):
     # 编码识别模块,eg.print(chardet.detect(bytesObject))
     os.system("pip3 install chardet")
-if not moduleExist("requests"):
+if not module_exist("requests"):
     os.system("pip3 install requests")
-if not moduleExist("bs4"):
+if not module_exist("bs4"):
     os.system("pip3 install bs4")
 
-if not moduleExist("blessings"):
+if not module_exist("blessings"):
     os.system("pip3 install blessings")
 
-if not moduleExist("mechanicalsoup"):
+if not module_exist("mechanicalsoup"):
     os.system("pip3 install MechanicalSoup")
 
-if not moduleExist("lxml"):
+if not module_exist("lxml"):
     if re.search(r"debian", get_string_from_command("uname -a"), re.I):
         os.system("apt-get install -y libxml2-dev libxslt1-dev zlib1g-dev")
     os.system("pip3 install lxml")
 
 
-if not moduleExist("progressive"):
+if not module_exist("progressive"):
     os.system("pip3 install progressive")
 
-if not moduleExist("selenium"):
+if not module_exist("selenium"):
     os.system("pip3 install selenium")
 
-if not moduleExist("colorama"):
+if not module_exist("colorama"):
     os.system("pip3 install colorama")
 
-if not moduleExist("wget"):
+if not module_exist("wget"):
     os.system("pip3 install wget")
 
-if not moduleExist("scrapy"):
+if not module_exist("scrapy"):
     os.system("pip3 install scrapy")
 
-if not moduleExist("scrapy_splash"):
+if not module_exist("scrapy_splash"):
     os.system("pip3 install scrapy_splash")
 
 
@@ -121,7 +121,7 @@ from scrapy_splash import SplashRequest
 
 
 from colorama import *
-if not "Windows" == systemPlatform:
+if not "Windows" == SystemPlatform:
     from blessings import Terminal
     from progressive.bar import Bar
     from progressive.tree import ProgressTree, Value, BarDescriptor
@@ -144,20 +144,34 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
 
 
-def getModulePath():
+def get_module_path():
     # 得到当前文件的路径
     tmpPath = os.path.abspath(__file__)
     modulePath = tmpPath[:-len(__file__.split("/")[-1])]
     return modulePath
 
+def get_home_path():
+    # python在os.path.exists("~")时不认识~目录,于是写出这个函数
+    # open("~/.zshrc")函数也不认识~
+    # 但是os.system认识~,可能只有os.system认识
+    # 也即操作系统认识~,但是python不认识~
+    # macOS下的~是/var/root,ubuntu下的~是/root
+    # 返回~目录的具体值,eg./var/root
+    #a=get_string_from_command("cd ~ && pwd")
+    # 后来发现os.path.expanduser函数可以认识~
+    return os.path.expanduser("~")
+
+HOME_PATH = get_home_path()
+
+
 
 # 下面将ModulePath引出,以后发布exp10it自动化工具时就不用将cms_identify和dicts文件夹放到github上了,已经打包到
 # pypi的exp10it模块中,安装时[cms_identify和dicts文件夹]会安装到如/usr/local/lib/python3.5/dist-packages/目录下
-ModulePath = getModulePath()
-#configIniPath = ModulePath + "config.ini"
-workPath = os.getcwd()
-configIniPath = workPath + "/config.ini"
-logFolderPath = workPath + "/log"
+ModulePath = get_module_path()
+WORK_PATH = os.getcwd()
+CONFIG_PATH = HOME_PATH+"/.3xp10it"
+CONFIG_INI_PATH = HOME_PATH+"/.3xp10it"+ "/config.ini"
+LOG_FOLDER_PATH = HOME_PATH+"/.3xp10it"+ "/log"
 
 DB_SERVER=""
 DB_USER=""
@@ -196,17 +210,17 @@ def get_key_value_from_config_file(file, section, key_name):
             return None
 
 
-if os.path.exists(configIniPath):
+if os.path.exists(CONFIG_INI_PATH):
     DB_SERVER= eval(get_key_value_from_config_file(
-        configIniPath, 'default', 'DB_SERVER'))
+        CONFIG_INI_PATH, 'default', 'DB_SERVER'))
     DB_USER= eval(get_key_value_from_config_file(
-        configIniPath, 'default', 'DB_USER'))
+        CONFIG_INI_PATH, 'default', 'DB_USER'))
     DB_PASS= eval(get_key_value_from_config_file(
-        configIniPath, 'default', 'DB_PASS'))
+        CONFIG_INI_PATH, 'default', 'DB_PASS'))
     DELAY= eval(get_key_value_from_config_file(
-        configIniPath, 'default', 'DELAY'))
+        CONFIG_INI_PATH, 'default', 'DELAY'))
     SCAN_WAY= eval(get_key_value_from_config_file(
-        configIniPath, 'default', 'SCAN_WAY'))
+        CONFIG_INI_PATH, 'default', 'SCAN_WAY'))
 
 
 # 常见非web服务端口
@@ -345,21 +359,6 @@ domain_suf_list = ['.aaa', '.aarp', '.abarth', '.abb', '.abbott', '.abbvie', '.a
                    '.wolterskluwer', '.woodside', '.work', '.works', '.world', '.wow', '.ws', '.wtc', '.wtf', '.xbox', '.xerox',
                    '.xfinity', '.xihuan', '.xin', '.xperia', '.xxx', '.xyz', '.yachts', '.yahoo', '.yamaxun', '.yandex', '.ye', '.yodobashi', '.yoga', '.yokohama', '.you', '.youtube', '.yt', '.yun', '.za', '.zappos', '.zara', '.zero', '.zip', '.zippo', '.zm', '.zone', '.zuerich', '.zw']
 
-
-def getHomePath():
-    # python在os.path.exists("~")时不认识~目录,于是写出这个函数
-    # open("~/.zshrc")函数也不认识~
-    # 但是os.system认识~,可能只有os.system认识
-    # 也即操作系统认识~,但是python不认识~
-    # macOS下的~是/var/root,ubuntu下的~是/root
-    # 返回~目录的具体值,eg./var/root
-    #a=get_string_from_command("cd ~ && pwd")
-    # 后来发现os.path.expanduser函数可以认识~
-    a = os.path.expanduser("~")
-    return a
-
-
-homePath = getHomePath()
 
 
 def combileMyParaAndArgvPara(command):
@@ -528,7 +527,6 @@ def base64Str(string):
     return base64Str
 
 
-
 class CLIOutput(object):
     # 一般用法:正常运行要输出的内容用该类的good_print函数,显示运行状态用new_thread_bottom_print函数,其中
     # 如果要终结new_thread_bottom_print线程,将sefl.stop_order置1即可
@@ -614,8 +612,8 @@ class CLIOutput(object):
         return int(cr[1]), int(cr[0])
 
     def __init__(self):
-        # 这里为什么要调用scanInit()函数呢,奇怪,可能是手抖
-        # scanInit()
+        # 这里为什么要调用scan_init()函数呢,奇怪,可能是手抖
+        # scan_init()
         self.lastLength = 0
         self.lastOutput = ''
         self.lastInLine = False
@@ -1395,6 +1393,44 @@ def post_requests(url, data, headers):
     returnValue = requests.post(url, data, headers, timeout=10)
     return returnValue
 
+def get_all_abs_path_file_name(folder, ext_list):
+    # ext_list为空时,得到目录下的所有绝对路径形式的文件名,不返回空文件夹名
+    # ext_list为eg.['jpg','png']
+    # eg.folder="~"时,当~目录下有一个文件夹a,一个文件2.txt,a中有一个文件1.txt
+    # 得到的函数返回值为['a/1.txt','2.txt']
+
+    tmp_get_file_name_value = [0]
+    tmp_all_file_name_list = []
+
+    def get_all_abs_path_file_name_inside_func(f,e):
+        folder=f
+        ext_list=e
+        import os
+        tmp_get_file_name_value[0] += 1
+        if tmp_get_file_name_value[0] == 1:
+            if folder[-1] == '/':
+                root_dir = folder[:-1]
+            else:
+                root_dir = folder
+
+        allfile = os.listdir(folder)
+
+        for each in allfile:
+            each_abspath = os.path.join(folder, each)
+            if os.path.isdir(each_abspath):
+                get_all_abs_path_file_name_inside_func(each_abspath, ext_list)
+            else:
+                if len(ext_list) == 0:
+                    tmp_all_file_name_list.append(each_abspath)
+                else:
+                    for each_ext in ext_list:
+                        if(filename.split('.')[-1] == each_ext):
+                            # print filename
+                            tmp_all_file_name_list.append(each_abspath)
+        return tmp_all_file_name_list
+    return get_all_abs_path_file_name_inside_func(folder,ext_list)
+
+
 
 def get_all_file_name(folder, ext_list):
     # ext_list为空时,得到目录下的所有文件名,不返回空文件夹名
@@ -1406,10 +1442,9 @@ def get_all_file_name(folder, ext_list):
     tmp_get_file_name_value = [0]
     tmp_all_file_name_list = []
 
-    def get_all_file_name_inside_func():
-        #global tmp_get_file_name_value
-        #global root_dir
-        #global tmp_all_file_name_list
+    def get_all_file_name_inside_func(f,e):
+        folder=f
+        ext_list=e
         import os
         tmp_get_file_name_value[0] += 1
         if tmp_get_file_name_value[0] == 1:
@@ -1422,32 +1457,18 @@ def get_all_file_name(folder, ext_list):
         for each in allfile:
             each_abspath = os.path.join(folder, each)
             if os.path.isdir(each_abspath):
-                get_all_file_name(each_abspath, ext_list)
+                get_all_file_name_inside_func(each_abspath, ext_list)
             else:
-                # print each_abspath
-                if len(each_abspath) > len(root_dir) + \
-                        1 + len(os.path.basename(each)):
-                    filename = each_abspath[len(root_dir) + 1:]
-                    # print filename
-                    if len(ext_list) == 0:
-                        tmp_all_file_name_list.append(filename)
-                    else:
-                        for each_ext in ext_list:
-                            if(filename.split('.')[-1] == each_ext):
-                                # print filename
-                                tmp_all_file_name_list.append(filename)
+                if len(ext_list) == 0:
+                    tmp_all_file_name_list.append(each)
                 else:
-                    # print each
-                    if len(ext_list) == 0:
-                        tmp_all_file_name_list.append(each)
-                    else:
-                        for each_ext in ext_list:
-                            if(each.split('.')[-1] == each_ext):
-                                # print each
-                                tmp_all_file_name_list.append(each)
+                    for each_ext in ext_list:
+                        if(each.split('.')[-1] == each_ext):
+                            # print each
+                            tmp_all_file_name_list.append(each)
 
         return tmp_all_file_name_list
-    return get_all_file_name_inside_func()
+    return get_all_file_name_inside_func(folder,ext_list)
 
 
 def save2github(file_abs_path, repo_name, comment):
@@ -1455,7 +1476,7 @@ def save2github(file_abs_path, repo_name, comment):
     # arg1:文件绝对路经
     # arg2:远程仓库名
     # 提交的commit注释
-    local_resp_path = homePath + "/" + repo_name
+    local_resp_path = HOME_PATH + "/" + repo_name
     filename = os.path.basename(file_abs_path)
     remote_resp_url = "https://github.com/3xp10it/%s.git" % repo_name
     if os.path.exists(local_resp_path) is False:
@@ -1968,17 +1989,17 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
 
     if by == "seleniumPhantomJS":
 
-        if moduleExist("selenium") is False:
+        if module_exist("selenium") is False:
             os.system("pip3 install selenium")
         from selenium import webdriver
         from selenium.common.exceptions import TimeoutException
         result = get_string_from_command("phantomjs --help")
         if re.search(r"(not found)|(不是内部或外部命令)|(Unknown command)", result,re.I):
-            if systemPlatform == "Darwin":
+            if SystemPlatform == "Darwin":
                 os.system("brew install phantomjs")
-            elif systemPlatform == 'Linux':
+            elif SystemPlatform == 'Linux':
                 os.system("apt-get install phantomjs")
-            elif systemPlatform == 'Windows':
+            elif SystemPlatform == 'Windows':
                 import wget
                 try:
                     wget.download(
@@ -2184,6 +2205,7 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
             'currentUrl':current_url}
         return return_value
 
+
 def send_http_package(string,http_or_https):
     # 发http请求包封装函数,string可以是burpsuite等截包工具中拦截到的包
     # string要求是burpsuite中抓包抓到的字符串
@@ -2204,8 +2226,10 @@ def send_http_package(string,http_or_https):
         res=requests.post(url,headers=header_dict,data=post_string_bytes)
         html=res.text
     return html
-    
-def keepSession(url, cookie):
+
+
+
+def keep_session(url, cookie):
     # 保持服务器上的session长久有效
     import time
     while 1:
@@ -2420,10 +2444,10 @@ your python module's name,so I will exit:)")
 
 def blog():
     # 便捷写博客(jekyll+github)函数
-    if systemPlatform == "Windows":
+    if SystemPlatform == "Windows":
         print("Sorry,current function 'def blog():' does not support windows")
         return
-    if systemPlatform == "Darwin":
+    if SystemPlatform == "Darwin":
         a = get_string_from_command("gsed")
         if re.search(r"command not found", a, re.I):
             print("Please install gnu-sed,eg.brew install gnu-sed")
@@ -2444,7 +2468,7 @@ def blog():
     title1 = title.replace(' ', '-')
     filename = str(date) + '-' + title1 + '.md'
 
-    file_abs_path = homePath + "/myblog/_posts/" + filename
+    file_abs_path = HOME_PATH + "/myblog/_posts/" + filename
     cmd = "cp ~/myblog/_posts/*隐藏webshell.md %s" % file_abs_path
     os.system(cmd)
     ubuntuCmd = "sed -i 's/^title.*/title:      %s/g' %s" % (
@@ -2452,34 +2476,34 @@ def blog():
     #macosCmd="sed -i '' 's/^title.*/title:      %s/g' %s" % (title, file_abs_path)
     macosCmd = "gsed -i 's/^title.*/title:      %s/g' %s" % (
         title, file_abs_path)
-    os.system(ubuntuCmd) if systemPlatform != "Darwin" else os.system(macosCmd)
+    os.system(ubuntuCmd) if SystemPlatform != "Darwin" else os.system(macosCmd)
     ubuntuCmd = "sed -i 's/date:       .*/date:       %s/g' %s" % (
         str(date), file_abs_path)
     #macosCmd="sed -i '' 's/date:       .*/date:       %s/g' %s" % (str(date), file_abs_path)
     macosCmd = "gsed -i 's/date:       .*/date:       %s/g' %s" % (
         str(date), file_abs_path)
-    os.system(ubuntuCmd) if systemPlatform != "Darwin" else os.system(macosCmd)
+    os.system(ubuntuCmd) if SystemPlatform != "Darwin" else os.system(macosCmd)
     ubuntuCmd = "sed -i 's/summary:    隐藏webshell的几条建议/summary:    %s/g' %s" % (
         title, file_abs_path)
     #macosCmd="sed -i '' 's/summary:    隐藏webshell的几条建议/summary:    %s/g' %s" % (title, file_abs_path)
     macosCmd = "gsed -i 's/summary:    隐藏webshell的几条建议/summary:    %s/g' %s" % (
         title, file_abs_path)
-    os.system(ubuntuCmd) if systemPlatform != "Darwin" else os.system(macosCmd)
+    os.system(ubuntuCmd) if SystemPlatform != "Darwin" else os.system(macosCmd)
     ubuntuCmd = "sed -i '11,$d' %s" % file_abs_path
     #macosCmd="sed -i '' '11,$d' %s" % file_abs_path
     macosCmd = "gsed -i '11,$d' %s" % file_abs_path
-    os.system(ubuntuCmd) if systemPlatform != "Darwin" else os.system(macosCmd)
+    os.system(ubuntuCmd) if SystemPlatform != "Darwin" else os.system(macosCmd)
     ubuntuCmd = "sed -i 's/categories: web/categories: %s/g' %s" % (
         categories, file_abs_path)
     #macosCmd="sed -i '' 's/categories: web/categories: %s/g' %s" % (categories, file_abs_path)
     macosCmd = "gsed -i 's/categories: web/categories: %s/g' %s" % (
         categories, file_abs_path)
-    os.system(ubuntuCmd) if systemPlatform != "Darwin" else os.system(macosCmd)
+    os.system(ubuntuCmd) if SystemPlatform != "Darwin" else os.system(macosCmd)
     ubuntuCmd = "sed '/ - webshell/c\\\n%s' %s > /tmp/1" % (
         tags_write_to_file, file_abs_path)
     macosCmd = "gsed '/ - webshell/c\\\n%s' %s > /tmp/1" % (
         tags_write_to_file, file_abs_path)
-    os.system(ubuntuCmd) if systemPlatform != "Darwin" else os.system(macosCmd)
+    os.system(ubuntuCmd) if SystemPlatform != "Darwin" else os.system(macosCmd)
     os.system("cat /tmp/1 > %s && rm /tmp/1" % file_abs_path)
     os.system("/Applications/MacVim.app/Contents/MacOS/Vim %s" % file_abs_path)
 
@@ -2998,6 +3022,106 @@ def get_http_domain_pattern_from_url(url):
     # 正则1句代码话顶6句代码
     return_value = re.sub(r'\.', '\.', http_domain)
     return return_value
+
+def check_url_has_webshell_content(url,content,code,title):
+    y1 = False
+    belong2github = False
+    y2 = ""
+
+    # 过滤掉github.com里面的文件
+    parsed = urlparse(url)
+    pattern = re.compile(r"github.com")
+    if re.search(pattern, parsed.netloc):
+        belong2github = True
+
+    # 根据url中的文件名检测url是否为webshell
+    strange_filename_pattern = re.compile(
+        r"^(http).*(((\d){3,})|(/c99)|((\w){10,})|([A-Za-z]{1,5}[0-9]{1,5})|([0-9]{1,5}[A-Za-z]{1,5})|(/x)|(/css)|(/licen{0,1}se(1|2){0,1}s{0,1})|(hack)|(fuck)|(h4ck)|(/diy)|(/wei)|(/2006)|(/newasp)|(/myup)|(/log)|(/404)|(/phpspy)|(/b374k)|(/80sec)|(/90sec)|(/r57)|(/b4che10r)|(X14ob-Sh3ll)|(aspxspy)|(server_sync))\.((php(3|4|5){0,1})|(phtml)|(asp)|(asa)|(cer)|(cdx)|(aspx)|(ashx)|(asmx)|(ascx)|(jsp)|(jspx)|(jspf))$",
+        re.I)
+    if re.match(
+            strange_filename_pattern,
+            url) and not belong2github and len(content) < 8000:
+        y1 = True
+
+    # 根据title检测url是否为webshell
+    strange_title_pattern = re.compile(
+        r".*((shell)|(b374k)|(sec)|(sh3ll)|(blood)|(r57)|(BOFF)|(spy)|(hack)|(h4ck)).*",
+        re.I)
+    if title is not None and code == 200:
+        if re.search(
+                strange_title_pattern,
+                title) and not belong2github and len(content) < 8000:
+            y1 = True
+
+    if title is None and code == 200:
+        # 如果title为None,说明有可能是webshell,或者是正常的配置文件
+        if len(content) == 0:
+            new_http_domain = get_http_domain_pattern_from_url(url)
+            new_http_domain = new_http_domain[:-2]
+            # print new_http_domain
+            # 配置文件匹配方法
+            not_webshell_pattern = re.compile(
+                r"%s/(((database)|(data)|(include))/)?((config)|(conn))\.((asp)|(php)|(aspx)|(jsp))" %
+                new_http_domain, re.I)
+            if re.search(not_webshell_pattern, url):
+                y1 = False
+            else:
+                y1 = True
+                y2 = "direct_bao"
+
+        caidao_jsp_pattern = re.compile(r"->\|\|<-")
+        if 0 < len(content) < 50 and re.search(caidao_jsp_pattern, content):
+            # jsp的菜刀一句话
+            y1 = True
+            y2 = "direct_bao"
+
+    # 根据返回的html内容中是否有关键字以及返回内容大小判断是否为webshell
+    strang_filecontent_pattern = re.compile(
+        r".*((shell)|(hack)|(h4ck)|(b374k)|(c99)|(spy)|(80sec)|(hat)|(black)|(90sec)|(blood)|(r57)|(b4che10r)|(X14ob-Sh3ll)|(server_sync)).*",
+        re.I)
+    if re.search(strang_filecontent_pattern, content) and len(content) < 8000:
+        y1 = True
+
+    # 如果正常返回大小很小,说明有可能是一句话
+    # 1.返回结果为200且文件内容少且有关键字的为大马
+    # 2.返回结果为200且文件内容少且没有关键字的为一句话小马
+    if y1 and 200 == code:
+        webshell_flag = re.compile(r"(c:)|(/home)|(/var)|(/phpstudy)", re.I)
+        if len(content) < 8000 and re.search(
+                r'''method=('|")?post('|")?''', content):
+            y2 = "biaodan_bao"
+        if len(content) > 8000 and re.search(
+                r'''method=('|")?post('|")?''',
+                content) and re.search(
+                webshell_flag,
+                content):
+            y2 = "bypass"
+
+    # 如果返回码为404且返回内容大小较小但是返回结果中没有url中的文件名,判定为404伪装小马
+    if 404 == code and len(content) < 600:
+        url = re.sub(r"(\s)$", "", url)
+        webshell_file_name = url.split("/")[-1]
+        pattern = re.compile(r"%s" % webshell_file_name, re.I)
+        if re.search(pattern, content):
+            y1 = False
+            y2 = ""
+        else:
+            if re.search(r'''method=('|")?post('|")?''', content) is None:
+                y1 = True
+                y2 = "direct_bao"
+            else:
+                y1 = True
+                y2 = "biaodan_bao"
+
+    return {
+        'y1': y1,
+        'y2': '%s' % y2,
+        'y3': {
+            "code": code,
+            "title": title,
+            "content": content}}
+
+
 
 
 def check_webshell_url(url):
@@ -4168,6 +4292,25 @@ def set_column_name_scan_module_unfinished(column_name,scan_way):
                 tmpSql="update %s set %s='0'" % (each_table,column_name)
                 execute_sql_in_db(tmpSql,DB_NAME)
 
+def get_start_url_urls_table(start_url):
+    # eg.http://www.baidu.com --> www_baidu_com_urls
+    # eg.http://www.baidu.com/ --> www_baidu_com_urls
+    # eg.http://www.baidu.com/cms/ --> www_baidu_com_cms_urls
+    # eg.http://www.baidu.com/1.php --> www_baidu_com_urls
+    # eg.http://www.baidu.com/cms --> www_baidu_com_cms_urls
+    # eg.http://www.baidu.com/cms/1.php --> www_baidu_com_cms_urls
+    http_domain=get_http_domain_from_url(start_url)
+    if start_url==http_domain:
+        return http_domain.split("/")[-1].replace(".","_")+"_urls"
+    elif start_url[-1]=="/" and start_url[:-1]!=http_domain:
+        return start_url[:-1].split("://")[-1].replace("/",".").replace(".","_")+"_urls"
+    elif start_url[-1]=="/" and start_url[:-1]==http_domain:
+        return http_domain.split("/")[-1].replace(".","_")+"_urls"
+    elif start_url[-1]!="/" and "." in start_url.split("/")[-1]:
+        _len=len(start_url.split("/")[-1])
+        return get_start_url_urls_table(start_url[:-_len])
+    elif start_url[-1]!="/" and "." not in start_url.split("/")[-1]:
+        return get_start_url_urls_table(start_url+"/")
 
 def database_init():
     # 本地数据库初始化,完成数据库配置和建立数据(数据库和targets+first_targets表),以及目标导入
@@ -4205,7 +4348,7 @@ def database_init():
             os.system("echo flush privileges | mysql")
 
     print("database init process,database and tables will be created here...")
-    config_file_abs_path = configIniPath
+    config_file_abs_path = CONFIG_INI_PATH
     with open(config_file_abs_path, 'r+') as f:
         content = f.read()
     if DB_SERVER=="":
@@ -4266,7 +4409,6 @@ cdn_scaned varchar(50) not null default 1,\
 port_scan_info text not null,port_scaned varchar(50) not null default 1,\
 risk_scan_info mediumtext not null,\
 risk_scaned varchar(50) not null default 1,\
-urls mediumtext not null,\
 script_type varchar(50) not null,\
 script_type_scaned varchar(50) not null default 1,\
 dirb_info mediumtext not null,dirb_scaned varchar(50) not null default 1,\
@@ -4284,8 +4426,6 @@ portBruteCrack_info text not null,portBruteCrack_scaned varchar(50) not null def
 whois_info text not null,whois_scaned varchar(50) not null default 1,\
 resource_files text not null,\
 scan_finished varchar(50) not null default 0,\
-pang_domains text not null,\
-sub_domains text not null,\
 get_pang_domains_finished varchar(50) not null default 1,\
 get_sub_domains_finished varchar(50) not null default 1,\
 pang_domains_crawl_scaned varchar(50) not null default 1,\
@@ -4327,7 +4467,6 @@ cdn_scaned varchar(50) not null default 1,\
 port_scan_info text not null,port_scaned varchar(50) not null default 1,\
 risk_scan_info mediumtext not null,\
 risk_scaned varchar(50) not null default 1,\
-urls mediumtext not null,\
 script_type varchar(50) not null,\
 script_type_scaned varchar(50) not null default 1,\
 dirb_info mediumtext not null,dirb_scaned varchar(50) not null default 1,\
@@ -4345,8 +4484,6 @@ portBruteCrack_info text not null,portBruteCrack_scaned varchar(50) not null def
 whois_info text not null,whois_scaned varchar(50) not null default 1,\
 resource_files text not null,\
 scan_finished varchar(50) not null default 0,\
-pang_domains text not null,\
-sub_domains text not null,\
 get_pang_domains_finished varchar(50) not null default 1,\
 get_sub_domains_finished varchar(50) not null default 1,\
 pang_domains_crawl_scaned varchar(50) not null default 1,\
@@ -4418,8 +4555,8 @@ input 'n|N' for adding no targets and use the exists targets in former db")
 
                 # 保持session不失效
                 if cookie!="":
-                    keepSessionThread = MyThread(keepSession, (start_url, cookie))
-                    keepSessionThread.start()
+                    keep_session_thread = MyThread(keep_session, (start_url, cookie))
+                    keep_session_thread.start()
 
                 print("已更新配置文件中的cookie,如果你之后想更新cookie,可直接在配置文件中修改")
 
@@ -4440,7 +4577,6 @@ cdn_scaned varchar(50) not null default 1,\
 port_scan_info text not null,port_scaned varchar(50) not null default 1,\
 risk_scan_info mediumtext not null,\
 risk_scaned varchar(50) not null default 1,\
-urls mediumtext not null,\
 script_type varchar(50) not null,\
 script_type_scaned varchar(50) not null default 1,\
 dirb_info mediumtext not null,dirb_scaned varchar(50) not null default 1,\
@@ -4466,7 +4602,6 @@ cdn_scaned varchar(50) not null default 1,\
 port_scan_info text not null,port_scaned varchar(50) not null default 1,\
 risk_scan_info mediumtext not null,\
 risk_scaned varchar(50) not null default 1,\
-urls mediumtext not null,\
 script_type varchar(50) not null,\
 script_type_scaned varchar(50) not null default 1,\
 dirb_info mediumtext not null,dirb_scaned varchar(50) not null default 1,\
@@ -4501,8 +4636,7 @@ scan_finished varchar(50) not null default 0)" % sub_table_name
                     print("SCAN_WAY setup error,not in 1-4")
 
                 # 创建目标urls表.eg:www_baidu_com_urls
-                target_urls_table_name = target.split(
-                    '/')[-1].replace(".", "_") + "_urls"
+                target_urls_table_name = get_start_url_urls_table(start_url)
                 sql = "create table `%s`(url varchar(250) not null primary key,code varchar(10) not null,\
 title varchar(100) not null,content mediumtext not null,has_sqli varchar(50) not null,\
 is_upload_url varchar(50) not null,\
@@ -4564,8 +4698,8 @@ default[n]")
 
                 # 保持session不失效
                 if cookie!="":
-                    keepSessionThread = MyThread(keepSession, (target, cookie))
-                    keepSessionThread.start()
+                    keep_session_thread = MyThread(keep_session, (target, cookie))
+                    keep_session_thread.start()
 
                 print("已更新配置文件中的cookie,如果你之后想更新cookie,可直接在配置文件中修改")
 
@@ -4585,7 +4719,6 @@ cdn_scaned varchar(50) not null default 1,\
 port_scan_info text not null,port_scaned varchar(50) not null default 1,\
 risk_scan_info mediumtext not null,\
 risk_scaned varchar(50) not null default 1,\
-urls mediumtext not null,\
 script_type varchar(50) not null,\
 script_type_scaned varchar(50) not null default 1,\
 dirb_info mediumtext not null,dirb_scaned varchar(50) not null default 1,\
@@ -4611,7 +4744,6 @@ cdn_scaned varchar(50) not null default 1,\
 port_scan_info text not null,port_scaned varchar(50) not null default 1,\
 risk_scan_info mediumtext not null,\
 risk_scaned varchar(50) not null default 1,\
-urls mediumtext not null,\
 script_type varchar(50) not null,\
 script_type_scaned varchar(50) not null default 1,\
 dirb_info mediumtext not null,dirb_scaned varchar(50) not null default 1,\
@@ -4632,7 +4764,7 @@ scan_finished varchar(50) not null default 0)" % sub_table_name
 
                 # 这里改成无论何种扫描方式都建立sub表,因为爬虫模块会爬到子站,将爬到的子站放到sub表中对应字段中
                 # 这里改成无论何种扫描方式都建立pang表,因为后面可能有对pang表的访问
-                SCAN_WAY=eval(get_key_value_from_config_file(configIniPath, 'default', 'SCAN_WAY'))
+                SCAN_WAY=eval(get_key_value_from_config_file(CONFIG_INI_PATH, 'default', 'SCAN_WAY'))
                 if SCAN_WAY in [1, 2, 3, 4]:
                     if not domain_is_ip:
                         execute_sql_in_db(sql_pang,DB_NAME)
@@ -4647,8 +4779,7 @@ scan_finished varchar(50) not null default 0)" % sub_table_name
                     print("SCAN_WAY setup error,not in 1-4")
 
                 # 创建目标urls表.eg:www_baidu_com_urls
-                target_urls_table_name = target.split(
-                    '/')[-1].replace(".", "_") + "_urls"
+                target_urls_table_name = get_start_url_urls_table(start_url)
                 sql = "create table `%s`(url varchar(250) not null primary key,code varchar(10) not null,\
 title varchar(100) not null,content mediumtext not null,has_sqli varchar(50) not null,\
 is_upload_url varchar(50) not null,\
@@ -4775,18 +4906,16 @@ http_domain varchar(70) not null)" % target_urls_table_name
                 set_column_name_scan_module_unfinished("cdn_scaned",SCAN_WAY)
 
             if '2' in selectionsList or SCAN_WAY in [1,3]:
-                sqlList=[]
                 tmpSql="update %s set get_pang_domains_finished='0'" % FIRST_TARGETS_TABLE_NAME
+                execute_sql_in_db(tmpSql,DB_NAME) 
                 tmpSql="update %s set get_pang_domains_finished='0'" % TARGETS_TABLE_NAME
-                for each in sqlList:
-                    execute_sql_in_db(each,DB_NAME) 
+                execute_sql_in_db(tmpSql,DB_NAME) 
 
             if '3' in selectionsList or SCAN_WAY in [2,3]:
-                sqlList=[]
                 tmpSql="update %s set get_sub_domains_finished='0'" % FIRST_TARGETS_TABLE_NAME
+                execute_sql_in_db(tmpSql,DB_NAME) 
                 tmpSql="update %s set get_sub_domains_finished='0'" % TARGETS_TABLE_NAME
-                for each in sqlList:
-                    execute_sql_in_db(each,DB_NAME) 
+                execute_sql_in_db(tmpSql,DB_NAME) 
 
             if '4' in selectionsList:
                 set_column_name_scan_module_unfinished("crawl_scaned",SCAN_WAY)
@@ -4864,7 +4993,7 @@ def collect_urls_from_url(url,by="seleniumPhantomJS"):
     all_uris = []
     return_all_urls = []
     cookie = ""
-    if os.path.exists(configIniPath):
+    if os.path.exists(CONFIG_INI_PATH):
         from urllib.parse import urlparse
         cookie = get_url_cookie(url)
     if "^" in url:
@@ -4993,7 +5122,7 @@ def collect_urls_from_html(content,url):
     all_uris = []
     return_all_urls = []
     cookie = ""
-    if os.path.exists(configIniPath):
+    if os.path.exists(CONFIG_INI_PATH):
         from urllib.parse import urlparse
         cookie = get_url_cookie(url)
 
@@ -5182,6 +5311,22 @@ def post_html_handler(html):
         return
 
 
+def url_is_sub_domain_to_http_domain(url,http_domain):
+    main_domain_prefix = re.search(
+        r"http(s)?://([^\.]*)\.([^\./]*)",
+        http_domain).group(2)
+    main_domain_key_value = re.search(
+        r"http(s)?://([^\.]*)\.([^\./]*)", http_domain).group(3)
+    if re.match(
+        r"http(s)?://[^\.]*(?<!%s)\.%s" %
+        (main_domain_prefix,
+         main_domain_key_value),
+            url) and get_domain_key_value_from_url(url) == get_domain_key_value_from_url(http_domain):
+        return True
+    return False
+
+
+
 def crawl_url(url):
     global DB_NAME
     # 爬虫,可获取url对应网站的所有可抓取的url和所有网页三元素:code,title,content
@@ -5284,7 +5429,7 @@ def crawl_url(url):
                 # http_domain='http://www.freebuf.com'对应的urls列,这样要在两个表中的urls都填上此处的url
                 # www.freebuf.com的旁站eg.http://bar.freebuf.com只要在www_freebuf_com_pang表中的urls列中填写此处
                 # 的url,targets表或first_targets表中没有旁站bar.freebuf.com对应的项目
-                auto_write_string_to_sql(current_url,eval(get_key_value_from_config_file(configIniPath,'default','DB_NAME')),table_name[0],"urls","http_domain",http_domain)
+                auto_write_string_to_sql(current_url,eval(get_key_value_from_config_file(CONFIG_INI_PATH,'default','DB_NAME')),table_name[0],"urls","http_domain",http_domain)
             '''
             # 下面将当前url写入如www_freebuf_com_pang或www_freebuf_com_sub表的urls列中
             if url_belong_to_main_target[0]:
@@ -5518,7 +5663,7 @@ def crawl_url(url):
     end = time.time()
     print(end - start)
     print(len(domain_urls))
-    # auto_write_string_to_sql("1",eval(get_key_value_from_config_file(configIniPath,'default','DB_NAME')),target_urls_table_name)
+    # auto_write_string_to_sql("1",eval(get_key_value_from_config_file(CONFIG_INI_PATH,'default','DB_NAME')),target_urls_table_name)
     # threads=15(pool_size=15,for_range=20) 4.15,16
     # threads=20(pool_size=20,for_range=20) 9.2,16
     # threads=10(pool_size=10,for_range=20) 4.2,16
@@ -5544,14 +5689,14 @@ def crawl_url(url):
             if each not in sub_domain_list:
 
                 # 将新的子站存入本地文件
-                if not os.path.exists(logFolderPath):
-                    os.system("mkdir %s" % logFolderPath)
-                if not os.path.exists("%s/sub" % logFolderPath):
-                    os.system("cd %s && mkdir sub" % logFolderPath)
+                if not os.path.exists(LOG_FOLDER_PATH):
+                    os.system("mkdir %s" % LOG_FOLDER_PATH)
+                if not os.path.exists("%s/sub" % LOG_FOLDER_PATH):
+                    os.system("cd %s && mkdir sub" % LOG_FOLDER_PATH)
 
                 os.system(
                     "echo %s >> %s" %
-                    (each.split("/")[-1], logFolderPath + "/sub/" + url_main_target_sub_table_name + ".txt"))
+                    (each.split("/")[-1], LOG_FOLDER_PATH + "/sub/" + url_main_target_sub_table_name + ".txt"))
 
                 if each != url_main_target[0]:
                     # 如果不为主要目标则存入数据库
@@ -5670,7 +5815,7 @@ def crawl_scan(start_url):
         sql = "select http_domain from `%s`" % (
             target.split("/")[-1].replace(".", "_") + "_pang")
         result = execute_sql_in_db(
-            sql, eval(get_key_value_from_config_file(configIniPath, 'default', 'DB_NAME')))
+            sql, eval(get_key_value_from_config_file(CONFIG_INI_PATH, 'default', 'DB_NAME')))
         if len(result) > 0:
             for each in result:
                 if each[0] != "":
@@ -5784,31 +5929,31 @@ def mail_msg_to(msg, mailto='config', subject='test', user='config', password='c
     # user,password是用户名密码,其中user要带上邮箱地址后缀
 
     if mailto == user == password == 'config':
-        if not os.path.exists(configIniPath):
-            os.system("touch %s" % configIniPath)
-        with open(configIniPath, "r+") as f:
+        if not os.path.exists(CONFIG_INI_PATH):
+            os.system("touch %s" % CONFIG_INI_PATH)
+        with open(CONFIG_INI_PATH, "r+") as f:
             content = f.read()
         if re.search(r"mailto", content):
             mailto = eval(get_key_value_from_config_file(
-                configIniPath, 'mail', 'mailto'))
+                CONFIG_INI_PATH, 'mail', 'mailto'))
         else:
             mailto = input("please input email address you want send to:")
             update_config_file_key_value(
-                configIniPath, 'mail', 'mailto', "'" + mailto + "'")
+                CONFIG_INI_PATH, 'mail', 'mailto', "'" + mailto + "'")
         if re.search(r"user", content):
             user = eval(get_key_value_from_config_file(
-                configIniPath, 'mail', 'user'))
+                CONFIG_INI_PATH, 'mail', 'user'))
         else:
             user = input("please input your email account:")
             update_config_file_key_value(
-                configIniPath, 'mail', 'user', "'" + user + "'")
+                CONFIG_INI_PATH, 'mail', 'user', "'" + user + "'")
         if re.search(r"password", content):
             password = eval(get_key_value_from_config_file(
-                configIniPath, 'mail', 'password'))
+                CONFIG_INI_PATH, 'mail', 'password'))
         else:
             password = input("please input your email account password:")
             update_config_file_key_value(
-                configIniPath, 'mail', 'password', "'" + password + "'")
+                CONFIG_INI_PATH, 'mail', 'password', "'" + password + "'")
     import smtplib
     from email.mime.text import MIMEText
     from email.header import Header
@@ -5951,10 +6096,10 @@ def checkvpn():
     import re
     # windows:-n 2
     # linux:-c 2
-    if os.path.exists(configIniPath):
+    if os.path.exists(CONFIG_INI_PATH):
         # forcevpn为1时代表强制要求可访问google才返回1,否则函数返回0
         forcevpn = eval(get_key_value_from_config_file(
-            configIniPath, 'default', 'forcevpn'))
+            CONFIG_INI_PATH, 'default', 'forcevpn'))
         if forcevpn == 1:
             pass
         # 如果forcevpn为0则代表不要求可访问google,直接返回1,表示成功
@@ -5979,10 +6124,10 @@ def ableConnectSite(site):
     import re
     # windows:-n 2
     # linux:-c 2
-    if os.path.exists(configIniPath):
+    if os.path.exists(CONFIG_INI_PATH):
         # forcevpn为1时代表强制要求可访问google才返回1,否则函数返回0
         forcevpn = eval(get_key_value_from_config_file(
-            configIniPath, 'default', 'forcevpn'))
+            CONFIG_INI_PATH, 'default', 'forcevpn'))
         if forcevpn == 1:
             pass
         # 如果forcevpn为0则代表不要求可访问google,直接返回1,表示成功
@@ -6112,7 +6257,7 @@ def get_sqlmap_result_and_save_result(url):
         domain = parsed.hostname
     else:
         domain = url
-    target_folder = homePath + "/.sqlmap/output/" + domain
+    target_folder = HOME_PATH + "/.sqlmap/output/" + domain
     try:
         f = open(target_folder + '/log', "r+")
         log = f.read()
@@ -6211,7 +6356,7 @@ sub_domains_scan_finished = '0' limit 1" % target_table
     elif SCAN_WAY == 4:
         sql = "select start_url from `%s` where scan_finished='0' limit 1" % target_table
     else:
-        print("eval(get_key_value_from_config_file(configIniPath,'default','SCAN_WAY')) error in get_one_target_from_db func")
+        print("eval(get_key_value_from_config_file(CONFIG_INI_PATH,'default','SCAN_WAY')) error in get_one_target_from_db func")
     result = execute_sql_in_db(sql, db)
     if len(result) > 0:
         return result[0][0]
@@ -6344,20 +6489,20 @@ def save_url_to_file(url_list, name):
 def bing_search(query, search_type):
     # the main function to search use bing api
     # search_type: Web, Image, News, Video
-    if os.path.exists(configIniPath):
+    if os.path.exists(CONFIG_INI_PATH):
         pass
     else:
-        os.system("touch %s" % configIniPath)
-    with open(configIniPath, 'r+') as f:
+        os.system("touch %s" % CONFIG_INI_PATH)
+    with open(CONFIG_INI_PATH, 'r+') as f:
         content = f.read()
     if re.search(r"bingapikey", content):
         key = eval(get_key_value_from_config_file(
-            configIniPath, 'default', 'bingapikey'))
+            CONFIG_INI_PATH, 'default', 'bingapikey'))
     else:
         print("please input your bing api key:")
         key = input()
         update_config_file_key_value(
-            configIniPath, 'default', 'bingapikey', "'" + key + "'")
+            CONFIG_INI_PATH, 'default', 'bingapikey', "'" + key + "'")
     query = urllib.parse.quote(query)
     # print "bing_search s query is %s" % query
     # create credential for authentication
@@ -6429,12 +6574,12 @@ def get_pang_domains(start_url):
     print(target)
 
     import os
-    if not os.path.exists(logFolderPath):
-        os.system("mkdir %s" % logFolderPath)
-    if not os.path.exists("%s/pang" % logFolderPath):
-        os.system("cd %s && mkdir pang" % logFolderPath)
+    if not os.path.exists(LOG_FOLDER_PATH):
+        os.system("mkdir %s" % LOG_FOLDER_PATH)
+    if not os.path.exists("%s/pang" % LOG_FOLDER_PATH):
+        os.system("cd %s && mkdir pang" % LOG_FOLDER_PATH)
     domain_pang_file = "%s/pang/%s_pang.txt" % (
-        logFolderPath, domain.replace(".", "_"))
+        LOG_FOLDER_PATH, domain.replace(".", "_"))
     domain_pang_table_name = target.split('/')[-1].replace(".", "_") + "_pang"
     import os
     import socket
@@ -6453,7 +6598,7 @@ def get_pang_domains(start_url):
 
                         # 这里更新各个旁站的cookie
                         forceAskCookie = eval(get_key_value_from_config_file(
-                            configIniPath, 'default', 'forceAskCookie'))
+                            CONFIG_INI_PATH, 'default', 'forceAskCookie'))
                         if forceAskCookie == 1:
                             cookie = input(
                                 "请输入%s的cookie,直接回车表示不输入cookie\n:>" % each)
@@ -6467,13 +6612,13 @@ def get_pang_domains(start_url):
                             else:
                                 cookie = ""
                         update_config_file_key_value(
-                            configIniPath, each, 'cookie', "'" + cookie + "'")
+                            CONFIG_INI_PATH, each, 'cookie', "'" + cookie + "'")
 
                         # 保持session不失效
                         cookie=get_url_cookie(each)
                         if cookie!="":
-                            keepSessionThread = MyThread(keepSession, (each, cookie))
-                            keepSessionThread.start()
+                            keep_session_thread = MyThread(keep_session, (each, cookie))
+                            keep_session_thread.start()
 
                         execute_sql_in_db("insert into `%s`(http_domain,domain) values('%s','%s')" % (domain_pang_table_name, each, each.split("/")[-1]),DB_NAME)
 
@@ -6558,7 +6703,7 @@ http_domain varchar(70) not null)" % each_pang_urls_table_name
 
                 # 这里更新各个旁站的cookie
                 forceAskCookie = eval(get_key_value_from_config_file(
-                    configIniPath, 'default', 'forceAskCookie'))
+                    CONFIG_INI_PATH, 'default', 'forceAskCookie'))
                 if forceAskCookie == 1:
                     cookie = input("请输入%s的cookie,直接回车表示不输入cookie\n:>" % each)
                 else:
@@ -6569,13 +6714,13 @@ http_domain varchar(70) not null)" % each_pang_urls_table_name
                     else:
                         cookie = ""
                 update_config_file_key_value(
-                    configIniPath, each, 'cookie', "'" + cookie + "'")
+                    CONFIG_INI_PATH, each, 'cookie', "'" + cookie + "'")
 
                 # 保持session不失效
                 cookie=get_url_cookie(each)
                 if cookie!="":
-                    keepSessionThread = MyThread(keepSession, (each, cookie))
-                    keepSessionThread.start()
+                    keep_session_thread = MyThread(keep_session, (each, cookie))
+                    keep_session_thread.start()
 
                 execute_sql_in_db("insert into `%s`(http_domain,domain) values('%s','%s')" % (
                     domain.replace(".", "_") + '_pang', each, each.split('/')[-1]),DB_NAME) 
@@ -6675,11 +6820,11 @@ def get_sub_domains(start_url, use_tool="Sublist3r"):
     figlet2file("geting sub domains", 0, True)
 
     root_domain = get_root_domain(domain)
-    if not os.path.exists(logFolderPath):
-        os.system("mkdir %s" % logFolderPath)
-    if not os.path.exists("%s/sub" % logFolderPath):
-        os.system("cd %s && mkdir sub" % logFolderPath)
-    store_file = logFolderPath + "/sub/" + domain.replace(".", "_") + "_sub.txt"
+    if not os.path.exists(LOG_FOLDER_PATH):
+        os.system("mkdir %s" % LOG_FOLDER_PATH)
+    if not os.path.exists("%s/sub" % LOG_FOLDER_PATH):
+        os.system("cd %s && mkdir sub" % LOG_FOLDER_PATH)
+    store_file = LOG_FOLDER_PATH + "/sub/" + domain.replace(".", "_") + "_sub.txt"
     Sublist3r_store_file = ModulePath+"Sublist3r/Sublist3r.out.txt"
     subDomainsBrute_store_file = ModulePath+"subDomainsBrute/subDomainsBrute.out.txt"
     sub_domains_table_name = domain.replace(".", "_") + "_sub"
@@ -6821,7 +6966,7 @@ def get_sub_domains(start_url, use_tool="Sublist3r"):
 
                 # 这里更新各个子站的cookie
                 forceAskCookie = eval(get_key_value_from_config_file(
-                    configIniPath, 'default', 'forceAskCookie'))
+                    CONFIG_INI_PATH, 'default', 'forceAskCookie'))
                 if forceAskCookie == 1:
                     cookie = input(
                         "请输入%s的cookie,直接回车表示不输入cookie\n:>" % eachHttpDomain)
@@ -6834,13 +6979,13 @@ def get_sub_domains(start_url, use_tool="Sublist3r"):
                     else:
                         cookie = ""
                 update_config_file_key_value(
-                    configIniPath, eachHttpDomain, 'cookie', "'" + cookie + "'")
+                    CONFIG_INI_PATH, eachHttpDomain, 'cookie', "'" + cookie + "'")
 
                 # 保持session不失效
                 cookie=get_url_cookie(eachHttpDomain)
                 if cookie!="":
-                    keepSessionThread = MyThread(keepSession, (eachHttpDomain, cookie))
-                    keepSessionThread.start()
+                    keep_session_thread = MyThread(keep_session, (eachHttpDomain, cookie))
+                    keep_session_thread.start()
 
                 if each != target.split("/")[-1]:
                     write_string_to_sql(
@@ -6878,7 +7023,7 @@ def get_sub_domains(start_url, use_tool="Sublist3r"):
     os.system("rm %s" % store_file)
     with open(store_file,"a+") as f:
         for each_http_sub_domain in http_sub_domains_to_write:
-            f.write(each_http_pang_domain+"\n")
+            f.write(each_http_sub_domain+"\n")
 
     execute_sql_in_db(
         "update `%s` set get_sub_domains_finished='1' where start_url='%s'" %
@@ -6887,8 +7032,8 @@ def get_sub_domains(start_url, use_tool="Sublist3r"):
 
 def get_main_target_table_name(target):
     # 返回targets或first_targets
-    # 得到主要目标的数据库中所在表的名字,结果为eval(get_key_value_from_config_file(configIniPath,'default','TARGETS_TABLE_NAME'))或eval(get_key_value_from_config_file(configIniPath,'default','FIRST_TARGETS_TABLE_NAME'))
-    # 由于主要目标存放在eval(get_key_value_from_config_file(configIniPath,'default','TARGETS_TABLE_NAME'))或eval(get_key_value_from_config_file(configIniPath,'default','FIRST_TARGETS_TABLE_NAME'))当中,所以这样检测
+    # 得到主要目标的数据库中所在表的名字,结果为eval(get_key_value_from_config_file(CONFIG_INI_PATH,'default','TARGETS_TABLE_NAME'))或eval(get_key_value_from_config_file(CONFIG_INI_PATH,'default','FIRST_TARGETS_TABLE_NAME'))
+    # 由于主要目标存放在eval(get_key_value_from_config_file(CONFIG_INI_PATH,'default','TARGETS_TABLE_NAME'))或eval(get_key_value_from_config_file(CONFIG_INI_PATH,'default','FIRST_TARGETS_TABLE_NAME'))当中,所以这样检测
     # target可为domain或http domain格式
     global DB_NAME
     global TARGETS_TABLE_NAME
@@ -7304,12 +7449,12 @@ def single_dirb_scan(target):
         os.system(
             "git clone https://github.com/maurosoria/dirsearch.git %sdirsearch" % ModulePath)
 
-    if not os.path.exists(logFolderPath):
-        os.system("mkdir %s" % logFolderPath)
+    if not os.path.exists(LOG_FOLDER_PATH):
+        os.system("mkdir %s" % LOG_FOLDER_PATH)
 
-    if not os.path.exists(logFolderPath + "/dirsearch_log"):
-        os.system("cd %s && mkdir dirsearch_log" % logFolderPath)
-    log_file = logFolderPath + \
+    if not os.path.exists(LOG_FOLDER_PATH + "/dirsearch_log"):
+        os.system("cd %s && mkdir dirsearch_log" % LOG_FOLDER_PATH)
+    log_file = LOG_FOLDER_PATH + \
         "/dirsearch_log/%s_log.txt" % target.split("/")[-1]
     if os.path.exists(log_file):
         pass
@@ -7540,10 +7685,10 @@ def single_cms_scan(start_url):
         else:
 
             # 下面相当于cms_scan过程
-            if not os.path.exists(logFolderPath):
-                os.system("mkdir %s" % logFolderPath)
-            if not os.path.exists(logFolderPath + "/cms_scan_log"):
-                os.system("cd %s && mkdir cms_scan_log" % logFolderPath)
+            if not os.path.exists(LOG_FOLDER_PATH):
+                os.system("mkdir %s" % LOG_FOLDER_PATH)
+            if not os.path.exists(LOG_FOLDER_PATH + "/cms_scan_log"):
+                os.system("cd %s && mkdir cms_scan_log" % LOG_FOLDER_PATH)
 
             if not os.path.exists(ModulePath + "cms_scan"):
                 os.system("mkdir %s" % ModulePath + "cms_scan")
@@ -8166,11 +8311,11 @@ input your number here''', end='')
                         sqlmap_crawl(start_url, bool_tor, post_or_not)
                         set_scan_finished("sqli_scaned",DB_NAME,main_target_table_name, "start_url",start_url)
 
-                    domain_pang_file = logFolderPath + "/pang/%s_pang.txt" % http_domain.split(
+                    domain_pang_file = LOG_FOLDER_PATH + "/pang/%s_pang.txt" % http_domain.split(
                         '/')[-1].replace(".", "_")
                     domain_pang_table_name = http_domain.split(
                         '/')[-1].replace(".", "_") + "_pang"
-                    http_sub_domain_file = logFolderPath + "/sub/%s_sub.txt" % http_domain.split(
+                    http_sub_domain_file = LOG_FOLDER_PATH + "/sub/%s_sub.txt" % http_domain.split(
                         '/')[-1].replace(".", "_")
                     domain_sub_table_name = http_domain.split(
                         '/')[-1].replace(".", "_") + "_sub"
@@ -8316,11 +8461,11 @@ input your number here''', end='')
                         set_scan_finished("sqli_scaned", DB_NAME,
                                           main_target_table_name,"start_url",start_url)
 
-                    domain_pang_file = logFolderPath + "/pang/%s_pang.txt" % http_domain.split(
+                    domain_pang_file = LOG_FOLDER_PATH + "/pang/%s_pang.txt" % http_domain.split(
                         '/')[-1].replace(".", "_")
                     domain_pang_table_name = http_domain.split(
                         '/')[-1].replace(".", "_") + "_pang"
-                    http_sub_domain_file= logFolderPath + "/sub/%s_sub.txt" % http_domain.split(
+                    http_sub_domain_file= LOG_FOLDER_PATH + "/sub/%s_sub.txt" % http_domain.split(
                         '/')[-1].replace(".", "_")
                     domain_sub_table_name = http_domain.split(
                         '/')[-1].replace(".", "_") + "_sub"
@@ -8436,10 +8581,10 @@ def single_xss_scan(start_url):
         print("error,target should be like http(s)://xxx.xxx.xxx")
         return
 
-    if not os.path.exists(workPath+"/xssfork"):
+    if not os.path.exists(WORK_PATH+"/xssfork"):
         #准备xssfork
-        os.system("cd %s && git clone https://github.com/bsmali4/xssfork.git" % workPath) 
-        os.system("cd %s && pip2 install -r requirements.txt" % workPath)
+        os.system("cd %s && git clone https://github.com/bsmali4/xssfork.git" % WORK_PATH) 
+        os.system("cd %s && pip2 install -r requirements.txt" % WORK_PATH)
     def xss_check(url):
         #对url进行xss检测
         #包括存储型xss,自动化检测存储型xss时暂只检测输出内容的目标url为当前url的情况
@@ -8453,7 +8598,7 @@ def single_xss_scan(start_url):
         content=""
         if "^" not in url:
             #get请求
-            xss_cmd='''python2 %s/xssfork.py -u "%s" --cookie "%s" 2>&1 | tee /tmp/xssfork''' % (workPath,url,cookie)
+            xss_cmd='''python2 %s/xssfork.py -u "%s" --cookie "%s" 2>&1 | tee /tmp/xssfork''' % (WORK_PATH,url,cookie)
             os.system(xss_cmd)
             with open("/tmp/xssfork","r+") as f:
                 content=f.read()
@@ -8466,7 +8611,7 @@ def single_xss_scan(start_url):
             urlList=url.split("^")
             url=urlList[0]
             data=urlList[1]
-            xss_cmd='''python2 %s/xssfork.py -u "%s" --cookie "%s" --data "%s" 2>&1 | tee /tmp/xssfork''' % (workPath,url,cookie,data)
+            xss_cmd='''python2 %s/xssfork.py -u "%s" --cookie "%s" --data "%s" 2>&1 | tee /tmp/xssfork''' % (WORK_PATH,url,cookie,data)
             os.system(xss_cmd)
             with open("/tmp/xssfork","r+") as f:
                 content=f.read()
@@ -8826,12 +8971,12 @@ def single_whois_scan(target):
 def scan_way_init():
     global SCAN_WAY
     existScanWay = 0
-    if os.path.exists(configIniPath):
-        with open(configIniPath, "r+") as f:
+    if os.path.exists(CONFIG_INI_PATH):
+        with open(CONFIG_INI_PATH, "r+") as f:
             configFileString = f.read()
         if re.search("SCAN_WAY.*=\D*\d+", configFileString, re.I):
             existScanWay = eval(get_key_value_from_config_file(
-                configIniPath, 'default', 'SCAN_WAY'))
+                CONFIG_INI_PATH, 'default', 'SCAN_WAY'))
             if existScanWay != 0:
                 defaultChoose = existScanWay
         else:
@@ -8846,11 +8991,11 @@ def scan_way_init():
     choose = get_input_intime(str(defaultChoose))
     if choose != str(defaultChoose):
         update_config_file_key_value(
-            configIniPath, 'default', 'SCAN_WAY', int(choose))
+            CONFIG_INI_PATH, 'default', 'SCAN_WAY', int(choose))
         SCAN_WAY=int(choose)
     else:
         update_config_file_key_value(
-            configIniPath, 'default', 'SCAN_WAY', defaultChoose)
+            CONFIG_INI_PATH, 'default', 'SCAN_WAY', defaultChoose)
         SCAN_WAY=defaultChoose
 
 
@@ -8890,6 +9035,29 @@ def get_http_sub_domains_list_from_db(target, db):
         return return_value
 
 
+def get_url_start_url(url):
+    # eg. url=http://www.baidu.com/cms/laal.jsp
+    # there are [http://www.baidu.com] and 
+    # [http://www.baidu.com/cms] in config.ini
+    # in this case ,it should return http://www.baidu.com/cms 
+    if not os.path.exists(CONFIG_INI_PATH):
+        return ""
+    with open(CONFIG_INI_PATH, "r") as f:
+        content = f.read()
+    a=re.findall(r"\[(http.+)\]\n",content)
+    matchList=[]
+    if len(a)>0:
+        for each in a:
+            if each in url:
+                matchList.append(each)
+        if len(matchList)>0:
+            maxLen=0
+            for each in matchList:
+                if len(each)>=maxLen:
+                    maxLen=len(each)
+                    maxUrl=each
+    return maxUrl
+
 def get_url_cookie(url):
     # 得到url的cookie,目前为从config.ini文件中获取
     # eg.url=https://www.baidu.com:8080/dvwa/1.php
@@ -8897,9 +9065,9 @@ def get_url_cookie(url):
     # 有cookie,则用url对应的start_url的cookie
     # 如果没有则返回""空字符串
 
-    if not os.path.exists(configIniPath):
+    if not os.path.exists(CONFIG_INI_PATH):
         return ""
-    with open(configIniPath, "r") as f:
+    with open(CONFIG_INI_PATH, "r") as f:
         content = f.read()
     a=re.findall(r"\[(http.+)\]\n",content)
     matchList=[]
@@ -8914,14 +9082,14 @@ def get_url_cookie(url):
                     maxLen=len(each)
                     maxUrl=each
             cookie = eval(get_key_value_from_config_file(
-                configIniPath, maxUrl, 'cookie'))
+                CONFIG_INI_PATH, maxUrl, 'cookie'))
             return cookie
         else:
             # http://192.168.8.190/test use http://192.168.8.190/dvwa 's cookie
             for each in a:
                 if get_http_domain_from_url(each)==get_http_domain_from_url(url):
                     cookie = eval(get_key_value_from_config_file(
-                        configIniPath, each, 'cookie'))
+                        CONFIG_INI_PATH, each, 'cookie'))
                     return cookie
             # 没有url对应的cookie则查找对应主站的cookie,如果有对应主站的cookie则返回主站的cookie
             # http://wit.freebuf.com use http://www.freebuf.com 's cookie
@@ -8933,7 +9101,7 @@ def get_url_cookie(url):
             if find_main_domain:
                 main_domain_url = find_main_domain.group(1)
                 cookie = eval(get_key_value_from_config_file(
-                    configIniPath, main_domain_url, 'cookie'))
+                    CONFIG_INI_PATH, main_domain_url, 'cookie'))
                 return cookie
 
     return ""
@@ -9378,7 +9546,7 @@ def auto_attack(start_url):
     set_target_scan_finished(start_url)
 
 
-def scanInit():
+def scan_init():
     # 这个函数用于配置exp10itScanner要用到的参数
     global DB_NAME
     global DB_SERVER
@@ -9386,12 +9554,14 @@ def scanInit():
     global DB_PASS
     global DELAY
     import os
-    if not os.path.exists(configIniPath):
-        os.system("touch %s" % configIniPath)
+    if not os.path.exists(CONFIG_PATH):
+        os.system("mkdir %s" % CONFIG_PATH)
+    if not os.path.exists(CONFIG_INI_PATH):
+        os.system("touch %s" % CONFIG_INI_PATH)
     else:
         # 如果配置文件存在则不运行这个函数
         return
-    with open(configIniPath, 'r+') as f:
+    with open(CONFIG_INI_PATH, 'r+') as f:
         content = f.read()
 
     # 下面配置BingAPI用于获取旁站的需要
@@ -9402,34 +9572,34 @@ def scanInit():
     else:
         print("please input your bing api key:")
         key = input()
-        update_config_file_key_value(configIniPath, 'default', 'bingapikey', "'" + key + "'")
+        update_config_file_key_value(CONFIG_INI_PATH, 'default', 'bingapikey', "'" + key + "'")
     '''
 
     # 下面配置邮件通知相关口令
     if re.search(r"mailto", content):
         mailto = eval(get_key_value_from_config_file(
-            configIniPath, 'mail', 'mailto'))
+            CONFIG_INI_PATH, 'mail', 'mailto'))
     else:
         mailto = input("please input email address you want send to:")
         update_config_file_key_value(
-            configIniPath, 'mail', 'mailto', "'" + mailto + "'")
+            CONFIG_INI_PATH, 'mail', 'mailto', "'" + mailto + "'")
     if re.search(r"user", content):
         user = eval(get_key_value_from_config_file(
-            configIniPath, 'mail', 'user'))
+            CONFIG_INI_PATH, 'mail', 'user'))
     else:
         user = input("please input your email account:")
         update_config_file_key_value(
-            configIniPath, 'mail', 'user', "'" + user + "'")
+            CONFIG_INI_PATH, 'mail', 'user', "'" + user + "'")
     if re.search(r"password", content):
         password = eval(get_key_value_from_config_file(
-            configIniPath, 'mail', 'password'))
+            CONFIG_INI_PATH, 'mail', 'password'))
     else:
         password = input("please input your email account password:")
         update_config_file_key_value(
-            configIniPath, 'mail', 'password', "'" + password + "'")
+            CONFIG_INI_PATH, 'mail', 'password', "'" + password + "'")
 
     # 下面配置数据库相关设置
-    config_file_abs_path = configIniPath
+    config_file_abs_path = CONFIG_INI_PATH
     while 1:
         DB_SERVER = input("please input your database server addr:>")
         if check_string_is_ip(DB_SERVER) or check_string_is_domain(DB_SERVER):
@@ -9457,7 +9627,7 @@ def scanInit():
     else:
         print("please input your DELAY time (seconds) between every two requests [default 0]\n>")
         # 默认0s间隔
-        DELAY= get_input_intime(0)
+        DELAY= int(get_input_intime(0))
         update_config_file_key_value(
             config_file_abs_path, 'default', 'DELAY', int(DELAY))
 
@@ -9491,6 +9661,15 @@ I suggest you input 1 unless you don't need cdn recgnization or don't care about
             config_file_abs_path, 'default', 'forceAskCookie', int(forceAskCookie))
 
 
+def start_ipproxypool():
+    if not os.path.exists("IPProxyPool"):
+        os.system("cd %s && git clone https://github.com/qiyeboy/IPProxyPool.git && pip install -r requirements.txt" % WORK_PATH)
+    else:
+        os.system("cd %s && git pull" % WORK_PATH+"/IPProxyPool")
+    os.system("cd %s && nohup python2 IPProxy.py > IPProxyPool.log &" % WORK_PATH+"/IPProxyPool")
+
+
+
 def exp10itScanner():
     # 相当于扫描工具的main函数
     global DB_NAME
@@ -9501,7 +9680,8 @@ def exp10itScanner():
     output = CLIOutput()
     warnings.filterwarnings('ignore', '.*have a default value.*')
     warnings.filterwarnings('ignore', '.*Data Truncated.*')
-    scanInit()
+    start_ipproxypool()
+    scan_init()
     scan_way_init()
     database_init()
     while 1:

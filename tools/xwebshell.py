@@ -6,7 +6,7 @@ from exp10it import crack_allext_biaodan_webshell_url
 from exp10it import crack_ext_direct_webshell_url
 from exp10it import ModulePath
 
-def crack_webshell(url, anyway=0):
+def crack_webshell(url, anyway=1):
     # webshll爆破,第二个参数默认为0,如果设置不为0,则不考虑判断是否是webshll,如果设置为1,直接按direct_bao方式爆破
     # 如果设置为2,直接按biaodan_bao方式爆破
 
