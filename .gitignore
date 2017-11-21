@@ -2,6 +2,7 @@
 2.py
 3.py
 4.py
+*.swp
 phantomjs*.tmp
 
 # Byte-compiled / optimized / DLL files
