@@ -8,9 +8,35 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
-from scrapy.spiders import Spider
+import os,sys
+exp10it_module_path = os.path.expanduser("~")+"/mypypi"
+sys.path.insert(0, exp10it_module_path)
 
-SPLASH_URL = 'http://192.168.89.190:8050'
+from scrapy.spiders import Spider
+from exp10it import CONFIG_INI_PATH
+from exp10it import get_key_value_from_config_file
+from exp10it import update_config_file_key_value
+
+try:
+    SPLASH_URL = eval(get_key_value_from_config_file(
+        CONFIG_INI_PATH, 'default', 'splash_url'))
+except:
+    print("make sure you have start your scrapy_splash service,if not,do it now")
+    SPLASH_SERVER=input("Please input your scrapy_splash server ip address\n:>")
+    SPLASH_URL="http://"+SPLASH_SERVER+":8050"
+    update_config_file_key_value(CONFIG_INI_PATH, 'default', 'SPLASH_URL', "'" +SPLASH_URL+"'")
+
+try:
+    IPProxyPoolUrl= eval(get_key_value_from_config_file(
+        CONFIG_INI_PATH, 'default', 'ipproxypoolurl'))
+except:
+    print("make sure you have start your IPProxyPool service,if not,do it now")
+    IPProxyPoolServer=input("Please input your IPProxyPool server ip address\n:>")
+
+    IPProxyPoolUrl="http://"+IPProxyPoolServer+":8000/?types=0&count=50"
+    update_config_file_key_value(CONFIG_INI_PATH, 'default', 'IPProxyPoolURL', "'" +IPProxyPoolUrl+"'")
+
+
 BOT_NAME = 'crawler'
 
 DOWNLOADER_MIDDLEWARES = {

@@ -5,8 +5,7 @@ from urllib.parse import urlparse
 import scrapy
 from scrapy_splash import SplashRequest
 from crawler.items import CrawlerItem
-exp10it_module_path = os.path.abspath(os.path.dirname(
-    __file__) + os.path.sep + ".." + os.path.sep + ".." + os.path.sep + "..")
+exp10it_module_path = os.path.expanduser("~")+"/mypypi"
 sys.path.insert(0, exp10it_module_path)
 from exp10it import collect_urls_from_url
 from exp10it import RESOURCE_FILE_PATTERN
@@ -18,13 +17,13 @@ from exp10it import get_http_domain_from_url
 from exp10it import get_url_belong_main_target_domain
 from exp10it import like_admin_login_content
 from exp10it import check_url_has_webshell_content
+from crawler.settings import IPProxyPoolUrl
 import random
 import requests
 
 
 def get_random_proxy():
-    IPPOOL = eval(requests.get(
-        "http://192.168.89.190:8000/?types=0&count=50&country=国内").text)
+    IPPOOL = eval(requests.get(IPProxyPoolUrl).text)
     random_choose = random.choice(IPPOOL)
     proxy_addr = "http://" + \
         str(random_choose[0]) + ":" + str(random_choose[1])
@@ -65,7 +64,10 @@ class Exp10itSpider(scrapy.Spider):
         if param_list != ['']:
             for each in param_list:
                 each_param_name = each.split("=")[0]
-                each_param_value = each.split("=")[1]
+                if len(each.split("="))==1:
+                    each_param_value=""
+                else:
+                    each_param_value = each.split("=")[1]
                 if re.match(r"\d+", each_param_value):
                     pure_param_list.append(each_param_name + "=*")
                 else:
@@ -99,9 +101,9 @@ class Exp10itSpider(scrapy.Spider):
         urls = [
             #'https://www.bing.com'
             #'https://httpbin.org/post^sss=lalala'
-            #'http://www.freebuf.com'
+            'http://www.freebuf.com'
             #'http://www.ip138.com/'
-            'http://httpbin.org/ip'
+            #'http://httpbin.org/ip'
             #'http://geekpwn.freebuf.com'
         ]
         self.domain = urlparse(urls[0]).hostname
@@ -125,19 +127,19 @@ class Exp10itSpider(scrapy.Spider):
         cookie = get_url_cookie(response.url)
         item['code'] = response.status
         item['current_url'] = response.url
+        print(response.url)
+
         item['resources_file_list'] = []
         item['sub_domains_list'] = []
         item['like_admin_login_url'] = False
         item['like_webshell_url'] = False
 
-        print(response.text)
-        input(444444)
+        #print(response.text)
 
         if response.status == 200:
-            input(33333333333)
             urls = collect_urls_from_html(response.text, response.url)
-            title = response.xpath('//title/text()').extract()
-            item['title'] = title if title != [] else None
+            title_list = response.xpath('//title/text()').extract()
+            item['title'] = None if len(title_list)==0 else title_list[0]
             item['content'] = response.text
         else:
             a = get_request(response.url, cookie=cookie)

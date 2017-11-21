@@ -181,6 +181,8 @@ TARGETS_TABLE_NAME="targets"
 FIRST_TARGETS_TABLE_NAME="first_targets"
 DELAY=""
 SCAN_WAY=""
+#IPProxyPoolUrl=""
+#SPLASH_URL=""
 
 
 RESOURCE_FILE_PATTERN = re.compile(r"^http.*(\.(jpg)|(chm)|(jar)|(jpeg)|(gif)|(ico)|(bak)|(png)|\
@@ -209,18 +211,17 @@ def get_key_value_from_config_file(file, section, key_name):
                   (key_name, section))
             return None
 
-
 if os.path.exists(CONFIG_INI_PATH):
-    DB_SERVER= eval(get_key_value_from_config_file(
-        CONFIG_INI_PATH, 'default', 'DB_SERVER'))
+    DB_SERVER=eval(get_key_value_from_config_file(
+        CONFIG_INI_PATH, 'default', 'db_server'))
     DB_USER= eval(get_key_value_from_config_file(
-        CONFIG_INI_PATH, 'default', 'DB_USER'))
+        CONFIG_INI_PATH, 'default', 'db_user'))
     DB_PASS= eval(get_key_value_from_config_file(
-        CONFIG_INI_PATH, 'default', 'DB_PASS'))
+        CONFIG_INI_PATH, 'default', 'db_pass'))
     DELAY= eval(get_key_value_from_config_file(
-        CONFIG_INI_PATH, 'default', 'DELAY'))
+        CONFIG_INI_PATH, 'default', 'delay'))
     SCAN_WAY= eval(get_key_value_from_config_file(
-        CONFIG_INI_PATH, 'default', 'SCAN_WAY'))
+        CONFIG_INI_PATH, 'default', 'scan_way'))
 
 
 # 常见非web服务端口
@@ -3317,6 +3318,8 @@ def get_user_and_pass_form_from_html(html):
 
     index = -1
     has_pass_form = False
+    user_form_line=None
+    pass_form_line=None
     for each in all_input_line:
         index += 1
         if re.search(r'''<input .*type=('|")?password.*>''', each):
@@ -9663,10 +9666,19 @@ I suggest you input 1 unless you don't need cdn recgnization or don't care about
 
 def start_ipproxypool():
     if not os.path.exists("IPProxyPool"):
-        os.system("cd %s && git clone https://github.com/qiyeboy/IPProxyPool.git && pip install -r requirements.txt" % WORK_PATH)
+        cmd="cd %s && git clone https://github.com/qiyeboy/IPProxyPool.git && pip install -r requirements.txt" % WORK_PATH
+        input(cmd)
+        os.system(cmd)
     else:
-        os.system("cd %s && git pull" % WORK_PATH+"/IPProxyPool")
-    os.system("cd %s && nohup python2 IPProxy.py > IPProxyPool.log &" % WORK_PATH+"/IPProxyPool")
+        cmd="cd %s && git pull" % (WORK_PATH+"/IPProxyPool")
+        input(cmd)
+        os.system(cmd)
+    cmd="cd %s && nohup python2 IPProxy.py > IPProxyPool.log &" % (WORK_PATH+"/IPProxyPool")
+    input(cmd)
+    os.system(cmd)
+
+def start_scrapy_splash():
+    os.system("docker run -p 8050:8050 scrapinghub/splash")
 
 
 
@@ -9680,7 +9692,6 @@ def exp10itScanner():
     output = CLIOutput()
     warnings.filterwarnings('ignore', '.*have a default value.*')
     warnings.filterwarnings('ignore', '.*Data Truncated.*')
-    start_ipproxypool()
     scan_init()
     scan_way_init()
     database_init()

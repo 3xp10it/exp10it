@@ -45,7 +45,7 @@ class CrawlerPipeline(object):
                 'title', primary_key, primary_value)
         write_string_to_sql(content, DB_NAME, url_table_name,
                 'content', primary_key, primary_value)
-        if item['like_admin_login__url']:
+        if item['like_admin_login_url']:
             write_string_to_sql('1', DB_NAME, url_table_name,
                     'like_admin_login_url', primary_key, primary_value)
         if item['like_webshell_url']:

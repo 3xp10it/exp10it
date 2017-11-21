@@ -4,6 +4,7 @@
 4.py
 *.swp
 phantomjs*.tmp
+IPProxyPool/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
