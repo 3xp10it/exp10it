@@ -4767,7 +4767,7 @@ scan_finished varchar(50) not null default 0)" % sub_table_name
 
                 # 这里改成无论何种扫描方式都建立sub表,因为爬虫模块会爬到子站,将爬到的子站放到sub表中对应字段中
                 # 这里改成无论何种扫描方式都建立pang表,因为后面可能有对pang表的访问
-                SCAN_WAY=eval(get_key_value_from_config_file(CONFIG_INI_PATH, 'default', 'SCAN_WAY'))
+                SCAN_WAY=eval(get_key_value_from_config_file(CONFIG_INI_PATH, 'default', 'scan_way'))
                 if SCAN_WAY in [1, 2, 3, 4]:
                     if not domain_is_ip:
                         execute_sql_in_db(sql_pang,DB_NAME)
@@ -5071,25 +5071,20 @@ def collect_urls_from_url(url,by="seleniumPhantomJS"):
                 if re.match(r"^javascript:", find_uri):
                     continue
                 else:
-                    all_uris.append(find_uri)
+                    find_url=urljoin(url,find_uri)
+                    all_uris.append(find_url)
         # 收集src="http:..."中的uri
         for each in bs.find_all(src=True):
             find_uri = each.get('src')
             if find_uri is not None:
-                all_uris.append(find_uri)
+                find_url=urljoin(url,find_uri)
+                all_uris.append(find_url)
 
-        # 收集如js|form表单中的=""或=''中的uri
-        a = re.findall(r'''=('|")([^'"\><\s]+)('|")''', content, re.I)
+        # 收集如form表单中的=""或=''中的uri
+        a = re.findall(r'''form\s+action=('|")([^'"\><\s]+)('|")''', content, re.I)
         for each in a:
-            if each[1][:4] == "http":
-                all_uris.append(each[1])
-            elif each[1][:2] == "//":
-                all_uris.append(url.split(":")[0] + ":" + each[1])
-            else:
-                tmpNum = len(re.findall(
-                    r"/", each[1], re.I)) + len(re.findall(r"\.", each[1], re.I))
-                if tmpNum >= 2:
-                    all_uris.append(each[1])
+            find_url=urljoin(url,each[1])
+            all_uris.append(find_url)
 
     # 整理uri,将不带http_domain的链接加上http_domain,并将多余的/去除
     for each in all_uris:
@@ -5121,6 +5116,7 @@ def collect_urls_from_url(url,by="seleniumPhantomJS"):
 
 
 def collect_urls_from_html(content,url):
+    from urllib.parse import urljoin
     import html
     all_uris = []
     return_all_urls = []
@@ -5188,25 +5184,15 @@ def collect_urls_from_html(content,url):
                 if re.match(r"^javascript:", find_uri):
                     continue
                 else:
-                    all_uris.append(find_uri)
+                    find_url=urljoin(url,find_uri)
+                    all_uris.append(find_url)
         # 收集src="http:..."中的uri
         for each in bs.find_all(src=True):
             find_uri = each.get('src')
             if find_uri is not None:
-                all_uris.append(find_uri)
+                find_url=urljoin(url,find_uri)
+                all_uris.append(find_url)
 
-        # 收集如js|form表单中的=""或=''中的uri
-        a = re.findall(r'''=('|")([^'"\><\s]+)('|")''', content, re.I)
-        for each in a:
-            if each[1][:4] == "http":
-                all_uris.append(each[1])
-            elif each[1][:2] == "//":
-                all_uris.append(url.split(":")[0] + ":" + each[1])
-            else:
-                tmpNum = len(re.findall(
-                    r"/", each[1], re.I)) + len(re.findall(r"\.", each[1], re.I))
-                if tmpNum >= 2:
-                    all_uris.append(each[1])
 
     # 整理uri,将不带http_domain的链接加上http_domain,并将多余的/去除
     for each in all_uris:
@@ -5328,7 +5314,13 @@ def url_is_sub_domain_to_http_domain(url,http_domain):
         return True
     return False
 
-
+def scrapy_splash_crawl_url(url):
+    # replace crawl_url method
+    spider_file=ModulePath+"/crawler/crawler/spiders/exp10it_spider.py"
+    cmd='''sed -i 's#target_url_to_crawl=".*"#target_url_to_crawl="%s"#g' %s''' % (url,spider_file)
+    os.system(cmd)
+    cmd="cd %s && python3 -m scrapy crawl exp10it" % (ModulePath+"/crawler/crawler")
+    os.system(cmd)
 
 def crawl_url(url):
     global DB_NAME
@@ -5432,7 +5424,7 @@ def crawl_url(url):
                 # http_domain='http://www.freebuf.com'对应的urls列,这样要在两个表中的urls都填上此处的url
                 # www.freebuf.com的旁站eg.http://bar.freebuf.com只要在www_freebuf_com_pang表中的urls列中填写此处
                 # 的url,targets表或first_targets表中没有旁站bar.freebuf.com对应的项目
-                auto_write_string_to_sql(current_url,eval(get_key_value_from_config_file(CONFIG_INI_PATH,'default','DB_NAME')),table_name[0],"urls","http_domain",http_domain)
+                auto_write_string_to_sql(current_url,eval(get_key_value_from_config_file(CONFIG_INI_PATH,'default','db_name')),table_name[0],"urls","http_domain",http_domain)
             '''
             # 下面将当前url写入如www_freebuf_com_pang或www_freebuf_com_sub表的urls列中
             if url_belong_to_main_target[0]:
@@ -5752,7 +5744,7 @@ def crawl_scan(start_url):
         "start_url",
         start_url)
     if http_domain_sqli_scaned == 0:
-        crawl_url(target)
+        scrapy_splash_crawl_url(target)
         set_scan_finished(
             "crawl_scaned",
             DB_NAME,
@@ -5776,7 +5768,7 @@ def crawl_scan(start_url):
                 if each[0] != "":
                     crawl_scaned = get_scan_finished("crawl_scaned", DB_NAME, target.split("/")[-1].replace(".", "_") + "_pang","http_domain", each[0])
                     if crawl_scaned == 0:
-                        crawl_url(each[0])
+                        scrapy_splash_crawl_url(each[0])
                         set_scan_finished("crawl_scaned", DB_NAME, target.split("/")[-1].replace(".", "_") + "_pang","http_domain", each[0])
                 else:
                     print("crawl_scan func's each[0] error in SCAN_WAY 1")
@@ -5796,7 +5788,7 @@ def crawl_scan(start_url):
                     crawl_scaned = get_scan_finished("crawl_scaned", DB_NAME, target.split(
                         "/")[-1].replace(".", "_") + "_sub","http_domain", each[0])
                     if crawl_scaned == 0:
-                        crawl_url(each[0])
+                        scrapy_splash_crawl_url(each[0])
                         set_scan_finished("crawl_scaned", DB_NAME, target.split(
                             "/")[-1].replace(".", "_") + "_sub","http_domain", each[0])
                 else:
@@ -5818,14 +5810,14 @@ def crawl_scan(start_url):
         sql = "select http_domain from `%s`" % (
             target.split("/")[-1].replace(".", "_") + "_pang")
         result = execute_sql_in_db(
-            sql, eval(get_key_value_from_config_file(CONFIG_INI_PATH, 'default', 'DB_NAME')))
+            sql, eval(get_key_value_from_config_file(CONFIG_INI_PATH, 'default', 'db_name')))
         if len(result) > 0:
             for each in result:
                 if each[0] != "":
                     pang_list.append(each[0])
                     crawl_scaned = get_scan_finished("crawl_scaned", DB_NAME, target.split("/")[-1].replace(".", "_") + "_pang","http_domain", each[0])
                     if crawl_scaned == 0:
-                        crawl_url(each[0])
+                        scrapy_splash_crawl_url(each[0])
                         set_scan_finished("crawl_scaned", DB_NAME, target.split(
                             "/")[-1].replace(".", "_") + "_pang","http_domain", each[0])
                 else:
@@ -5843,7 +5835,7 @@ def crawl_scan(start_url):
                 if each[0] != "" and each[0] not in pang_list:
                     crawl_scaned = get_scan_finished("crawl_scaned", DB_NAME, target.split("/")[-1].replace(".", "_") + "_sub","http_domain", each[0])
                     if crawl_scaned == 0:
-                        crawl_url(each[0])
+                        scrapy_splash_crawl_url(each[0])
                         set_scan_finished("crawl_scaned", DB_NAME, target.split(
                             "/")[-1].replace(".", "_") + "_sub","http_domain", each[0])
                 elif each[0] in pang_list:
@@ -6359,7 +6351,7 @@ sub_domains_scan_finished = '0' limit 1" % target_table
     elif SCAN_WAY == 4:
         sql = "select start_url from `%s` where scan_finished='0' limit 1" % target_table
     else:
-        print("eval(get_key_value_from_config_file(CONFIG_INI_PATH,'default','SCAN_WAY')) error in get_one_target_from_db func")
+        print("eval(get_key_value_from_config_file(CONFIG_INI_PATH,'default','scan_way')) error in get_one_target_from_db func")
     result = execute_sql_in_db(sql, db)
     if len(result) > 0:
         return result[0][0]
@@ -8979,7 +8971,7 @@ def scan_way_init():
             configFileString = f.read()
         if re.search("SCAN_WAY.*=\D*\d+", configFileString, re.I):
             existScanWay = eval(get_key_value_from_config_file(
-                CONFIG_INI_PATH, 'default', 'SCAN_WAY'))
+                CONFIG_INI_PATH, 'default', 'scan_way'))
             if existScanWay != 0:
                 defaultChoose = existScanWay
         else:
@@ -9043,6 +9035,11 @@ def get_url_start_url(url):
     # there are [http://www.baidu.com] and 
     # [http://www.baidu.com/cms] in config.ini
     # in this case ,it should return http://www.baidu.com/cms 
+    if "http://" in url:
+        url_a=url.replace("http://","https://")
+    elif "https://" in url:
+        url_a=url.replace("https://","http://")
+
     if not os.path.exists(CONFIG_INI_PATH):
         return ""
     with open(CONFIG_INI_PATH, "r") as f:
@@ -9051,7 +9048,7 @@ def get_url_start_url(url):
     matchList=[]
     if len(a)>0:
         for each in a:
-            if each in url:
+            if each in url or each in url_a:
                 matchList.append(each)
         if len(matchList)>0:
             maxLen=0
@@ -9509,14 +9506,7 @@ def auto_attack(start_url):
     # 进行cdn识别
     MyScanner(start_url, single_cdn_scan)
     # crawl_scan是对target相关的目标(pang domains或sub domains)全部执行crawl_url爬虫的函数
-    try:
-        crawl_scan(start_url)
-    except:
-        from colorama import init, Fore
-        init(autoreset=True)
-        print(
-            Fore.YELLOW +
-            "you may be banned to crawl this target,change ip or wait for some time before crawl it again")
+    crawl_scan(start_url)
 
     # 根据扫描模式进行端口扫描
     # 端口扫描暂不设置DELAY

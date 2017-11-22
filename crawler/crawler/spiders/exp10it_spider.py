@@ -21,6 +21,8 @@ from crawler.settings import IPProxyPoolUrl
 import random
 import requests
 
+target_url_to_crawl="http://3xp10it.cc"
+
 
 def get_random_proxy():
     IPPOOL = eval(requests.get(IPProxyPoolUrl).text)
@@ -55,6 +57,7 @@ class Exp10itSpider(scrapy.Spider):
     """ % (a[0],a[1])
 
     def url_has_been_collected(self, url):
+        url=re.sub(r"(#[^\?]*)$","",url)
         parsed = urlparse(url)
         url_page = parsed[0] + "://" + parsed[1] + \
             (parsed[2] if "^" not in parsed[2] else parsed[2].split('^')[0])
@@ -88,6 +91,8 @@ class Exp10itSpider(scrapy.Spider):
                 if re.match(r"\d+", num_part):
                     pure_url = url[:-len(url.split("/")[-1])] + \
                         "*." + url.split(".")[-1]
+                else:
+                    pure_url=url
             else:
                 pure_url = url
 
@@ -101,7 +106,9 @@ class Exp10itSpider(scrapy.Spider):
         urls = [
             #'https://www.bing.com'
             #'https://httpbin.org/post^sss=lalala'
-            'http://www.freebuf.com'
+            #'http://www.freebuf.com'
+            target_url_to_crawl
+            #'http://3xp10it.cc'
             #'http://www.ip138.com/'
             #'http://httpbin.org/ip'
             #'http://geekpwn.freebuf.com'
