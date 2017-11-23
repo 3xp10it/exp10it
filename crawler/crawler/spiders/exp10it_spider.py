@@ -21,7 +21,7 @@ from crawler.settings import IPProxyPoolUrl
 import random
 import requests
 
-target_url_to_crawl="http://3xp10it.cc"
+target_url_to_crawl="http://119.18.231.18:40480"
 
 
 def get_random_proxy():

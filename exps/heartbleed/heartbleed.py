@@ -6,7 +6,7 @@ from exp10it import CLIOutput
 from exp10it import figlet2file
 from exp10it import get_target_table_name_list
 from exp10it import execute_sql_in_db
-from exp10it import commonNotWebPortList
+from exp10it import COMMON_NOT_WEB_PORT_LIST
 
 modulePath = __file__[:-len(__file__.split("/")[-1])]
 target = sys.argv[1]
@@ -21,7 +21,7 @@ if len(result) > 0:
     a = re.findall(r"(\d+)/(tcp)|(udp)\s+open", nmap_result_string, re.I)
     openPortList = []
     for each in a:
-        if each[0] not in openPortList and each[0] not in commonNotWebPortList:
+        if each[0] not in openPortList and each[0] not in COMMON_NOT_WEB_PORT_LIST:
             openPortList.append(each[0])
     for each in openPortList:
         a = get_string_from_command("cd %s && python2 ssltest.py -p %s %s " % (modulePath, each, target))

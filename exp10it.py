@@ -225,7 +225,7 @@ if os.path.exists(CONFIG_INI_PATH):
 
 
 # 常见非web服务端口
-commonNotWebPortList = ['21', '22', '53', '137',
+COMMON_NOT_WEB_PORT_LIST= ['21', '22', '53', '137',
                         '139', '145', '445', '1433', '3306', '3389']
 
 domain_suf_list = ['.aaa', '.aarp', '.abarth', '.abb', '.abbott', '.abbvie', '.abc', '.able', '.abogado',
@@ -4302,18 +4302,25 @@ def get_start_url_urls_table(start_url):
     # eg.http://www.baidu.com/1.php --> www_baidu_com_urls
     # eg.http://www.baidu.com/cms --> www_baidu_com_cms_urls
     # eg.http://www.baidu.com/cms/1.php --> www_baidu_com_cms_urls
-    http_domain=get_http_domain_from_url(start_url)
-    if start_url==http_domain:
-        return http_domain.split("/")[-1].replace(".","_")+"_urls"
-    elif start_url[-1]=="/" and start_url[:-1]!=http_domain:
-        return start_url[:-1].split("://")[-1].replace("/",".").replace(".","_")+"_urls"
-    elif start_url[-1]=="/" and start_url[:-1]==http_domain:
-        return http_domain.split("/")[-1].replace(".","_")+"_urls"
-    elif start_url[-1]!="/" and "." in start_url.split("/")[-1]:
-        _len=len(start_url.split("/")[-1])
-        return get_start_url_urls_table(start_url[:-_len])
-    elif start_url[-1]!="/" and "." not in start_url.split("/")[-1]:
-        return get_start_url_urls_table(start_url+"/")
+    # eg.http://www.baidu.com:40711 --> www_baidu_com_40711_urls
+    # eg.http://www.baidu.com:40711/cms/1.php --> www_baidu_com_40711_cms_urls
+    
+    parsed=urlparse(start_url)
+    netloc=parsed.netloc
+    path=parsed.path
+
+    if path!="":
+        if "." in path.split("/")[-1]:
+            path_part_value=path[:-(len(path.split("/")[-1])+1)].replace("/","_")
+        elif path[-1]=="/":
+            path_part_value=path[:-1].replace("/","_")
+        else:
+            path_part_value=path.replace("/","_")
+
+    else:
+        path_part_value=""
+    netloc_part_value=netloc.replace(".","_").replace(":","_")
+    return netloc_part_value+path_part_value+"_urls"
 
 def database_init():
     # 本地数据库初始化,完成数据库配置和建立数据(数据库和targets+first_targets表),以及目标导入
@@ -4539,15 +4546,18 @@ input 'n|N' for adding no targets and use the exists targets in former db")
     choose = get_input_intime('n', 10)
 
     if choose == 'f' or choose == 'F':
-        targets_file_abs_path = get_input_intime("targets.txt", 20)
-        print('\n')
+        targets_file_abs_path=input("Please input your targets file\n:>")
         with open(targets_file_abs_path, "r+") as f:
             for start_url in f:
                 start_url=re.sub(r"(\s)$","",start_url)
                 target = get_http_domain_from_url(start_url)
+
+                #import pdb
+                #pdb.set_trace()
+
                 print("你想要随便扫描还是认真的扫描,随便扫描不要求输入cookie,认真扫描要求输入用户登录后的cookie,输入y|Y选\
 择随便扫描,n|N选择认真扫描,默认随便扫描,default[y]")
-                tmpchoose = get_input_intime('y')
+                tmpchoose = get_input_intime('y',2)
                 if tmpchoose in ['n', 'N']:
                     cookie = input(
                         "please input your cookie for %s\n>" % start_url)
@@ -4815,142 +4825,143 @@ http_domain varchar(70) not null)" % target_urls_table_name
                 break
 
 
-
-        print('''There are below 15 kinds of scan module:
-    1.cdn scan(check and find out actual ip behind cdn,it's a base for 2)
-    2.pang domains scan(get the pang domains of the targets,is based on 1)
-    3.sub domains scan(get the sub domains of the targets)
-    4.crawl scan(crawl the target,it's a base for 8 and 12 and 13,it's a base for 6)
-    5.port scan(scan the targets' port,it's a base for 6 and 14)
-    6.high rish scan(check if the targets has high risk vul,is based on 4 and 5)
-    7.sqli scan(check if the targets has sql injection vul)
-    8.xss scan(check if the targets has xss vul,is based on 4)
-    9.script type scan(try to find out the targets' script type[php,asp,aspx,jsp])
-    10.dirb scan(brute force scan the targets' dirs and files,it's a base for 12 and 13)
-    11.cms scan(findout the targets' cms type[joomla,wordpress,ecshop,...])
-    12.crack webshell scan(try to find the exists webshell on targets site and try to crack it,is based on 4 and 10)
-    13.crack admin page scan(try to find the targets' admin login page and try to crack it,is based on 4 and 10)
-    14.port brute crack scan(try to brute force crack the common open port,is based on 5)
-    15.whois scan(get the targets' whois info)''')
-
-        print(
-            '''Do you want my choosing to scan all of theme by default,if you have special needs(eg.scan sqli vuls alone,etc) please input n|N , default[y]''')
-        choose_scan_strategy = get_input_intime('y')
-        # print("\n")
-        if choose_scan_strategy == 'Y' or choose_scan_strategy == 'y':
-            set_column_name_scan_module_unfinished("cdn_scaned",SCAN_WAY)
-            sqlList=[]
-            tmpSql="update %s set get_pang_domains_finished='0'" % FIRST_TARGETS_TABLE_NAME
-            tmpSql="update %s set get_pang_domains_finished='0'" % TARGETS_TABLE_NAME
-            for each in sqlList:
-                execute_sql_in_db(each,DB_NAME) 
-            sqlList=[]
-            tmpSql="update %s set get_sub_domains_finished='0'" % FIRST_TARGETS_TABLE_NAME
-            tmpSql="update %s set get_sub_domains_finished='0'" % TARGETS_TABLE_NAME
-            for each in sqlList:
-                execute_sql_in_db(each,DB_NAME) 
-            set_column_name_scan_module_unfinished("crawl_scaned",SCAN_WAY)
-            set_column_name_scan_module_unfinished("port_scaned",SCAN_WAY)
-            set_column_name_scan_module_unfinished("risk_scaned",SCAN_WAY)
-            set_column_name_scan_module_unfinished("sqli_scaned",SCAN_WAY)
-            set_column_name_scan_module_unfinished("xss_scaned",SCAN_WAY)
-            set_column_name_scan_module_unfinished("script_type_scaned",SCAN_WAY)
-            set_column_name_scan_module_unfinished("dirb_scaned",SCAN_WAY)
-            set_column_name_scan_module_unfinished("cms_scaned",SCAN_WAY)
-            set_column_name_scan_module_unfinished("crack_webshell_scaned",SCAN_WAY)
-            set_column_name_scan_module_unfinished("crack_admin_page_scaned",SCAN_WAY)
-            set_column_name_scan_module_unfinished("portBruteCrack_scaned",SCAN_WAY)
-            set_column_name_scan_module_unfinished("whois_scaned",SCAN_WAY)
-
-        else:
-            while True:
-                print('''Please input your selections on upon 15 scan modules,use blank to separate them.
-    eg:
-    1 2
-    4 8
-    4 10 12
-    4 10 13
-    5 14
-    4 5 6
-    5
-    Attention:
-    a.if you have choosed 2,then you must have choosed 1
-    b.if you have choosed 8,then you must have choosed 4
-    c.if you have choosed 12,then you must have choosed 4 and 10
-    d.if you have choosed 13,then you must have choosed 4 and 10
-    e.if you have choosed 14,then you must have choosed 5
-    f.if you have choosed 6,then you must have choosed 4 and 5''')
-                shouldContinue = 0
-                selections = input("your choose:")
-                selectionsList = re.split("\s+", selections)
-                if '2' in selectionsList and ('1' not in selectionsList):
-                    print("if you have choosed 2,then you must have choosed 1")
-                    shouldContinue = 1
-                if '8' in selectionsList and ('4' not in selectionsList):
-                    print("if you have choosed 8,then you must have choosed 4")
-                    shouldContinue = 1
-                if '12' in selectionsList and ('4' not in selectionsList or '10' not in selectionsList):
-                    print("if you have choosed 12,then you must have choosed 4 and 10")
-                    shouldContinue = 1
-                if '13' in selectionsList and ('4' not in selectionsList or '10' not in selectionsList):
-                    print("if you have choosed 13,then you must have choosed 4 and 10")
-                    shouldContinue = 1
-                if '14' in selectionsList and ('5' not in selectionsList):
-                    print("if you have choosed 14,then you must have choosed 5")
-                    shouldContinue = 1
-                if '6' in selectionsList and ('4' not in selectionsList or '5' not in selectionsList):
-                    print("if you have choosed 6,then you must have choosed 4 and 5")
-                    shouldContinue = 1
-
-                if shouldContinue == 1:
-                    continue
-                break
-            if '1' in selectionsList:
-                set_column_name_scan_module_unfinished("cdn_scaned",SCAN_WAY)
-
-            if '2' in selectionsList or SCAN_WAY in [1,3]:
-                tmpSql="update %s set get_pang_domains_finished='0'" % FIRST_TARGETS_TABLE_NAME
-                execute_sql_in_db(tmpSql,DB_NAME) 
-                tmpSql="update %s set get_pang_domains_finished='0'" % TARGETS_TABLE_NAME
-                execute_sql_in_db(tmpSql,DB_NAME) 
-
-            if '3' in selectionsList or SCAN_WAY in [2,3]:
-                tmpSql="update %s set get_sub_domains_finished='0'" % FIRST_TARGETS_TABLE_NAME
-                execute_sql_in_db(tmpSql,DB_NAME) 
-                tmpSql="update %s set get_sub_domains_finished='0'" % TARGETS_TABLE_NAME
-                execute_sql_in_db(tmpSql,DB_NAME) 
-
-            if '4' in selectionsList:
-                set_column_name_scan_module_unfinished("crawl_scaned",SCAN_WAY)
-
-            if '5' in selectionsList:
-                set_column_name_scan_module_unfinished("port_scaned",SCAN_WAY)
-
-            if '6' in selectionsList:
-                set_column_name_scan_module_unfinished("risk_scaned",SCAN_WAY)
-
-            if '7' in selectionsList:
-                set_column_name_scan_module_unfinished("sqli_scaned",SCAN_WAY)
-            if '8' in selectionsList:
-                set_column_name_scan_module_unfinished("xss_scaned",SCAN_WAY)
-            if '9' in selectionsList:
-                set_column_name_scan_module_unfinished("script_type_scaned",SCAN_WAY)
-            if '10' in selectionsList:
-                set_column_name_scan_module_unfinished("dirb_scaned",SCAN_WAY)
-            if '11' in selectionsList:
-                set_column_name_scan_module_unfinished("cms_scaned",SCAN_WAY)
-            if '12' in selectionsList:
-                set_column_name_scan_module_unfinished("crack_webshell_scaned",SCAN_WAY)
-            if '13' in selectionsList:
-                set_column_name_scan_module_unfinished("crack_admin_page_scaned",SCAN_WAY)
-            if '14' in selectionsList:
-                set_column_name_scan_module_unfinished("portBruteCrack_scaned",SCAN_WAY)
-            if '15' in selectionsList:
-                set_column_name_scan_module_unfinished("whois_scaned",SCAN_WAY)
-
     else:
         print("I will use the exisit targets in the db for scan job")
         pass
+
+
+    print('''There are below 15 kinds of scan module:
+1.cdn scan(check and find out actual ip behind cdn,it's a base for 2)
+2.pang domains scan(get the pang domains of the targets,is based on 1)
+3.sub domains scan(get the sub domains of the targets)
+4.crawl scan(crawl the target,it's a base for 8 and 12 and 13,it's a base for 6)
+5.port scan(scan the targets' port,it's a base for 6 and 14)
+6.high rish scan(check if the targets has high risk vul,is based on 4 and 5)
+7.sqli scan(check if the targets has sql injection vul)
+8.xss scan(check if the targets has xss vul,is based on 4)
+9.script type scan(try to find out the targets' script type[php,asp,aspx,jsp])
+10.dirb scan(brute force scan the targets' dirs and files,it's a base for 12 and 13)
+11.cms scan(findout the targets' cms type[joomla,wordpress,ecshop,...])
+12.crack webshell scan(try to find the exists webshell on targets site and try to crack it,is based on 4 and 10)
+13.crack admin page scan(try to find the targets' admin login page and try to crack it,is based on 4 and 10)
+14.port brute crack scan(try to brute force crack the common open port,is based on 5)
+15.whois scan(get the targets' whois info)''')
+
+    print(
+        '''Do you want my choosing to scan all of them by default,if you have special needs(eg.scan sqli vuls alone,etc) please input n|N , default[y]''')
+    choose_scan_strategy = get_input_intime('y')
+    # print("\n")
+    if choose_scan_strategy == 'Y' or choose_scan_strategy == 'y':
+        set_column_name_scan_module_unfinished("cdn_scaned",SCAN_WAY)
+        sqlList=[]
+        tmpSql="update %s set get_pang_domains_finished='0'" % FIRST_TARGETS_TABLE_NAME
+        tmpSql="update %s set get_pang_domains_finished='0'" % TARGETS_TABLE_NAME
+        for each in sqlList:
+            execute_sql_in_db(each,DB_NAME) 
+        sqlList=[]
+        tmpSql="update %s set get_sub_domains_finished='0'" % FIRST_TARGETS_TABLE_NAME
+        tmpSql="update %s set get_sub_domains_finished='0'" % TARGETS_TABLE_NAME
+        for each in sqlList:
+            execute_sql_in_db(each,DB_NAME) 
+        set_column_name_scan_module_unfinished("crawl_scaned",SCAN_WAY)
+        set_column_name_scan_module_unfinished("port_scaned",SCAN_WAY)
+        set_column_name_scan_module_unfinished("risk_scaned",SCAN_WAY)
+        set_column_name_scan_module_unfinished("sqli_scaned",SCAN_WAY)
+        set_column_name_scan_module_unfinished("xss_scaned",SCAN_WAY)
+        set_column_name_scan_module_unfinished("script_type_scaned",SCAN_WAY)
+        set_column_name_scan_module_unfinished("dirb_scaned",SCAN_WAY)
+        set_column_name_scan_module_unfinished("cms_scaned",SCAN_WAY)
+        set_column_name_scan_module_unfinished("crack_webshell_scaned",SCAN_WAY)
+        set_column_name_scan_module_unfinished("crack_admin_page_scaned",SCAN_WAY)
+        set_column_name_scan_module_unfinished("portBruteCrack_scaned",SCAN_WAY)
+        set_column_name_scan_module_unfinished("whois_scaned",SCAN_WAY)
+
+    else:
+        while True:
+            print('''Please input your selections on upon 15 scan modules,use blank to separate them.
+eg:
+1 2
+4 8
+4 10 12
+4 10 13
+5 14
+4 5 6
+5
+Attention:
+a.if you have choosed 2,then you must have choosed 1
+b.if you have choosed 8,then you must have choosed 4
+c.if you have choosed 12,then you must have choosed 4 and 10
+d.if you have choosed 13,then you must have choosed 4 and 10
+e.if you have choosed 14,then you must have choosed 5
+f.if you have choosed 6,then you must have choosed 4 and 5''')
+            shouldContinue = 0
+            selections = input("your choose:")
+            selectionsList = re.split("\s+", selections)
+            if '2' in selectionsList and ('1' not in selectionsList):
+                print("if you have choosed 2,then you must have choosed 1")
+                shouldContinue = 1
+            if '8' in selectionsList and ('4' not in selectionsList):
+                print("if you have choosed 8,then you must have choosed 4")
+                shouldContinue = 1
+            if '12' in selectionsList and ('4' not in selectionsList or '10' not in selectionsList):
+                print("if you have choosed 12,then you must have choosed 4 and 10")
+                shouldContinue = 1
+            if '13' in selectionsList and ('4' not in selectionsList or '10' not in selectionsList):
+                print("if you have choosed 13,then you must have choosed 4 and 10")
+                shouldContinue = 1
+            if '14' in selectionsList and ('5' not in selectionsList):
+                print("if you have choosed 14,then you must have choosed 5")
+                shouldContinue = 1
+            if '6' in selectionsList and ('4' not in selectionsList or '5' not in selectionsList):
+                print("if you have choosed 6,then you must have choosed 4 and 5")
+                shouldContinue = 1
+
+            if shouldContinue == 1:
+                continue
+            break
+        if '1' in selectionsList:
+            set_column_name_scan_module_unfinished("cdn_scaned",SCAN_WAY)
+
+        if '2' in selectionsList or SCAN_WAY in [1,3]:
+            tmpSql="update %s set get_pang_domains_finished='0'" % FIRST_TARGETS_TABLE_NAME
+            execute_sql_in_db(tmpSql,DB_NAME) 
+            tmpSql="update %s set get_pang_domains_finished='0'" % TARGETS_TABLE_NAME
+            execute_sql_in_db(tmpSql,DB_NAME) 
+
+        if '3' in selectionsList or SCAN_WAY in [2,3]:
+            tmpSql="update %s set get_sub_domains_finished='0'" % FIRST_TARGETS_TABLE_NAME
+            execute_sql_in_db(tmpSql,DB_NAME) 
+            tmpSql="update %s set get_sub_domains_finished='0'" % TARGETS_TABLE_NAME
+            execute_sql_in_db(tmpSql,DB_NAME) 
+
+        if '4' in selectionsList:
+            set_column_name_scan_module_unfinished("crawl_scaned",SCAN_WAY)
+
+        if '5' in selectionsList:
+            set_column_name_scan_module_unfinished("port_scaned",SCAN_WAY)
+
+        if '6' in selectionsList:
+            set_column_name_scan_module_unfinished("risk_scaned",SCAN_WAY)
+
+        if '7' in selectionsList:
+            set_column_name_scan_module_unfinished("sqli_scaned",SCAN_WAY)
+        if '8' in selectionsList:
+            set_column_name_scan_module_unfinished("xss_scaned",SCAN_WAY)
+        if '9' in selectionsList:
+            set_column_name_scan_module_unfinished("script_type_scaned",SCAN_WAY)
+        if '10' in selectionsList:
+            set_column_name_scan_module_unfinished("dirb_scaned",SCAN_WAY)
+        if '11' in selectionsList:
+            set_column_name_scan_module_unfinished("cms_scaned",SCAN_WAY)
+        if '12' in selectionsList:
+            set_column_name_scan_module_unfinished("crack_webshell_scaned",SCAN_WAY)
+        if '13' in selectionsList:
+            set_column_name_scan_module_unfinished("crack_admin_page_scaned",SCAN_WAY)
+        if '14' in selectionsList:
+            set_column_name_scan_module_unfinished("portBruteCrack_scaned",SCAN_WAY)
+        if '15' in selectionsList:
+            set_column_name_scan_module_unfinished("whois_scaned",SCAN_WAY)
+
 
 
 
@@ -4993,6 +5004,7 @@ def collect_urls_from_url(url,by="seleniumPhantomJS"):
     # eg.http://www.baidu.com/nihao?a=1&b=2为http://www.baidu.com/nihao
     # 后期可将带参数的uri根据参数fuzz,用于爆路径,发现0day等
     import html
+    from urllib.parse import urljoin
     all_uris = []
     return_all_urls = []
     cookie = ""
@@ -5729,27 +5741,27 @@ def crawl_scan(start_url):
         "crawl_scaned",
         DB_NAME,
         main_target_table_name,
-        "start_url",
+        'start_url',
         start_url)
     pang_domains_crawl_scaned = get_scan_finished(
         "pang_domains_crawl_scaned",
         DB_NAME,
         main_target_table_name,
-        "start_url",
+        'start_url',
         start_url)
     sub_domains_crawl_scaned = get_scan_finished(
         "sub_domains_crawl_scaned",
         DB_NAME,
         main_target_table_name,
-        "start_url",
+        'start_url',
         start_url)
     if http_domain_sqli_scaned == 0:
-        scrapy_splash_crawl_url(target)
+        scrapy_splash_crawl_url(start_url)
         set_scan_finished(
             "crawl_scaned",
             DB_NAME,
             main_target_table_name,
-            "start_url",
+            'start_url',
             start_url)
     elif http_domain_sqli_scaned == 1:
         print("main target crawl_scaned")
@@ -7198,11 +7210,13 @@ def single_cdn_scan(target):
     # 对子站进行cdn识别
     global DB_NAME
     table_name_list = get_target_table_name_list(target)
+    target_info=get_target_table_name_info(target)
+    column_name="http_domain" if target_info['target_is_pang_or_sub'] else "start_url"
     if 1 == get_scan_finished(
         "cdn_scaned",
         DB_NAME,
         table_name_list[0],
-        "start_url",
+        column_name,
             target):
         return
     else:
@@ -7276,11 +7290,14 @@ def single_risk_scan(target):
     # url属于哪个主目标(非旁站子站的那个目标)
     # 如http://wit.freebuf.com得到www.freebuf.com
     # eg.www_freebuf_com_pang
+    target_info=get_target_table_name_info(target)
+    column_name="http_domain" if target_info['target_is_pang_or_sub'] else "start_url"
 
     if 1 == get_scan_finished(
         "risk_scaned",
         DB_NAME,
         table_name_list[0],
+        column_name,
             target):
         return
     else:
@@ -7293,6 +7310,7 @@ def single_risk_scan(target):
         "port_scaned",
         DB_NAME,
         table_name_list[0],
+        column_name,
             target):
         single_port_scan(target)
 
@@ -7302,7 +7320,7 @@ def single_risk_scan(target):
         command = "python3 %s/%s/%s.py %s" % (
             ModulePath + "exps", each, each, target)
         os.system(command)
-        input("command finieds,press any key")
+        input("command finished,press any key")
         if os.path.exists(ModulePath + "exps/%s/result.txt" % each):
             with open(ModulePath + "exps/%s/result.txt" % each, "r+") as f:
                 strings_to_write = f.read()
@@ -7401,6 +7419,7 @@ def single_script_type_scan(target):
         "script_type_scaned",
         DB_NAME,
         table_name_list[0],
+        column_name,
             target):
         return
     else:
@@ -7435,6 +7454,7 @@ def single_dirb_scan(target):
         "dirb_scaned",
         DB_NAME,
         table_name_list[0],
+        column_name,
             target):
         return
     else:
@@ -8248,6 +8268,7 @@ def sqli_scan(start_url):
     http_domain = target
     main_target_table_name = get_main_target_table_name(http_domain)
 
+
     http_domain_sqli_scaned = get_scan_finished(
         "sqli_scaned",DB_NAME,
         main_target_table_name,"start_url",start_url)
@@ -8734,6 +8755,7 @@ def single_port_scan(target):
         "port_scaned",
         DB_NAME,
         table_name_list[0],
+        column_name,
             target):
         return
     else:
@@ -8839,6 +8861,7 @@ def single_portBruteCrack_scan(target):
         "portBruteCrack_scaned",
         DB_NAME,
         table_name_list[0],
+        column_name,
             target):
         return
     else:
@@ -8944,6 +8967,7 @@ def single_whois_scan(target):
         "whois_scaned",
         DB_NAME,
         table_name_list[0],
+        column_name,
             target):
         return
     else:

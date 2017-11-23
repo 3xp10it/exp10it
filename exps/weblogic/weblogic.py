@@ -4,7 +4,7 @@ import re
 import os
 from exp10it import get_target_table_name_list
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
-from exp10it import commonNotWebPortList
+from exp10it import COMMON_NOT_WEB_PORT_LIST
 # 禁用安全请求警告
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 modulePath = __file__[:-len(__file__.split("/")[-1])]
@@ -61,7 +61,7 @@ if len(result) > 0:
     openPortList = []
     testUrlList=[]
     for each in a:
-        if each[0] not in openPortList and each[0] not in commonNotWebPortList:
+        if each[0] not in openPortList and each[0] not in COMMON_NOT_WEB_PORT_LIST:
             openPortList.append(each[0])
             testUrlList.append(target+":"+each[0])
 
