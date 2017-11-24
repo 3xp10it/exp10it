@@ -10,8 +10,8 @@ modulePath = __file__[:-len(__file__.split("/")[-1])]
 if target[:4] == "http":
     target = urlparse(target).hostname
 figlet2file("test ms08-067 for %s" % target, 0, True)
-a = get_string_from_command(
-    "nmap --script=smb-vuln-ms08-067 %s 2>&1 | tee /tmp/result.txt" % (modulePath, target))
+cmd="nmap --script=smb-vuln-ms08-067 %s 2>&1 | tee /tmp/result.txt" % target
+a = get_string_from_command(cmd)
 if re.search(r"VULNERABLE", a, re.I):
     os.system("mv /tmp/result.txt %s" % modulePath)
     CLIOutput().good_print("Congratulations! MS10-010 exists on %s" % target)

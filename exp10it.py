@@ -5995,7 +5995,7 @@ def mail_msg_to(msg, mailto='config', subject='test', user='config', password='c
         return False
 
 
-def get_input_intime(default_choose, timeout=10):
+def get_input_intime1(default_choose, timeout=10):
     # http://www.cnblogs.com/jefferybest/archive/2011/10/09/2204050.html
     # 在一定时间内得到选择的值,如果没有选择则返回默认选择
     # 第一个参数为默认选择值
@@ -6042,7 +6042,7 @@ def get_input_intime(default_choose, timeout=10):
 
 
 
-def get_input_intime1(default_choose, timeout=10):
+def get_input_intime(default_choose, timeout=10):
     # http://www.cnblogs.com/jefferybest/archive/2011/10/09/2204050.html
     # 在一定时间内得到选择的值,如果没有选择则返回默认选择
     # 第一个参数为默认选择值
@@ -7320,7 +7320,7 @@ def single_risk_scan(target):
         command = "python3 %s/%s/%s.py %s" % (
             ModulePath + "exps", each, each, target)
         os.system(command)
-        input("command finished,press any key")
+        #input("command finished,press any key")
         if os.path.exists(ModulePath + "exps/%s/result.txt" % each):
             with open(ModulePath + "exps/%s/result.txt" % each, "r+") as f:
                 strings_to_write = f.read()

@@ -5,7 +5,8 @@ import os
 from exp10it import get_target_table_name_list
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from exp10it import COMMON_NOT_WEB_PORT_LIST
-from exp10it import get_http_domain
+from exp10it import get_http_domain_from_url
+from exp10it import execute_sql_in_db
 
 # 禁用安全请求警告
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -19,7 +20,7 @@ target=sys.argv[1]
 
 check_url_list=[]
 
-http_domain=get_http_domain(target)
+http_domain=get_http_domain_from_url(target)
 if http_domain!=target:
     if "." in target.split("/")[-1]:
         check_url_list.append(target[:-(len(target.split("/")[-1])+1)])
