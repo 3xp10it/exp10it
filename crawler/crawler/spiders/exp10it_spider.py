@@ -21,7 +21,7 @@ from crawler.settings import IPProxyPoolUrl
 import random
 import requests
 
-target_url_to_crawl="http://cdn.life.pingan.com:10088"
+target_url_to_crawl="http://www.freebuf.com"
 
 
 def get_random_proxy():
@@ -71,7 +71,7 @@ class Exp10itSpider(scrapy.Spider):
                     each_param_value=""
                 else:
                     each_param_value = each.split("=")[1]
-                if re.match(r"\d+", each_param_value):
+                if re.search(r"(\d+)|([\u4e00-\u9fa5]+)|([A-Z]+)|(\s+)|(\D+\d+)", each_param_value):
                     pure_param_list.append(each_param_name + "=*")
                 else:
                     pure_param_list.append(each)
