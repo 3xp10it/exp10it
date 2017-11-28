@@ -15,11 +15,15 @@ from exp10it import FIRST_TARGETS_TABLE_NAME
 from exp10it import execute_sql_in_db
 from exp10it import LOG_FOLDER_PATH
 from exp10it import write_string_to_sql
-
+from exp10it import get_start_url_urls_table
+from urllib.parse import urlparse
+import re
 
 class CrawlerPipeline(object):
     def process_item(self, item, spider):
         current_url = item['current_url']
+        parsed=urlparse(current_url)
+        hostname=parsed.hostname
         code = item['code']
         title = item['title']
         content = item['content']
@@ -33,7 +37,10 @@ class CrawlerPipeline(object):
         main_target_domain = get_url_belong_main_target_domain(pure_url)
         pang_table_name = main_target_domain.replace(".","_")+"_pang"
         sub_table_name =main_target_domain.replace(".","_")+"_sub"
-        url_table_name = http_domain.split("/")[-1].replace(".","_")+"_urls"
+
+        url_start_url=get_url_start_url(pure_url)
+        url_table_name=get_start_url_urls_table(url_start_url)
+
         target_table_info = get_target_table_name_info(current_url)
 
         # 1.write [current_url],[code],[title],[content],[like_admin_login_url],[like_webshell_url] to database
@@ -85,23 +92,24 @@ class CrawlerPipeline(object):
 
         # write [sub_domains_list] to database
         if target_table_info['target_is_main']:
-            _result=execute_sql_in_db("select http_domain from %s" % sub_table_name,DB_NAME)
-            exist_sub_domains_list=[]
-            for each in _result:
-                exist_sub_domains_list.append(each[0])
-            for each in item['sub_domains_list']:
-                if each not in exist_sub_domains_list:
-                    # write to database
-                    sql="insert ignore into `%s`(http_domain,domain) values('%s','%s')" % (sub_table_name,each,each.split("/")[-1])
-                    execute_sql_in_db(sql,DB_NAME)
-                    # write to config.ini
-                    if not os.path.exists(LOG_FOLDER_PATH):
-                        os.system("mkdir %s" % LOG_FOLDER_PATH)
-                    if not os.path.exists("%s/sub" % LOG_FOLDER_PATH):
-                        os.system("cd %s && mkdir sub" % LOG_FOLDER_PATH)
-                    os.system(
-                        "echo %s >> %s" %
-                        (each.split("/")[-1], LOG_FOLDER_PATH + "/sub/" + sub_table_name + ".txt"))
+            if not re.match(r"(\d+\.){3}\d+",hostname):
+                _result=execute_sql_in_db("select http_domain from %s" % sub_table_name,DB_NAME)
+                exist_sub_domains_list=[]
+                for each in _result:
+                    exist_sub_domains_list.append(each[0])
+                for each in item['sub_domains_list']:
+                    if each not in exist_sub_domains_list:
+                        # write to database
+                        sql="insert ignore into `%s`(http_domain,domain) values('%s','%s')" % (sub_table_name,each,each.split("/")[-1])
+                        execute_sql_in_db(sql,DB_NAME)
+                        # write to config.ini
+                        if not os.path.exists(LOG_FOLDER_PATH):
+                            os.system("mkdir %s" % LOG_FOLDER_PATH)
+                        if not os.path.exists("%s/sub" % LOG_FOLDER_PATH):
+                            os.system("cd %s && mkdir sub" % LOG_FOLDER_PATH)
+                        os.system(
+                            "echo %s >> %s" %
+                            (each.split("/")[-1], LOG_FOLDER_PATH + "/sub/" + sub_table_name + ".txt"))
 
 
         else:

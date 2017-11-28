@@ -4542,7 +4542,8 @@ final_scan_result mediumtext not null)" % FIRST_TARGETS_TABLE_NAME
     print("input your targets now,make sure your targets are web app entries[eg.http://www.onlyhasdvwasite.com/dvwa/]...")
     print("input 'a|A' for adding your targets one by one\n\
 input 'f|F' for adding your target by loading a target file\n\
-input 'n|N' for adding no targets and use the exists targets in former db")
+input 'n|N' for adding no targets and use the exists targets in former db\n\
+Attention! Make sure your input url is a cms entry,eg.'http://192.168.1.1/dvwa' or 'http://192.168.1.1/dvwa/'")
     choose = get_input_intime('n', 10)
 
     if choose == 'f' or choose == 'F':
@@ -5328,8 +5329,16 @@ def url_is_sub_domain_to_http_domain(url,http_domain):
 
 def scrapy_splash_crawl_url(url):
     # replace crawl_url method
+    url=re.sub(r"\s+$","",url)
     spider_file=ModulePath+"/crawler/crawler/spiders/exp10it_spider.py"
-    cmd='''sed -i 's#target_url_to_crawl=".*"#target_url_to_crawl="%s"#g' %s''' % (url,spider_file)
+    parsed=urlparse(url)
+    if re.search(r"/\S+\.\S{1,4}$",parsed.path):
+        path=re.sub(r"(?<=/)[^/\s\.]+\.\S{1,4}","",parsed.path)
+    else:
+        if parsed.path=="" or parsed.path[-1]!="/":
+            path=parsed.path+"/"
+    modify_url=parsed.scheme+"://"+parsed.netloc+path
+    cmd='''sed -i 's#target_url_to_crawl=".*"#target_url_to_crawl="%s"#g' %s''' % (modify_url,spider_file)
     os.system(cmd)
     cmd="cd %s && python3 -m scrapy crawl exp10it" % (ModulePath+"/crawler/crawler")
     os.system(cmd)

@@ -21,7 +21,40 @@ from crawler.settings import IPProxyPoolUrl
 import random
 import requests
 
-target_url_to_crawl="http://www.freebuf.com"
+target_url_to_crawl="http://192.168.93.139/dvwa/"
+
+def get_url_templet_list(url):
+    # eg,url=http://www.baidu.com/?a=1&b=2
+    # return_list:
+    # ['http://www.baidu.com/?a=1&b=2',
+    # 'http://www.baidu.com/?a=*&b=2',
+    # 'http://www.baidu.com/?a=1&b=*',
+    # 'http://www.badiu.com/?a=*&b=*']
+    if "?" not in url:
+        return []
+    import itertools
+    parsed=urlparse(url)
+    query_string=parsed.query
+    query_list=query_string.split("&")
+    # query_list=['a=1','b=2']
+    query_len=len(query_list)
+    return_list=[]
+    for i in range(0,query_len+1):
+        a=list(itertools.combinations(query_list,i))
+        # a=[('a=1',),('b=2',)]
+        each_return_string=""
+        for each in a:
+            each_return_string=""
+            for each_query in query_list:
+                if each_query not in str(each):
+                    each_query=re.sub(r"(?<=\=)[^\=]*","*",each_query)
+                    each_return_string+=(each_query+"&")
+                else:
+                    each_return_string+=(each_query+"&")
+            #print(each_return_string)
+            return_list.append(url.replace(query_string,each_return_string[:-1]))
+    return return_list
+
 
 
 def get_random_proxy():
@@ -38,23 +71,6 @@ class Exp10itSpider(scrapy.Spider):
     collected_urls = []
     domain = ""
     start_url = ""
-    a=get_random_proxy()
-    print(a)
-    lua_script = """
-    function main(splash, args)
-      assert(splash:go{splash.args.url,http_method=splash.args.http_method,body=splash.args.body})
-      assert(splash:wait(0.5))
-
-      splash:on_request(function(request)
-          request:set_proxy{
-              host = "%s",
-              port = %d
-          }
-      end)
-
-      return splash:html()
-    end
-    """ % (a[0],a[1])
 
     def url_has_been_collected(self, url):
         url=re.sub(r"(#[^\?]*)$","",url)
@@ -114,6 +130,32 @@ class Exp10itSpider(scrapy.Spider):
             #'http://geekpwn.freebuf.com'
         ]
         self.domain = urlparse(urls[0]).hostname
+        self.path=urlparse(urls[0]).path
+        self.cookie= get_url_cookie(urls[0])
+        a=get_random_proxy()
+        print(a)
+        self.lua_script = """
+        function main(splash, args)
+          assert(splash:go{splash.args.url,http_method=splash.args.http_method,body=splash.args.body,headers={
+              ['Cookie']='%s',
+              }
+              }
+              )
+          assert(splash:wait(0.5))
+
+          splash:on_request(function(request)
+              request:set_proxy{
+                  host = "%s",
+                  port = %d
+              }
+          end)
+
+          return {cookies = splash:get_cookies(),html=splash:html()}
+        end
+        """ % (self.cookie,a[0],a[1])
+
+        input("your cookie is :\n%s" % self.cookie)
+
         self.start_url = urls[0]
         for url in urls:
             if "^" in url:
@@ -123,7 +165,7 @@ class Exp10itSpider(scrapy.Spider):
                 yield SplashRequest(post_url, callback=self.parse_post, endpoint='execute',
                                     magic_response=True, meta={'handle_httpstatus_all': True, 'current_url': url},
                                     args={'lua_source': self.lua_script, 'http_method': 'POST',
-                                          'body': post_data})
+                                        'body': post_data})
             else:
                 yield SplashRequest(url, self.parse_get, endpoint='execute',
                                     magic_response=True, meta={'handle_httpstatus_all': True},
@@ -131,7 +173,6 @@ class Exp10itSpider(scrapy.Spider):
 
     def parse_get(self, response):
         item = CrawlerItem()
-        cookie = get_url_cookie(response.url)
         item['code'] = response.status
         item['current_url'] = response.url
         print(response.url)
@@ -149,7 +190,7 @@ class Exp10itSpider(scrapy.Spider):
             item['title'] = None if len(title_list)==0 else title_list[0]
             item['content'] = response.text
         else:
-            a = get_request(response.url, cookie=cookie)
+            a = get_request(response.url, cookie=self.cookie)
             item['title'] = a['title']
             item['content'] = a['content']
             urls = collect_urls_from_html(a['content'], response.url)
@@ -164,12 +205,20 @@ class Exp10itSpider(scrapy.Spider):
         url_main_target_domain = get_url_belong_main_target_domain(
             self.start_url)
         for url in urls:
+            url_templet_list=get_url_templet_list(url)
             url_http_domain = get_http_domain_from_url(url)
             if url_is_sub_domain_to_http_domain(url, urlparse(url)[0] + "://" + url_main_target_domain) and url_http_domain not in item['sub_domains_list']:
                 item['sub_domains_list'].append(url_http_domain)
             if urlparse(url).hostname != self.domain:
                 continue
             if self.url_has_been_collected(url):
+                continue
+            _flag=0
+            for _ in url_templet_list:
+                if self.url_has_been_collected(_):
+                    _flag=1
+                    break
+            if _flag==1:
                 continue
 
             if "^" in url:
