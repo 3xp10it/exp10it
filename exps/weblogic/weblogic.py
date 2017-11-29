@@ -6,6 +6,7 @@ from exp10it import get_target_table_name_list
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from exp10it import COMMON_NOT_WEB_PORT_LIST
 from exp10it import execute_sql_in_db
+from exp10it import CLIOutput
 # 禁用安全请求警告
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 modulePath = __file__[:-len(__file__.split("/")[-1])]

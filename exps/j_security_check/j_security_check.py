@@ -7,12 +7,13 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from exp10it import COMMON_NOT_WEB_PORT_LIST
 from exp10it import get_http_domain_from_url
 from exp10it import execute_sql_in_db 
+from exp10it import CLIOutput
 
 # 禁用安全请求警告
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 modulePath = __file__[:-len(__file__.split("/")[-1])]
 
-check_url="/j_security_check"
+check_addr="/j_security_check"
 
 #判断漏洞是否存在
 target=sys.argv[1]
@@ -50,7 +51,7 @@ def check(url):
 
     content = requests.get(vuln_url,verify=False,timeout=10)
     if content.status_code ==200:
-        string_to_write="Congratulations! j_security_check漏洞存在:\n"+buln_url+"\n"
+        string_to_write="Congratulations! j_security_check漏洞存在:\n"+vuln_url+"\n"
         CLIOutput().good_print(string_to_write)
         with open("%sresult.txt" % modulePath,"a+") as f:
             f.write(string_to_write)

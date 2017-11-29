@@ -38,14 +38,20 @@ class CrawlerPipeline(object):
         pang_table_name = main_target_domain.replace(".","_")+"_pang"
         sub_table_name =main_target_domain.replace(".","_")+"_sub"
 
-        url_start_url=get_url_start_url(pure_url)
-        url_table_name=get_start_url_urls_table(url_start_url)
-
         target_table_info = get_target_table_name_info(current_url)
+
+        if not target_table_info['target_is_pang_or_sub']:
+            url_start_url=get_url_start_url(pure_url)
+            url_table_name=get_start_url_urls_table(url_start_url)
+        else:
+            url_table_name=get_http_domain_from_url(pure_url).split("/")[-1].replace(".","_")+"_urls"
+
 
         # 1.write [current_url],[code],[title],[content],[like_admin_login_url],[like_webshell_url] to database
         primary_key="url"
         primary_value=current_url
+        if primary_key=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name=":
+            input(44444444444444444444444)
         write_string_to_sql(str(code), DB_NAME, url_table_name,
                 'code', primary_key, primary_value)
         write_string_to_sql(title, DB_NAME, url_table_name,
@@ -74,21 +80,21 @@ class CrawlerPipeline(object):
         elif target_table_info['target_is_main_and_table_is_targets']:
             _table_name_list=[TARGETS_TABLE_NAME]
             primary_key='start_url'
-            primary_value=get_url_start_url(pure_url)
+            primary_value=url_start_url
         elif target_table_info['target_is_main_and_table_is_first_targets']:
             _table_name_list=[FIRST_TARGETS_TABLE_NAME]
             primary_key='start_url'
-            primary_value=get_url_start_url(pure_url)
+            primary_value=url_start_url
         for each in item['resources_file_list']:
             for each_table in _table_name_list:
                 auto_write_string_to_sql(each,DB_NAME,each_table,"resource_files",primary_key,primary_value)
 
         # write [like_admin_login_urls] and [like_webshell_urls]
-        for each in _table_name_list:
+        for each_table in _table_name_list:
             if item['like_admin_login_url']:
-                    auto_write_string_to_sql(each,DB_NAME,each_table,"like_admin_login_urls",primary_key,primary_value)
+                    auto_write_string_to_sql(current_url,DB_NAME,each_table,"like_admin_login_urls",primary_key,primary_value)
             if item['like_webshell_url']:
-                    auto_write_string_to_sql(each,DB_NAME,each_table,"like_webshell_urls",primary_key,primary_value)
+                    auto_write_string_to_sql(current_url,DB_NAME,each_table,"like_webshell_urls",primary_key,primary_value)
 
         # write [sub_domains_list] to database
         if target_table_info['target_is_main']:

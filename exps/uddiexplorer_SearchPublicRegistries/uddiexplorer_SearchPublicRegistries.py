@@ -56,7 +56,7 @@ def check(url):
         bytesEncoding = chardet.detect(content)['encoding']
         content=content.decode(bytesEncoding)
         if re.search(r"127\.0\.0\.1",content,re.I):
-            string_to_write="Congratulations! uddiexplorer/SearchPublicRegistries漏洞存在:\n"+buln_url+"\n"
+            string_to_write="Congratulations! uddiexplorer/SearchPublicRegistries漏洞存在:\n"+vuln_url+"\n"
             CLIOutput().good_print(string_to_write)
             with open("%sresult.txt" % modulePath,"a+") as f:
                 f.write(string_to_write)
