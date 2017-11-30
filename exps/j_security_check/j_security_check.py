@@ -29,6 +29,7 @@ if http_domain!=target:
             check_url_list.append(target[:-1])
         else:
             check_url_list.append(target)
+    
     check_url_list.append(http_domain)
 
 

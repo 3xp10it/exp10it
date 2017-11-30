@@ -30,25 +30,35 @@ flag_list = {
 
 target = sys.argv[1]
 urls = get_target_urls_from_db(target, "exp10itdb")
+urls.append(target)
+
+check_url_list=[]
 for eachUrl in urls:
     if "^" in eachUrl:
         eachUrl = eachUrl.split("^")[0]
     parsed = urlparse(eachUrl)
     url = parsed.scheme + "://" + parsed.netloc + parsed.path
-    if re.search("\.action|\.do", url):
-        for ver in flag_list:
-            for poc in flag_list[ver]['poc']:
-                try:
-                    if ver == "S2_045":
-                        request = urllib.request.Request(url)
-                        request.add_header("Content-Type", poc)
-                    else:
-                        request = urllib.request.Request(url, poc)
-                    res_html = urllib.request.urlopen(request).read(204800)
-                    if flag_list[ver]['key'] in res_html:
-                        string_to_write = "Congratulations! 存在struts2漏洞! ver:%s\npoc:\n%s" % (ver, poc)
-                        CLIOutput.good_print(string_to_write)
-                        with open("%sresult.txt" % modulePath, "a+") as f:
-                            f.write(string_to_write)
-                except:
-                    pass
+    if re.search("\.do$", url):
+        check_url_list.append(url)
+
+def check_vul(url):
+    for ver in flag_list:
+        for poc in flag_list[ver]['poc']:
+            try:
+                if ver == "S2_045":
+                    request = urllib.request.Request(url)
+                    request.add_header("Content-Type", poc)
+                else:
+                    request = urllib.request.Request(url, poc)
+                res_html = urllib.request.urlopen(request).read(204800)
+                if flag_list[ver]['key'] in res_html:
+                    string_to_write = "Congratulations! 存在struts2漏洞! ver:%s\npoc:\n%s" % (ver, poc)
+                    CLIOutput.good_print(string_to_write)
+                    with open("%sresult.txt" % modulePath, "a+") as f:
+                        f.write(string_to_write)
+            except:
+                pass
+
+from concurrent import futures
+with futures.ThreadPoolExecutor(max_workers=15) as executor:
+    executor.map(check,check_url_list)

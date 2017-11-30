@@ -6,7 +6,7 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-		<title>Vulnerability: Reflected Cross Site Scripting (XSS) :: Damn Vulnerable Web Application (DVWA) v1.10 *Development*</title>
+		<title>Vulnerability: DOM Based Cross Site Scripting (XSS) :: Damn Vulnerable Web Application (DVWA) v1.10 *Development*</title>
 
 		<link rel="stylesheet" type="text/css" href="../../dvwa/css/main.css" />
 
@@ -40,8 +40,8 @@
 <li onclick="window.location='../../vulnerabilities/sqli/'" class=""><a href="../../vulnerabilities/sqli/">SQL Injection</a></li>
 <li onclick="window.location='../../vulnerabilities/sqli_blind/'" class=""><a href="../../vulnerabilities/sqli_blind/">SQL Injection (Blind)</a></li>
 <li onclick="window.location='../../vulnerabilities/weak_id/'" class=""><a href="../../vulnerabilities/weak_id/">Weak Session IDs</a></li>
-<li onclick="window.location='../../vulnerabilities/xss_d/'" class=""><a href="../../vulnerabilities/xss_d/">XSS (DOM)</a></li>
-<li onclick="window.location='../../vulnerabilities/xss_r/'" class="selected"><a href="../../vulnerabilities/xss_r/">XSS (Reflected)</a></li>
+<li onclick="window.location='../../vulnerabilities/xss_d/'" class="selected"><a href="../../vulnerabilities/xss_d/">XSS (DOM)</a></li>
+<li onclick="window.location='../../vulnerabilities/xss_r/'" class=""><a href="../../vulnerabilities/xss_r/">XSS (Reflected)</a></li>
 <li onclick="window.location='../../vulnerabilities/xss_s/'" class=""><a href="../../vulnerabilities/xss_s/">XSS (Stored)</a></li>
 </ul><ul class="menuBlocks"><li onclick="window.location='../../security.php'" class=""><a href="../../security.php">DVWA Security</a></li>
 <li onclick="window.location='../../phpinfo.php'" class=""><a href="../../phpinfo.php">PHP Info</a></li>
@@ -54,29 +54,36 @@
 
 			<div id="main_body">
 
-				
-<div class="body_padded">
-	<h1>Vulnerability: Reflected Cross Site Scripting (XSS)</h1>
+				<div class="body_padded">
+	<h1>Vulnerability: DOM Based Cross Site Scripting (XSS)</h1>
 
 	<div class="vulnerable_code_area">
-		<form name="XSS" action="#" method="GET">
-			<p>
-				What's your name?
-				<input type="text" name="name">
-				<input type="submit" value="Submit">
-			</p>
-			<input type='hidden' name='user_token' value='6b4648389a91bf088cec3e9132b18540' />
-		</form>
-		
-	</div>
+ 
+ 		<p>Please choose a language:</p>
 
+		<form name="XSS" method="GET">
+			<select name="default">
+				<script>
+					if (document.location.href.indexOf("default=") >= 0) {
+						var lang = document.location.href.substring(document.location.href.indexOf("default=")+8);
+						document.write("<option value='" + lang + "'>" + decodeURI(lang) + "</option>");
+						document.write("<option value='' disabled='disabled'>----</option>");
+					}
+					    
+					document.write("<option value='English'>English</option>");
+					document.write("<option value='French'>French</option>");
+					document.write("<option value='Spanish'>Spanish</option>");
+					document.write("<option value='German'>German</option>");
+				</script>
+			</select>
+			<input type="submit" value="Select" />
+		</form>
+	</div>
 	<h2>More Information</h2>
 	<ul>
 		<li><a href="https://www.owasp.org/index.php/Cross-site_Scripting_(XSS)" target="_blank">https://www.owasp.org/index.php/Cross-site_Scripting_(XSS)</a></li>
-		<li><a href="https://www.owasp.org/index.php/XSS_Filter_Evasion_Cheat_Sheet" target="_blank">https://www.owasp.org/index.php/XSS_Filter_Evasion_Cheat_Sheet</a></li>
-		<li><a href="https://en.wikipedia.org/wiki/Cross-site_scripting" target="_blank">https://en.wikipedia.org/wiki/Cross-site_scripting</a></li>
-		<li><a href="http://www.cgisecurity.com/xss-faq.html" target="_blank">http://www.cgisecurity.com/xss-faq.html</a></li>
-		<li><a href="http://www.scriptalert1.com/" target="_blank">http://www.scriptalert1.com/</a></li>
+		<li><a href="https://www.owasp.org/index.php/Testing_for_DOM-based_Cross_site_scripting_(OTG-CLIENT-001)" target="_blank">https://www.owasp.org/index.php/Testing_for_DOM-based_Cross_site_scripting_(OTG-CLIENT-001)</a></li>
+		<li><a href="https://www.acunetix.com/blog/articles/dom-xss-explained/" target="_blank">https://www.acunetix.com/blog/articles/dom-xss-explained/</a></li>
 	</ul>
 </div>
 
@@ -89,7 +96,7 @@
 			</div>
 
 			<div id="system_info">
-				<input type="button" value="View Help" class="popup_button" onClick="javascript:popUp( '../../vulnerabilities/view_help.php?id=xss_r&security=impossible' )"> <input type="button" value="View Source" class="popup_button" onClick="javascript:popUp( '../../vulnerabilities/view_source.php?id=xss_r&security=impossible' )"> <div align="left"><em>Username:</em> admin<br /><em>Security Level:</em> impossible<br /><em>PHPIDS:</em> disabled</div>
+				<input type="button" value="View Help" class="popup_button" onClick="javascript:popUp( '../../vulnerabilities/view_help.php?id=xss_d&security=low' )"> <input type="button" value="View Source" class="popup_button" onClick="javascript:popUp( '../../vulnerabilities/view_source.php?id=xss_d&security=low' )"> <div align="left"><em>Username:</em> admin<br /><em>Security Level:</em> low<br /><em>PHPIDS:</em> disabled</div>
 			</div>
 
 			<div id="footer">

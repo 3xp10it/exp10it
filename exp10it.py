@@ -1889,22 +1889,32 @@ def get_one_useful_proxy():
             else:
                 continue
 
+def get_param_list_from_param_part(param_part):
+    # eg. get ['a','b'] from 'a=1&b=2'
+    param_part_list=param_part.split("&")
+    return_list=[]
+    for each in param_part_list:
+        return_list.append(each.split("=")[0])
+    return return_list 
+
+
 
 def get_param_part_from_content(content):
-    inputParamList = re.findall(
-            r'''(<input[^<>]*name=('|")?([^'"<>\s]+)('|")?[^<>]*>)''', content, re.I)
+    form_part_value=re.search(r'''<form[^<>]+>(((?!=</form>)[\s\S])+)</form>''',content,re.I).group(1)
+    inputParamList=re.findall(r'''(<[^<>]+\s+name\s*=\s*['"]?([^\s'"]+)['"]?[^<>]*>)''',form_part_value,re.I)
     paramPartValue = ""
     paramNameList = []
     for each in inputParamList:
-        paramName = each[2]
+        paramName = each[-1]
         if paramName not in paramNameList:
             # 防止有重复的参数
             paramNameList.append(paramName)
 
-            existDefaultValue=re.search(r'''value=('|")?([^'"<>\s]*)('|")?''', each[0], re.I)
+            existDefaultValue=re.search(r'''value=('|")?([^'"<>]*)('|")?''', each[0], re.I)
             if existDefaultValue:
                 #如果有默认值
                 defaultValue=existDefaultValue.group(2)
+                defaultValue=re.sub(r"\s+","+",defaultValue)
                 paramPartValue += (paramName +"=" + defaultValue + "&")
             else:
                 # 如果没有默认值
@@ -4995,139 +5005,6 @@ def get_value_from_url(url):
 
 
 
-def collect_urls_from_url(url,by="seleniumPhantomJS"):
-    # 从url所在的html内容中收集url到url队列
-    # 返回值是一个字典,{'y1':y1,'y2':y2}
-    # y1是根据参数url得到的html页面中的所有url,是个列表类型
-    # y2是参数url对应的三个关键元素,y2是个字典类型,eg.{"code":200,"title":None,"content":""}
-    # 包括收集没有http_domain前缀的uri,src属性中的uri等
-    # 整理uri,暂时不做带参数的uri变成不带参数的页面
-    # eg.http://www.baidu.com/nihao?a=1&b=2为http://www.baidu.com/nihao
-    # 后期可将带参数的uri根据参数fuzz,用于爆路径,发现0day等
-    import html
-    from urllib.parse import urljoin
-    all_uris = []
-    return_all_urls = []
-    cookie = ""
-    if os.path.exists(CONFIG_INI_PATH):
-        from urllib.parse import urlparse
-        cookie = get_url_cookie(url)
-    if "^" in url:
-        # 说明url是post类型的url
-        testUrl = url.split("^")
-        # a=1&b=2&c=3
-        dataDict = {}
-        if "&" in testUrl[1]:
-            paramPartList = testUrl[1].split("&")
-            # paramPartList=['a=1','b=2','c=3']
-            for each in paramPartList:
-                eachParamPart = each.split("=")
-                # eachParamPart=['a','1']
-                dataDict[eachParamPart[0]] = eachParamPart[1]
-        else:
-            # post参数只有一个
-            eachParamPart = testUrl[1].split("=")
-            dataDict[eachParamPart[0]] = eachParamPart[1]
-
-        if cookie != "":
-            content = post_request(testUrl[0], data=dataDict, cookie=cookie)
-        else:
-            content = post_request(testUrl[0], data=dataDict)
-    else:
-        # 说明url是get类型的url
-        if cookie != "":
-            if by=="seleniumPhantomJS":
-                result = get_request(url, by="seleniumPhantomJS", cookie=cookie)
-            if result['hasFormAction'] == True:
-                all_uris.append(result['formActionValue'])
-        else:
-            if by=="seleniumPhantomJS":
-                result = get_request(url, by="seleniumPhantomJS")
-            if result['hasFormAction'] == True:
-                all_uris.append(result['formActionValue'])
-        content = result['content']
-
-    bs = BeautifulSoup(content, 'lxml')
-    if re.match(
-        r"%s/*((robots\.txt)|(sitemap\.xml))" %
-        get_http_domain_pattern_from_url(url),
-            url):
-        if re.search(r"(robots\.txt)$", url):
-            # 查找allow和disallow中的所有uri
-            find_uri_pattern = re.compile(
-                r"((Allow)|(Disallow)):[^\S\n]*(/[^?\*\n#]+)(/\?)?\s", re.I)
-            find_uri = re.findall(find_uri_pattern, content)
-            if find_uri:
-                for each in find_uri:
-                    all_uris.append(each[3])
-            # 查找robots.txt中可能存在的sitemap链接
-            find_sitemap_link_pattern = re.compile(
-                r"Sitemap:[^\S\n]*(http[\S]*)\s", re.I)
-            find_sitemap_link = re.findall(find_sitemap_link_pattern, content)
-            if find_sitemap_link:
-                for each in find_sitemap_link:
-                    all_uris.append(each)
-
-        if re.search(r"(sitemap\.xml)$", url):
-            find_url_pattern = re.compile(
-                r'''(http(s)?://[^\s'"#<>]+).*\s''', re.I)
-            find_url = re.findall(find_url_pattern, content)
-            if find_url:
-                for each in find_url:
-                    all_uris.append(each[0])
-
-    else:
-        for each in bs.find_all('a'):
-            # 收集a标签(bs可以收集到不带http_domain的a标签)
-            find_uri = each.get('href')
-            if find_uri is not None:
-                if re.match(r"^javascript:", find_uri):
-                    continue
-                else:
-                    find_url=urljoin(url,find_uri)
-                    all_uris.append(find_url)
-        # 收集src="http:..."中的uri
-        for each in bs.find_all(src=True):
-            find_uri = each.get('src')
-            if find_uri is not None:
-                find_url=urljoin(url,find_uri)
-                all_uris.append(find_url)
-
-        # 收集如form表单中的=""或=''中的uri
-        a = re.findall(r'''form\s+action=('|")([^'"\><\s]+)('|")''', content, re.I)
-        for each in a:
-            find_url=urljoin(url,each[1])
-            all_uris.append(find_url)
-
-    # 整理uri,将不带http_domain的链接加上http_domain,并将多余的/去除
-    for each in all_uris:
-        if each not in [None,"http://","https://"]:
-            if not re.match(r"^http", each):
-                if each[:2] == "//":
-                    each = url.split(":")[0] + ":" + each
-                else:
-                    each = get_value_from_url(url)['y2'] + '/' + each
-            # 将多余的/去除
-            httpPrefix = each.split(":")[0] + "://"
-            nothttpPrefix = each[len(httpPrefix):]
-            nothttpPrefix = re.sub(r"/+", "/", nothttpPrefix)
-            each = httpPrefix + nothttpPrefix
-            each = html.unescape(each)
-            if each not in return_all_urls:
-                return_all_urls.append(each)
-    # 暂时不考虑将如http://www.baidu.com/1.php?a=1&b=2整理成http://www.baidu.com/1.php
-
-    # 整理所有url,将其中带有单引号和双引号和+号的url过滤掉
-    final_return_urls = []
-    for each in return_all_urls:
-        if "'" in each or '"' in each or "{" in each or "(" in each or "[" in each or each[-3:] == ".js" or ".js?" in each or each[-4:] == ".css" or ".css?" in each or '\\' in each:
-            pass
-        else:
-            final_return_urls.append(each)
-    return {'y1': final_return_urls, 'y2': result}
-
-
-
 def collect_urls_from_html(content,url):
     from urllib.parse import urljoin
     import html
@@ -5138,18 +5015,14 @@ def collect_urls_from_html(content,url):
         from urllib.parse import urlparse
         cookie = get_url_cookie(url)
 
-    a = re.search(
-                r'''(<form[^<>]*action=('|")?([^\s'"<>]+)('|")?[^<>]*>)''', content, re.I)
+    a = re.search(r'''(<form\s+.+>)''',content,re.I)
     if a:
-        pureActionValue = a.group(3)
-        if  pureActionValue[0]=='/':
-            pureActionValue=get_http_netloc_from_url(url)+pureActionValue
-        elif re.match(r"http(s)?://.*",pureActionValue,re.I):
-            pureActionValue=pureActionValue
-        elif re.match(r"#+",pureActionValue) or re.match(r"\s*",pureActionValue):
-            pureActionValue=url
+        if "action=" in a.group(1):
+            pureActionValue=re.search(r'''action=('|")?([^\s'"<>]+)('|")?''',a.group(1),re.I).group(2)
         else:
-            pureActionValue=get_value_from_url(url)['y2']+"/"+pureActionValue
+            # eg.url=http://192.168.93.139/dvwa/vulnerabilities/xss_s/
+            pureActionValue=url.split("?")[0]
+        pureActionValue=urljoin(url,pureActionValue)
         
         if re.search(r'''\smethod\s*=\s*('|")?POST('|")?''',a.group(1),re.I):
             #post表单
@@ -5157,7 +5030,23 @@ def collect_urls_from_html(content,url):
         
         else:
             #get表单
-            formActionValue=pureActionValue+"?"+get_param_part_from_content(content)
+            if "?" not in pureActionValue:
+                formActionValue=pureActionValue+"?"+get_param_part_from_content(content)
+            else:
+                param_part=get_param_part_from_content(content)
+                content_param_list=get_param_list_from_param_part(param_part)
+                url_param_list=get_param_list_from_param_part(url[url.find("?")+1:])
+                new_param_part=""
+                for each_param in content_param_list:
+                    if each_param not in url_param_list:
+                        each_param_value=re.search(r"%s(\=[^&]*)" % each_param).group(1)
+                        new_param_part+=(each_param+each_param_value+"&")
+                if new_param_part!="":
+                    new_param_part=new_param_part[:-1]
+                    formActionValue=pureActionValue+"&"+new_param_part
+                else:
+                    formActionValue=pureActionValue
+
         all_uris.append(formActionValue)
 
     bs = BeautifulSoup(content, 'lxml')
@@ -6778,8 +6667,19 @@ http_domain varchar(70) not null)" % each_pang_urls_table_name
         "update `%s` set get_pang_domains_finished='1' where start_url='%s'" %
         (main_target_table_name, start_url),DB_NAME) 
 
-
 def get_root_domain(domain):
+    # 得到domain的根域名,eg.www.baidu.com得到baidu.com
+    # domain可为http开头或纯domain,不能是非http://+domain的url
+    if domain[:4] != "http":
+        key=get_domain_key_value_from_url("http://"+domain)
+    else:
+        key=get_domain_key_value_from_url(domain)
+    index=domain.find(key,0)
+    return domain[index:]
+
+
+
+def get_root_domain_bak(domain):
     # 得到domain的根域名,eg.www.baidu.com得到baidu.com
     # domain可为http开头或纯domain,不能是非http://+domain的url
     if domain[:4] == "http":
@@ -9090,6 +8990,29 @@ def get_url_start_url(url):
                     maxLen=len(each)
                     maxUrl=each
     return maxUrl
+
+def get_cms_entry_from_start_url(start_url):
+    # eg.start_url="http://192.168.1.10/dvwa/index.php"
+    # return:"http://192.168.1.10/dvwa/"
+    # eg.start_Url="http://192.168.1.10:8000"
+    # return:"http://192.168.1.10:8000/"
+    from urllib.parse import urlparse
+    parsed=urlparse(start_url)
+    path=parsed.path
+    if "/" in path:
+        file_part=path.split("/")[-1]
+        if "." in file_part:
+            file_part_index=start_url.find(file_part)
+            return_value=start_url[:file_part_index]
+        else:
+            if path[-1]!="/":
+                path=path+"/"
+            return_value=parsed.scheme+"://"+parsed.netloc+parsed.path
+    else:
+        return_value=start_url+"/"
+    return return_value
+
+
 
 def get_url_cookie(url):
     # 得到url的cookie,目前为从config.ini文件中获取

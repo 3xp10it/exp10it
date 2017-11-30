@@ -7,7 +7,6 @@ from scrapy_splash import SplashRequest
 from crawler.items import CrawlerItem
 exp10it_module_path = os.path.expanduser("~")+"/mypypi"
 sys.path.insert(0, exp10it_module_path)
-from exp10it import collect_urls_from_url
 from exp10it import RESOURCE_FILE_PATTERN
 from exp10it import collect_urls_from_html
 from exp10it import get_request
@@ -21,7 +20,8 @@ from crawler.settings import IPProxyPoolUrl
 import random
 import requests
 
-target_url_to_crawl="http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name="
+target_url_to_crawl="http://192.168.93.139/dvwa/"
+#http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name=
 
 def get_url_templet_list(url):
     # eg,url=http://www.baidu.com/?a=1&b=2
@@ -138,18 +138,12 @@ class Exp10itSpider(scrapy.Spider):
               }
               }
               )
-          assert(splash:wait(2))
+          assert(splash:wait(6))
 
-          splash:on_request(function(request)
-              request:set_proxy{
-                  host = "%s",
-                  port = %d
-              }
-          end)
 
           return { url = splash:url(),  cookies = splash:get_cookies(), html = splash:html(), }
         end
-        """ % (self.cookie,a[0],a[1])
+        """ % (self.cookie)
 
 
         self.start_url = urls[0]
@@ -163,25 +157,25 @@ class Exp10itSpider(scrapy.Spider):
                                     args={'lua_source': self.lua_script, 'http_method': 'POST',
                                         'body': post_data})
             else:
-                print(url)
-                input(2222222222222)
+                #print(url)
+                #input(2222222222222)
                 yield SplashRequest(url, self.parse_get, endpoint='execute',
                                     magic_response=True, meta={'handle_httpstatus_all': True},
                                     args={'lua_source': self.lua_script})
 
     def parse_get(self, response):
-        input(44444444444444)
+        #input(44444444444444)
         item = CrawlerItem()
         item['code'] = response.status
         item['current_url'] = response.url
-        print(response.url)
-        input(5555555555555)
-        print(response.data)
-        input(3333333333)
-        if response.url=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name=":
-            print('fail ....................')
-        if response.url=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/index.php":
-            print('succeed .................')
+        #print(response.url)
+        #input(5555555555555)
+        #print(response.data)
+        #input(3333333333)
+        #if response.url=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name=":
+        #    print('fail ....................')
+        #if response.url=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/index.php":
+        #    print('succeed .................')
 
         item['resources_file_list'] = []
         item['sub_domains_list'] = []
@@ -200,10 +194,10 @@ class Exp10itSpider(scrapy.Spider):
             item['title'] = a['title']
             item['content'] = a['content']
             urls = collect_urls_from_html(a['content'], response.url)
-            ttt=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name="
-            if ttt in urls:
-                print(response.url)
-                input(333333333333333333)
+            #ttt=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name="
+            #if ttt in urls:
+            #    print(response.url)
+            #    input(333333333333333333)
 
         if like_admin_login_content(item['content']):
             item['like_admin_login_url'] == True
@@ -216,8 +210,8 @@ class Exp10itSpider(scrapy.Spider):
             self.start_url)
 
         for url in urls:
-            if url=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name=":
-                input(1111111111111)
+            #if url=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name=":
+            #    input(1111111111111)
             url_templet_list=get_url_templet_list(url)
             url_http_domain = get_http_domain_from_url(url)
             if url_is_sub_domain_to_http_domain(url, urlparse(url)[0] + "://" + url_main_target_domain) and url_http_domain not in item['sub_domains_list']:
@@ -247,8 +241,8 @@ class Exp10itSpider(scrapy.Spider):
                                           'body': post_data})
             else:
                 # get类型url
-                if url=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name=":
-                    input(9999999999999999)
+                #if url=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name=":
+                #    input(9999999999999999)
                 match_resource = re.match(RESOURCE_FILE_PATTERN, url)
                 match_logoff = re.search(
                     r"(logout)|(logoff)|(exit)|(signout)|(signoff)", url, re.I)
@@ -257,8 +251,8 @@ class Exp10itSpider(scrapy.Spider):
                 elif match_logoff:
                     pass
                 else:
-                    if url=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name=":
-                        input(8888888889999999999999)
+                    #if url=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name=":
+                    #    input(8888888889999999999999)
                     yield SplashRequest(url, self.parse_get, endpoint='execute', magic_response=True, meta={'handle_httpstatus_all': True}, args={'lua_source': self.lua_script})
 
     def parse_post(self, response):

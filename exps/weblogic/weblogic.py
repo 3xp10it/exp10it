@@ -7,6 +7,8 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from exp10it import COMMON_NOT_WEB_PORT_LIST
 from exp10it import execute_sql_in_db
 from exp10it import CLIOutput
+from urllib.parse import urlparse
+from exp10it import get_cms_entry_from_start_url
 # 禁用安全请求警告
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 modulePath = __file__[:-len(__file__.split("/")[-1])]
@@ -57,15 +59,20 @@ target=sys.argv[1]
 target_table_name = get_target_table_name_list(target)[0]
 result = execute_sql_in_db("select port_scan_info from %s where http_domain='%s'" %
                            (target_table_name, target), "exp10itdb")
+
+testUrlList=[]
+cms_url=get_cms_entry_from_start_url(target)
+parsed=urlparse(target)
+testUrlList.append(cms_url)
+
 if len(result) > 0:
     nmap_result_string = result[0][0]
     a = re.findall(r"(\d+)/(tcp)|(udp)\s+open", nmap_result_string, re.I)
     openPortList = []
-    testUrlList=[]
     for each in a:
         if each[0] not in openPortList and each[0] not in COMMON_NOT_WEB_PORT_LIST:
             openPortList.append(each[0])
-            testUrlList.append(target+":"+each[0])
+            testUrlList.append(parsed.scheme+"://"+parsed.hostname+":"+each[0])
 
 def check(url):
     #print("正在检测第%d个url:%s" % (statusNum,url))
