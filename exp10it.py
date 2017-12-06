@@ -2216,6 +2216,22 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
             'currentUrl':current_url}
         return return_value
 
+def check_start_time(want_time):
+    #eg:a="11:59:59"
+    import time
+    while True:
+        a=time.strftime('%H:%M:%S',time.localtime(time.time()))
+        print(a)
+        if  (a[0:2]==want_time[0:2] and a[3:5]==want_time[3:5] and a[6:8]==want_time[6:8]): 
+            break
+        else:
+            print("还没到点...")
+            time.sleep(0.5)
+            continue
+    time.sleep(0.7)
+    a=time.strftime('%H:%M:%S',time.localtime(time.time()))
+    print("到点,现在时刻:%s" % a)
+
 
 def send_http_package(string,http_or_https):
     # 发http请求包封装函数,string可以是burpsuite等截包工具中拦截到的包

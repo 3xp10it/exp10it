@@ -31,7 +31,7 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.6.66"
+VERSION = "2.6.69"
 LICENSE = "MIT"
 setup(
     name=NAME,
