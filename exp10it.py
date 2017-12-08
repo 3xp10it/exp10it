@@ -5020,6 +5020,23 @@ def get_value_from_url(url):
         'y2': y2}
 
 
+def collect_urls_from_url(url):
+    import requests
+    import chardet
+    return_value={}
+    rsp=requests.get(url)
+    code=rsp.status_code
+    content=rsp.content
+    bytesEncoding = chardet.detect(content)['encoding']
+    content = content.decode(encoding=bytesEncoding, errors="ignore")
+    has_title=re.search(r"<title>([\s\S]*)</title>",content,re.I)
+    if has_title:
+        title=has_title[1]
+    else:
+        title=""
+    return_value['y1']=collect_urls_from_html(content,url)
+    return_value['y2']={'code':code,'title':title,'content':content}
+    return return_value
 
 def collect_urls_from_html(content,url):
     from urllib.parse import urljoin
@@ -6039,7 +6056,7 @@ def checkvpn():
         return 0
 
 
-def ableConnectSite(site):
+def able_connect_site(site):
     # 检测与site之间是否能成功连接
     import os
     import re
@@ -9642,6 +9659,20 @@ def start_ipproxypool():
 def start_scrapy_splash():
     os.system("docker run -p 8050:8050 scrapinghub/splash")
 
+def get_target_open_port_list(start_url):
+
+    http_domain=get_http_domain_from_url(start_url)
+    target_table_name = get_target_table_name_list(start_url)[0]
+    result = execute_sql_in_db("select port_scan_info from %s where http_domain='%s'" %
+                               (target_table_name, http_domain), "exp10itdb")
+    open_port_list=[]
+    if len(result) > 0:
+        nmap_result_string = result[0][0]
+        a = re.findall(r"(\d+)/(tcp)|(udp)\s+open", nmap_result_string, re.I)
+        for each in a:
+            if each[0] not in openPortList and each[0] not in COMMON_NOT_WEB_PORT_LIST:
+                open_port_list.append(each[0])
+    return open_port_list
 
 
 def exp10itScanner():

