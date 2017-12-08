@@ -1,8 +1,5 @@
 ### 插件开发
 
-
-#### 0x00 About
-
 开发的插件为具体的某一中高危漏洞扫描插件,如joomla远程执行漏洞插件,weblogic命令执行插件,wordpress sql注入插件
 
 脚本中的target统一设置为sys.argv[1],sys.argv[1]的值为目标url
@@ -15,7 +12,7 @@
 # 3.http://www.baidu.com:8081/cms/index.php
 ```
 
-#### 0x01 主要API
+#### 0x01 主要API如下
 
 cms_url = get_cms_entry_from_start_url(target):
     简介:用于整理一个url的cms入口
@@ -49,7 +46,7 @@ get_target_open_port_list(target):
 COMMON_NOT_WEB_PORT_LIST= ['21', '22', '53', '137','139', '145', '445', '1433', '3306', '3389']
     这是一个常量,值的类型是列表,定义在在exp10it模块中
 
-#### 0x02 插件目录结构
+#### 0x01 插件目录结构
 
     插件放到一个新建的目录中,插件名与目录名相同
     eg:
@@ -62,7 +59,7 @@ COMMON_NOT_WEB_PORT_LIST= ['21', '22', '53', '137','139', '145', '445', '1433', 
     ├── result.txt
     └── weblogic.py
 
-#### 0x03 插件建议
+#### 0x02 插件建议
 
     1.目录命名时以下划线为连接符(如果目录名较长),目录名命名要能尽量反映出漏洞情况,如某个插件目录名为joomla_rce
 
@@ -78,9 +75,7 @@ COMMON_NOT_WEB_PORT_LIST= ['21', '22', '53', '137','139', '145', '445', '1433', 
 
     4.插件建议只是建议,并不一定得这样,但是这样肯定是更好的,也有利于减少bug的产生和规范插件编写
 
-#### 0x04 插件示例
-
-如下为weblogic命令执行漏洞检测插件示例,详情见代码及注释
+#### 0x03 weblogic漏洞插件shili:
 
 ```
 import requests
@@ -189,9 +184,3 @@ from concurrent import futures
 with futures.ThreadPoolExecutor(max_workers=15) as executor:
     executor.map(check, test_url_list)
 ```
-
-#### 0x05 其它
-
-    3xp10it框架存入数据相关结构(在编写插件时一般用不到)在[这里][1]
-
-[1]: store.md
