@@ -9660,6 +9660,7 @@ def start_scrapy_splash():
     os.system("docker run -p 8050:8050 scrapinghub/splash")
 
 def get_target_open_port_list(start_url):
+
     http_domain=get_http_domain_from_url(start_url)
     target_table_name = get_target_table_name_list(start_url)[0]
     result = execute_sql_in_db("select port_scan_info from %s where http_domain='%s'" %
