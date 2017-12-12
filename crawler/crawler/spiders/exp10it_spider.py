@@ -20,7 +20,7 @@ from crawler.settings import IPProxyPoolUrl
 import random
 import requests
 
-target_url_to_crawl="http://192.168.93.139/dvwa/"
+target_url_to_crawl="http://119.18.231.18:40480/"
 #http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name=
 
 def get_url_templet_list(url):

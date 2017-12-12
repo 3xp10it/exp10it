@@ -1,7 +1,9 @@
 import requests
-import sys
 import re
 import os
+import sys
+exp10it_module_path = os.path.expanduser("~") + "/mypypi"
+sys.path.insert(0, exp10it_module_path)
 from exp10it import get_target_table_name_list
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from exp10it import COMMON_NOT_WEB_PORT_LIST
@@ -56,6 +58,7 @@ postStr = '''
 
 # 判断漏洞是否存在
 target = sys.argv[1]
+print("checking weblogic vul for "+target)
 # 传入的target是http://www.baidu.com格式(不带端口 )
 
 target_table_name = get_target_table_name_list(target)[0]

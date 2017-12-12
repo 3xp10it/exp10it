@@ -1,17 +1,19 @@
 import re
 import os
+import sys
+exp10it_module_path = os.path.expanduser("~") + "/mypypi"
+sys.path.insert(0, exp10it_module_path)
 from exp10it import getServerType
 from exp10it import get_string_from_command
 from exp10it import CLIOutput
 import sys
-from exp10it import figlet2file
 from exp10it import COMMON_NOT_WEB_PORT_LIST
 from exp10it import get_target_open_port_list
 
 current_dir = os.path.split(os.path.realpath(__file__))[0]
 target = sys.argv[1]
+print("checking iis vul for "+target)
 domain = target.split("/")[-1]
-figlet2file("test iis vul for %s" % target, 0, True)
 
 open_port_list = get_target_open_port_list(target)
 for eachPort in open_port_list:

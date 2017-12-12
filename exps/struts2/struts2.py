@@ -4,9 +4,11 @@
 import urllib.request
 import urllib.error
 import urllib.parse
-import sys
 import re
 import os
+import sys
+exp10it_module_path = os.path.expanduser("~") + "/mypypi"
+sys.path.insert(0, exp10it_module_path)
 from urllib.parse import urlparse
 from exp10it import get_target_urls_from_db
 from exp10it import CLIOutput
@@ -32,6 +34,7 @@ flag_list = {
 }
 
 target = sys.argv[1]
+print("checking struts2 vul for "+target)
 urls = get_target_urls_from_db(target, "exp10itdb")
 urls.append(target)
 

@@ -2770,8 +2770,8 @@ def execute_sql_in_db(sql, db_name="mysql"):
     global DB_SERVER
     global DB_USER
     global DB_PASS
-    print("current sql string is:")
-    print(sql)
+    #print("current sql string is:")
+    #print(sql)
 
     try:
         import MySQLdb
@@ -2857,6 +2857,8 @@ def write_string_to_sql(
         conn.autocommit(1)
         cur = conn.cursor()
         cur.execute('SET NAMES utf8')
+
+
         sql0 = "select * from `%s` where %s='%s'" % \
             (table_name, table_primary_key,
              MySQLdb.escape_string(table_primary_key_value))
@@ -2892,12 +2894,6 @@ def write_string_to_sql(
             cur.execute(sql2)
             # print sql2
             conn.commit()
-        '''
-        # sql0="replace into `%s`(%s) values('%s') on duplicate key update `%s`=%s+'%s'" % \
-                (table_name,table_primary_key,table_primary_key_value,column_name,column_name,\
-                MySQLdb.escape_string(string))
-        # cur.execute(sql0)
-        '''
 
     except:
         import traceback
@@ -3849,6 +3845,10 @@ def crack_admin_login_url(
             print("you spend time:" + str(end - start[0]))
             http_domain_value = get_http_domain_from_url(url)
             # 经验证terminate()应该只能结束当前线程,不能达到结束所有线程
+            target_info=get_target_table_name_info(target)
+            column_name="http_domain" if target_info['target_is_pang_or_sub'] else "start_url"
+            start_url=get_url_start_url(url)
+            column_name_value=start_url if target_info['target_is_pang_or_sub'] else http_domain_value
             table_name_list = get_target_table_name_list(http_domain_value)
             urls_table_name = http_domain_value.split(
                     "/")[-1].replace(".", "_") + "_urls"
@@ -3859,8 +3859,8 @@ def crack_admin_login_url(
                     DB_NAME,
                     each_table,
                     "cracked_admin_login_urls_info",
-                    "http_domain",
-                    http_domain_value)
+                    column_name,
+                    column_name_value)
             # 将urls表中cracked_admin_login_url_info字段标记为爆破结果信息
             execute_sql_in_db(
                 "update `%s` set cracked_admin_login_url_info='%s' where url='%s'" %
@@ -4150,6 +4150,11 @@ def crack_webshell(url, anyway=0):
     ext = get_webshell_suffix_type(url)
     tmp = check_webshell_url(url)
     url_http_domain = get_http_domain_from_url(url)
+
+    target_info=get_target_table_name_info(target)
+    column_name="http_domain" if target_info['target_is_pang_or_sub'] else "start_url"
+    start_url=get_url_start_url(url)
+    column_name_value=start_url if target_info['target_is_pang_or_sub'] else url_http_domain
     table_name_list = get_target_table_name_list(url_http_domain)
     urls_table_name = url_http_domain.split(
         "/")[-1].replace(".", "_") + "_urls"
@@ -4163,8 +4168,8 @@ def crack_webshell(url, anyway=0):
                 DB_NAME,
                 each_table,
                 "like_webshell_urls",
-                'http_domain',
-                url_http_domain)
+                column_name,
+                column_name_value)
         execute_sql_in_db(
             "update `%s` set like_webshell_url='1' where url='%s'" %
             (urls_table_name, url),DB_NAME) 
@@ -4196,8 +4201,8 @@ def crack_webshell(url, anyway=0):
                     DB_NAME,
                     each_table,
                     "cracked_webshell_urls_info",
-                    'http_domain',
-                    url_http_domain)
+                    column_name,
+                    column_name_value)
             mail_msg_to(
                 strings_to_write,
                 subject="cracked webshell url")
@@ -4223,8 +4228,8 @@ def crack_webshell(url, anyway=0):
                     DB_NAME,
                     each_table,
                     "cracked_webshell_urls_info",
-                    'http_domain',
-                    url_http_domain)
+                    column_name,
+                    column_name_value)
             mail_msg_to(
                 strings_to_write,
                 subject="cracked webshell url")
@@ -4249,8 +4254,8 @@ def crack_webshell(url, anyway=0):
                 DB_NAME,
                 each_table,
                 "cracked_webshell_urls_info",
-                'http_domain',
-                url_http_domain)
+                column_name,
+                column_name_value)
         mail_msg_to(strings_to_write,
                     subject="cracked webshell url")
 
@@ -4579,8 +4584,6 @@ Attention! Make sure your input url is a cms entry,eg.'http://192.168.1.1/dvwa' 
                 start_url=re.sub(r"(\s)$","",start_url)
                 target = get_http_domain_from_url(start_url)
 
-                #import pdb
-                #pdb.set_trace()
 
                 print("你想要随便扫描还是认真的扫描,随便扫描不要求输入cookie,认真扫描要求输入用户登录后的cookie,输入y|Y选\
 择随便扫描,n|N选择认真扫描,默认随便扫描,default[y]")
@@ -4687,9 +4690,6 @@ cracked_admin_login_url_info varchar(50) not null,\
 http_domain varchar(70) not null)" % target_urls_table_name
                 execute_sql_in_db(sql,DB_NAME) 
 
-        os.system(
-            '''echo targets_file='"'%s'"' >> targets.py''' %
-            targets_file_abs_path)
         print(
             "do you want to add it to the first targets table with higher priority to scan? y|n\
 default[n]")
@@ -4915,12 +4915,17 @@ eg:
 4 5 6
 5
 Attention:
+
+|--->advice items<---|
+a.if you have choosed 6,then you'd better have choosed 4 and 5
+
+|--->must items<---|
 a.if you have choosed 2,then you must have choosed 1
 b.if you have choosed 8,then you must have choosed 4
 c.if you have choosed 12,then you must have choosed 4 and 10
 d.if you have choosed 13,then you must have choosed 4 and 10
 e.if you have choosed 14,then you must have choosed 5
-f.if you have choosed 6,then you must have choosed 4 and 5''')
+''')
             shouldContinue = 0
             selections = input("your choose:")
             selectionsList = re.split("\s+", selections)
@@ -4938,9 +4943,6 @@ f.if you have choosed 6,then you must have choosed 4 and 5''')
                 shouldContinue = 1
             if '14' in selectionsList and ('5' not in selectionsList):
                 print("if you have choosed 14,then you must have choosed 5")
-                shouldContinue = 1
-            if '6' in selectionsList and ('4' not in selectionsList or '5' not in selectionsList):
-                print("if you have choosed 6,then you must have choosed 4 and 5")
                 shouldContinue = 1
 
             if shouldContinue == 1:
@@ -6146,6 +6148,14 @@ def get_url_belong_main_target_domain(url):
     # 的主目标的域名,如得到http://wit.freebuf.com/1.php的所属主目标为www.freebuf.com
     flag1 = False
     flag2 = False
+    sql="select * from %s where start_url='%s'" % (TARGETS_TABLE_NAME,url)
+    result=execute_sql_in_db(sql,DB_NAME)
+    if len(result)>0:
+        return get_http_domain_from_url(url).split("/")[-1]
+    sql="select * from %s where start_url='%s'" % (FIRST_TARGETS_TABLE_NAME,url)
+    result=execute_sql_in_db(sql,DB_NAME)
+    if len(result)>0:
+        return get_http_domain_from_url(url).split("/")[-1]
     tmp = get_source_main_target_domain_of_sub_url(url)
     if tmp is None:
         flag1 = True
@@ -6257,8 +6267,8 @@ def get_scan_finished(scaned_column_name, db, table, column_name,column_value):
     sql = "select %s from `%s` where %s='%s'" % (
         scaned_column_name, table, column_name,column_value)
     result = execute_sql_in_db(sql, db)
-    print("here sql is:")
-    print(sql)
+    #print("here sql is:")
+    #print(sql)
     if len(result) > 0:
         if result[0][0] == '1':
             return 1
@@ -6987,9 +6997,9 @@ def get_main_target_table_name(target):
     global DB_NAME
     global TARGETS_TABLE_NAME
     global FIRST_TARGETS_TABLE_NAME
-    import pdb
+    #import pdb
     #pdb.set_trace()
-    print("param target is:"+target)
+    #print("param target is:"+target)
     if target[:4] == "http":
         domain = urlparse(target).hostname
     else:
@@ -7016,7 +7026,7 @@ def get_target_table_name_list(start_url):
     url_belong_to_main_target = [False]
     # url属于哪个主目标(非旁站子站的那个目标)
     # 如http://wit.freebuf.com得到www.freebuf.com
-    url_main_target = [get_url_belong_main_target_domain(target)]
+    url_main_target = [get_url_belong_main_target_domain(start_url)]
     # eg.www_freebuf_com_pang
     url_main_target_pang_table_name = url_main_target[0].replace(
         ".", "_") + "_pang"
@@ -7211,8 +7221,13 @@ def single_cdn_scan(target):
         # 这时target既是旁站又是子站
         strings_to_write = "ip is same to main target"
 
+    target_info=get_target_table_name_info(target)
+    column_name="http_domain" if target_info['target_is_pang_or_sub'] else "start_url"
+    start_url=get_url_start_url(url)
+    column_name_value=start_url if target_info['target_is_pang_or_sub'] else get_http_domain_from_url(target)
+
     for each_table in table_name_list:
-        write_string_to_sql(strings_to_write, DB_NAME, each_table,"actual_ip_from_cdn_scan", "http_domain", target)
+        write_string_to_sql(strings_to_write, DB_NAME, each_table,"actual_ip_from_cdn_scan", column_name, column_name_value)
 
 
 def single_risk_scan(target):
@@ -7271,7 +7286,7 @@ def single_risk_scan(target):
             strings_to_write = ""
 
         for each_table in table_name_list:
-            write_string_to_sql(strings_to_write, DB_NAME, each_table,"risk_scan_info", "http_domain", target)
+            write_string_to_sql(strings_to_write, DB_NAME, each_table,"risk_scan_info", column_name, target)
 
         if len(strings_to_write) != 0:
             mail_msg_to(
@@ -7478,7 +7493,7 @@ def single_dirb_scan(target):
             DB_NAME,
             each_table,
             "dirb_info",
-            "http_domain",
+            column_name,
             target)
 
     target_urls_table_name = target.split("/")[-1].replace(".", "_") + "_urls"
@@ -7523,8 +7538,8 @@ def single_dirb_scan(target):
                         DB_NAME,
                         each_table,
                         "like_admin_login_urls",
-                        "http_domain",
-                        http_domain)
+                        column_name,
+                        target)
                 execute_sql_in_db(
                     "update `%s` set like_admin_login_url='1' where url='%s'" %
                     (target_urls_table_name, each_url),DB_NAME) 
@@ -9287,7 +9302,8 @@ class MyScanner(object):
     def __init__(self, start_url, single_xxx_scan):
         global SCAN_WAY
         xxxValue = single_xxx_scan.__name__[7:-5]
-        target=get_http_domain_from_url(start_url)
+        #target=get_http_domain_from_url(start_url)
+        target=start_url
         # 根据SCAN_WAY的值对target进行脚本类型识别扫描
         main_target_table_name = get_main_target_table_name(start_url)
         http_domain_xxx_scaned = get_scan_finished(
@@ -9693,6 +9709,7 @@ def exp10itScanner():
         if target is None:
             target = get_one_target_from_db(DB_NAME,TARGETS_TABLE_NAME)
         if target is not None:
+            #print(target)
             output.good_print("get a target for scan from database:")
             output.good_print(Fore.BLUE + target)
             auto_attack(target)

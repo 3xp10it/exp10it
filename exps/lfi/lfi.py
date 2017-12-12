@@ -1,6 +1,8 @@
+import re
 import os
 import sys
-import re
+exp10it_module_path = os.path.expanduser("~") + "/mypypi"
+sys.path.insert(0, exp10it_module_path)
 exp10it_module_path = os.path.expanduser("~") + "/mypypi"
 sys.path.insert(0, exp10it_module_path)
 from exp10it import get_target_urls_from_db
@@ -9,6 +11,7 @@ from exp10it import CLIOutput
 import requests
 current_dir = os.path.split(os.path.realpath(__file__))[0]
 target = sys.argv[1]
+print("checking lfi vul for "+target)
 urls = get_target_urls_from_db(target, "exp10itdb")
 urls.append(target)
 cookie = get_url_cookie(target)

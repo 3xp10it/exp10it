@@ -1,7 +1,9 @@
 import requests
-import sys
 import re
 import os
+import sys
+exp10it_module_path = os.path.expanduser("~") + "/mypypi"
+sys.path.insert(0, exp10it_module_path)
 from exp10it import get_target_table_name_list
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from exp10it import COMMON_NOT_WEB_PORT_LIST
@@ -18,6 +20,7 @@ check_addr = "/uddiexplorer/SearchPublicRegistries.jsp?operator=http://127.0.0.1
 
 # 判断漏洞是否存在
 target = sys.argv[1]
+print("checking uddiexplorer vul for "+target)
 
 check_url_list = []
 

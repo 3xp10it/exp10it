@@ -1,10 +1,11 @@
 import re
 import os
 import sys
+exp10it_module_path = os.path.expanduser("~") + "/mypypi"
+sys.path.insert(0, exp10it_module_path)
 from urllib.parse import urlparse
 from exp10it import get_string_from_command
 from exp10it import CLIOutput
-from exp10it import figlet2file
 from exp10it import get_target_table_name_list
 from exp10it import COMMON_NOT_WEB_PORT_LIST
 from exp10it import get_http_domain_from_url
@@ -13,10 +14,10 @@ from exp10it import get_target_open_port_list
 
 current_dir = os.path.split(os.path.realpath(__file__))[0]
 target = sys.argv[1]
+print("checking heartbleed vul for "+target)
 open_port_list = get_target_open_port_list(target)
 http_domain = get_http_domain_from_url(target)
 hostname = urlparse(target).hostname
-figlet2file("test heartbleed vul for %s" % target, 0, True)
 target_table_name = get_target_table_name_list(target)[0]
 parsed = urlparse(target)
 open_port_list = get_target_open_port_list(target)

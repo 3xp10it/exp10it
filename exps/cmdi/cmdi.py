@@ -1,6 +1,6 @@
+import re
 import os
 import sys
-import re
 exp10it_module_path = os.path.expanduser("~") + "/mypypi"
 sys.path.insert(0, exp10it_module_path)
 import time
@@ -12,6 +12,7 @@ if not os.path.exists(current_dir + "/commix"):
     os.system(
         "cd %s && git clone https://github.com/3xp10it/commix.git" % current_dir)
 target = sys.argv[1]
+print("checking command injection vul for "+target)
 urls = get_target_urls_from_db(target, "exp10itdb")
 urls.append(target)
 cookie = get_url_cookie(target)

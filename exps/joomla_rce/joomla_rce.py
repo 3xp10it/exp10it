@@ -5,6 +5,8 @@
 # joomla_exp write php shell to joomla root dir
 import os
 import sys
+exp10it_module_path = os.path.expanduser("~") + "/mypypi"
+sys.path.insert(0, exp10it_module_path)
 import re
 import time
 from exp10it import able_connect_site
@@ -12,6 +14,7 @@ current_dir = os.path.split(os.path.realpath(__file__))[0]
 current_log_file = "/tmp/joomla_rce_" + str(time.time())
 
 target = sys.argv[1]
+print("checking joomla rce vul for "+target)
 if target[:4] != "http":
     print("please make sure target's format start with 'http' ")
     sys.exit(0)

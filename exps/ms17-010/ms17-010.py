@@ -1,16 +1,17 @@
-import sys
 import re
 import os
+import sys
+exp10it_module_path = os.path.expanduser("~") + "/mypypi"
+sys.path.insert(0, exp10it_module_path)
 import time
 from urllib.parse import urlparse
-from exp10it import figlet2file
 from exp10it import CLIOutput
 target = sys.argv[1]
+print("checking ms17-010 vul for "+target)
 current_dir = os.path.split(os.path.realpath(__file__))[0]
 current_log_file = "/tmp/commix_" + str(time.time())
 if target[:4] == "http":
     target = urlparse(target).hostname
-figlet2file("test ms17-010 for %s" % target, 0, True)
 if not os.path.exists("%s/smb-vuln-ms17-010.nse" % current_dir):
     os.system("cd %s && wget https://raw.githubusercontent.com/cldrn/nmap-nse-scripts/master/scripts/smb-vuln-ms17-010.nse" %
               current_dir)

@@ -1,6 +1,8 @@
 import requests
-import sys
 import os
+import sys
+exp10it_module_path = os.path.expanduser("~") + "/mypypi"
+sys.path.insert(0, exp10it_module_path)
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from exp10it import COMMON_NOT_WEB_PORT_LIST
 from exp10it import get_http_domain_from_url
@@ -15,6 +17,7 @@ check_addr = "/solr"
 
 # 判断漏洞是否存在
 target = sys.argv[1]
+print("checking solr vul for "+target)
 
 check_url_list = []
 
