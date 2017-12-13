@@ -1,4 +1,5 @@
 import re
+import pdb
 import sys
 import os
 from urllib.parse import urlparse
@@ -20,7 +21,7 @@ from crawler.settings import IPProxyPoolUrl
 import random
 import requests
 
-target_url_to_crawl="http://119.18.231.18:40480/"
+target_url_to_crawl="http://e.pingan.com/pa18shoplife/"
 #http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name=
 
 def get_url_templet_list(url):
@@ -75,6 +76,8 @@ class Exp10itSpider(scrapy.Spider):
     def add_url_templet_to_collected_urls(self, url):
         url=re.sub(r"(#[^\?]*)$","",url)
         parsed = urlparse(url)
+        if len(parsed)<4:
+            pdb.set_trace()
         url_page = parsed[0] + "://" + parsed[1] + \
             (parsed[2] if "^" not in parsed[2] else parsed[2].split('^')[0])
         param_part = parsed[2].split("^")[1] if "^" in url else parsed[4]
@@ -157,32 +160,22 @@ class Exp10itSpider(scrapy.Spider):
                                     args={'lua_source': self.lua_script, 'http_method': 'POST',
                                         'body': post_data})
             else:
-                #print(url)
-                #input(2222222222222)
+                if url=="http://m.pingan.com/":
+                    input(6666666666)
+                    pdb.set_trace()
                 yield SplashRequest(url, self.parse_get, endpoint='execute',
                                     magic_response=True, meta={'handle_httpstatus_all': True},
                                     args={'lua_source': self.lua_script})
 
     def parse_get(self, response):
-        #input(44444444444444)
         item = CrawlerItem()
         item['code'] = response.status
         item['current_url'] = response.url
-        #print(response.url)
-        #input(5555555555555)
-        #print(response.data)
-        #input(3333333333)
-        #if response.url=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name=":
-        #    print('fail ....................')
-        #if response.url=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/index.php":
-        #    print('succeed .................')
-
         item['resources_file_list'] = []
         item['sub_domains_list'] = []
         item['like_admin_login_url'] = False
         item['like_webshell_url'] = False
 
-        #print(response.text)
 
         if response.status == 200:
             urls = collect_urls_from_html(response.text, response.url)
@@ -194,26 +187,24 @@ class Exp10itSpider(scrapy.Spider):
             item['title'] = a['title']
             item['content'] = a['content']
             urls = collect_urls_from_html(a['content'], response.url)
-            #ttt=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name="
-            #if ttt in urls:
-            #    print(response.url)
-            #    input(333333333333333333)
 
         if like_admin_login_content(item['content']):
             item['like_admin_login_url'] == True
         if check_url_has_webshell_content(item['current_url'], item['content'], item['code'], item['title'])['y1']:
             item['like_webshell_url'] == True
 
+        if item['current_url']=="http://m.pingan.com/":
+            pdb.set_trace()
         yield item
 
         url_main_target_domain = get_url_belong_main_target_domain(
             self.start_url)
 
         for url in urls:
-            #if url=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name=":
-            #    input(1111111111111)
             url_templet_list=get_url_templet_list(url)
             url_http_domain = get_http_domain_from_url(url)
+            if url=="http://m.pingan.com/":
+                pdb.set_trace()
             if url_is_sub_domain_to_http_domain(url, urlparse(url)[0] + "://" + url_main_target_domain) and url_http_domain not in item['sub_domains_list']:
                 item['sub_domains_list'].append(url_http_domain)
             if urlparse(url).hostname != self.domain:
@@ -241,8 +232,6 @@ class Exp10itSpider(scrapy.Spider):
                                           'body': post_data})
             else:
                 # get类型url
-                #if url=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name=":
-                #    input(9999999999999999)
                 match_resource = re.match(RESOURCE_FILE_PATTERN, url)
                 match_logoff = re.search(
                     r"(logout)|(logoff)|(exit)|(signout)|(signoff)", url, re.I)
@@ -251,8 +240,8 @@ class Exp10itSpider(scrapy.Spider):
                 elif match_logoff:
                     pass
                 else:
-                    #if url=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name=":
-                    #    input(8888888889999999999999)
+                    if url=="http://m.pingan.com/":
+                        pdb.set_trace()
                     yield SplashRequest(url, self.parse_get, endpoint='execute', magic_response=True, meta={'handle_httpstatus_all': True}, args={'lua_source': self.lua_script})
 
     def parse_post(self, response):
@@ -271,4 +260,7 @@ class Exp10itSpider(scrapy.Spider):
             item['like_admin_login_url'] == True
         if check_url_has_webshell_content(item['current_url'], item['content'], item['code'], item['title'])['y1']:
             item['like_webshell_url'] == True
+
+        if item['current_url']=="http://m.pingan.com/":
+            pdb.set_trace()
         yield item

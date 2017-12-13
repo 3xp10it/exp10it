@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" serverName="kali3mypypi">
+    <serverData>
+      <paths name="kali33xp10it">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/root/3xp10it" local="$USER_HOME$/3xp10it" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="kali3mypypi">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/root/mypypi" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>

@@ -3,6 +3,7 @@
 import platform
 import os
 import re
+import pdb
 
 
 def get_string_from_command(command):
@@ -2170,7 +2171,7 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
 
             # 看看有没有表单
             a = re.search(
-                r'''<form[^<>]*action=('|")?([^\s'"<>]+)('|")?[^<>]*>''', content, re.I)
+                r'''<form[^<>]*action=('|")?([^\s'"<>]*)('|")?[^<>]*>''', content, re.I)
             if not a and re.search(r'''<form\s+((?!action|>|<).)*>''', content, re.I):
                 # 有form没有action则调用seleniumPhantomJS来重新发送get请求,因为这种情况无法获得表单要提交的url
                 return get_request(url,by="seleniumPhantomJS",proxyUrl=proxyUrl,cookie=cookie,delaySwitcher=delaySwitcher)
@@ -4575,7 +4576,8 @@ final_scan_result mediumtext not null)" % FIRST_TARGETS_TABLE_NAME
 input 'f|F' for adding your target by loading a target file\n\
 input 'n|N' for adding no targets and use the exists targets in former db\n\
 Attention! Make sure your input url is a cms entry,eg.'http://192.168.1.1/dvwa' or 'http://192.168.1.1/dvwa/'")
-    choose = get_input_intime('n', 10)
+    #choose = get_input_intime('n', 10)
+    choose='a'
 
     if choose == 'f' or choose == 'F':
         targets_file_abs_path=input("Please input your targets file\n:>")
@@ -4876,7 +4878,8 @@ http_domain varchar(70) not null)" % target_urls_table_name
 
     print(
         '''Do you want my choosing to scan all of them by default,if you have special needs(eg.scan sqli vuls alone,etc) please input n|N , default[y]''')
-    choose_scan_strategy = get_input_intime('y')
+    #choose_scan_strategy = get_input_intime('y')
+    choose_scan_strategy='n'
     # print("\n")
     if choose_scan_strategy == 'Y' or choose_scan_strategy == 'y':
         set_column_name_scan_module_unfinished("cdn_scaned",SCAN_WAY)
@@ -5053,7 +5056,7 @@ def collect_urls_from_html(content,url):
     a = re.search(r'''(<form\s+.+>)''',content,re.I)
     if a:
         if "action=" in a.group(1):
-            pureActionValue=re.search(r'''action=('|")?([^\s'"<>]+)('|")?''',a.group(1),re.I).group(2)
+            pureActionValue=re.search(r'''action=('|")?([^\s'"<>]*)('|")?''',a.group(1),re.I).group(2)
         else:
             # eg.url=http://192.168.93.139/dvwa/vulnerabilities/xss_s/
             pureActionValue=url.split("?")[0]
@@ -5233,7 +5236,7 @@ def get_domain_key_value_from_url(url):
 
 def post_html_handler(html):
     # 处理爬虫遇到包含post数据的html(url)的情况
-    if not re.search(r'''type=('|")?submit('|")?''', html.re.I):
+    if not re.search(r'''type=('|")?submit('|")?''', html,re.I):
         return
 
 
@@ -5261,6 +5264,8 @@ def scrapy_splash_crawl_url(url):
     else:
         if parsed.path=="" or parsed.path[-1]!="/":
             path=parsed.path+"/"
+        else:
+            path=parsed.path
     modify_url=parsed.scheme+"://"+parsed.netloc+path
     cmd='''sed -i 's#target_url_to_crawl=".*"#target_url_to_crawl="%s"#g' %s''' % (modify_url,spider_file)
     os.system(cmd)
@@ -7014,6 +7019,7 @@ def get_main_target_table_name(target):
         return FIRST_TARGETS_TABLE_NAME
     else:
         print("get_main_target_table_name error,check your select code")
+        pdb.set_trace()
 
 
 def get_target_table_name_list(start_url):
@@ -7104,14 +7110,16 @@ def get_target_table_name_info(target):
 
     if not target_is_pang_domain and not target_is_sub_domain:
         # 这时target为主要目标
+        if target=="http://m.pingan.com/":
+            pdb.set_trace()
         if get_main_target_table_name(target) == "targets":
             target_is_main_and_table_is_targets = True
         elif get_main_target_table_name(target) == "first_targets":
             target_is_main_and_table_is_first_targets = True
         else:
-            input(
-                "target is main target but not first_target nor targets,check it here,wooooaaaaa!")
-
+            # not pang,not sub,not targets,not first_targets
+            pass
+            
     if target_is_pang_domain and not target_is_pang_and_sub:
         # 这时target为旁站不是子站
         target_is_only_pang = True
@@ -8964,7 +8972,11 @@ def scan_way_init():
 3>scan targets and targets' pang domains and sub domains\n\
 4>scan targets without pang and without sub domains")
     print("please input your chioce,default [%s]" % str(defaultChoose))
-    choose = get_input_intime(str(defaultChoose))
+    #choose = get_input_intime(str(defaultChoose))
+    choose=4
+    print("I choosed 4 for you")
+
+    #6666666
     if choose != str(defaultChoose):
         update_config_file_key_value(
             CONFIG_INI_PATH, 'default', 'SCAN_WAY', int(choose))
@@ -9036,6 +9048,10 @@ def get_url_start_url(url):
             for each in matchList:
                 if len(each)>=maxLen:
                     maxLen=len(each)
+                    maxUrl=each
+        else:
+            for each in a:
+                if urlparse(each).netloc==urlparse(url).netloc:
                     maxUrl=each
     return maxUrl
 
@@ -9635,7 +9651,8 @@ def scan_init():
     else:
         print("Do you want to work with vpn connected(can visit google)? \ninput 0 if you don't want,\ninput 1 if you want\n\
 I suggest you input 1 unless you don't need cdn recgnization or don't care about the result of cdn recgnization")
-        forcevpn = get_input_intime(1)
+        #forcevpn = get_input_intime(1)
+        forcevpn="0"
         if forcevpn != "0":
             update_config_file_key_value(
                 config_file_abs_path, 'default', 'forcevpn', 1)
@@ -9662,14 +9679,14 @@ I suggest you input 1 unless you don't need cdn recgnization or don't care about
 def start_ipproxypool():
     if not os.path.exists("IPProxyPool"):
         cmd="cd %s && git clone https://github.com/qiyeboy/IPProxyPool.git && pip install -r requirements.txt" % WORK_PATH
-        input(cmd)
+        #input(cmd)
         os.system(cmd)
     else:
         cmd="cd %s && git pull" % (WORK_PATH+"/IPProxyPool")
-        input(cmd)
+        #input(cmd)
         os.system(cmd)
     cmd="cd %s && nohup python2 IPProxy.py > IPProxyPool.log &" % (WORK_PATH+"/IPProxyPool")
-    input(cmd)
+    #input(cmd)
     os.system(cmd)
 
 def start_scrapy_splash():

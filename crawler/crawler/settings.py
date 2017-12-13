@@ -9,6 +9,7 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 import os,sys
+import requests
 exp10it_module_path = os.path.expanduser("~")+"/mypypi"
 sys.path.insert(0, exp10it_module_path)
 
@@ -24,6 +25,9 @@ except:
     print("make sure you have start your scrapy_splash service,if not,do it now")
     SPLASH_SERVER=input("Please input your scrapy_splash server ip address\n:>")
     SPLASH_URL="http://"+SPLASH_SERVER+":8050"
+    rsp=requests.get(SPLASH_URL)
+    if rsp.status_code!=200:
+        input("Attention! "+SPLASH_URL+" seems doesn't online,check it and press any key to continue...")
     update_config_file_key_value(CONFIG_INI_PATH, 'default', 'SPLASH_URL', "'" +SPLASH_URL+"'")
 
 
@@ -35,6 +39,9 @@ except:
     IPProxyPoolServer=input("Please input your IPProxyPool server ip address\n:>")
 
     IPProxyPoolUrl="http://"+IPProxyPoolServer+":8000/?types=0&count=50"
+    rsp=requests.get(IPProxyPoolUrl)
+    if rsp.status_code!=200:
+        input("Attention! "+IPProxyPoolUrl+" seems doesn't online,check it and press any key to continue...")
     update_config_file_key_value(CONFIG_INI_PATH, 'default', 'IPProxyPoolURL', "'" +IPProxyPoolUrl+"'")
 
 

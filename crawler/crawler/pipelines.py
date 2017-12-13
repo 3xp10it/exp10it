@@ -50,8 +50,6 @@ class CrawlerPipeline(object):
         # 1.write [current_url],[code],[title],[content],[like_admin_login_url],[like_webshell_url] to database
         primary_key="url"
         primary_value=current_url
-        if primary_key=="http://192.168.93.139/dvwa/vulnerabilities/xss_r/?name=?name=?name=?name=?name=":
-            input(44444444444444444444444)
         write_string_to_sql(str(code), DB_NAME, url_table_name,
                 'code', primary_key, primary_value)
         write_string_to_sql(title, DB_NAME, url_table_name,
