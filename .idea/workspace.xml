@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b27d6eec-72a2-48fb-99db-8121f24fbd8b" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$USER_HOME$/3xp10it/develop.md" afterPath="$USER_HOME$/3xp10it/develop.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/crawler/crawler/pipelines.py" afterPath="$PROJECT_DIR$/crawler/crawler/pipelines.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/crawler/crawler/settings.py" afterPath="$PROJECT_DIR$/crawler/crawler/settings.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/crawler/crawler/spiders/exp10it_spider.py" afterPath="$PROJECT_DIR$/crawler/crawler/spiders/exp10it_spider.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/exp10it.py" afterPath="$PROJECT_DIR$/exp10it.py" />
+    <list default="true" id="d7af9243-29fa-4ee9-a49d-f5ab3487ac43" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
+      <change beforePath="$PROJECT_DIR$/.idea/mypypi.iml" afterPath="$PROJECT_DIR$/.idea/mypypi.iml" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
+      <change beforePath="$PROJECT_DIR$/.idea/webServers.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/exp10it.py" afterPath="$PROJECT_DIR$/exp10it.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -16,216 +19,15 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/mypypi$crawler.coverage" NAME="crawler Coverage Results" MODIFIED="1513162234976" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawler/crawler/spiders" />
-    <SUITE FILE_PATH="coverage/mypypi$3xp10it.coverage" NAME="3xp10it Coverage Results" MODIFIED="1513162266765" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/3xp10it" />
-  </component>
-  <component name="DatabaseView">
-    <option name="SHOW_INTERMEDIATE" value="true" />
-    <option name="GROUP_SCHEMA" value="true" />
-    <option name="GROUP_CONTENTS" value="false" />
-    <option name="SORT_POSITIONED" value="false" />
-    <option name="SHOW_TABLE_DETAILS" value="true" />
-    <option name="SHOW_EMPTY_GROUPS" value="false" />
-    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
-    <expand />
-    <select />
+    <SUITE FILE_PATH="coverage/mypypi$ss.coverage" NAME="ss Coverage Results" MODIFIED="1513210540710" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawler" />
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="exp10it.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/exp10it.py">
+      <file leaf-file-name="ss.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/crawler/ss.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="173">
-              <caret line="5270" column="0" lean-forward="false" selection-start-line="5270" selection-start-column="0" selection-end-line="5270" selection-end-column="0" />
-              <folding>
-                <marker date="1513159023000" expanded="true" signature="117741:117773" ph="select * fro... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="118460:118493" ph="select missi... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="119110:119147" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="121260:121306" ph="select domai... " />
-                <marker date="1513159023000" expanded="true" signature="121435:121479" ph="select domai... " />
-                <marker date="1513159023000" expanded="true" signature="123079:123122" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="155681:155745" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="167102:167154" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="168060:168121" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="169273:169334" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="170322:170383" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="171676:171696" ph="update missi... " />
-                <marker date="1513159023000" expanded="true" signature="171769:171789" ph="update missi... " />
-                <marker date="1513159023000" expanded="true" signature="171856:171889" ph="update missi... " />
-                <marker date="1513159023000" expanded="true" signature="171962:171995" ph="update missi... " />
-                <marker date="1513159023000" expanded="true" signature="172062:172094" ph="update missi... " />
-                <marker date="1513159023000" expanded="true" signature="172167:172199" ph="update missi... " />
-                <marker date="1513159023000" expanded="true" signature="172362:172474" ph="select table... tables" />
-                <marker date="1513159023000" expanded="true" signature="172642:172662" ph="update missi... " />
-                <marker date="1513159023000" expanded="true" signature="172784:172895" ph="select table... tables" />
-                <marker date="1513159023000" expanded="true" signature="173063:173083" ph="update missi... " />
-                <marker date="1513159023000" expanded="true" signature="178082:181593" ph="create table... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="181629:185140" ph="create table... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="187741:189246" ph="create table... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="189294:190799" ph="create table... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="191734:192172" ph="create table... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="192709:192778" ph="insert into `missing_value`... " />
-                <marker date="1513159023000" expanded="true" signature="193191:193260" ph="insert into `missing_value`... " />
-                <marker date="1513159023000" expanded="true" signature="195343:196844" ph="create table... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="196892:198397" ph="create table... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="199369:199807" ph="create table... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="199961:200030" ph="insert into `missing_value`... " />
-                <marker date="1513159023000" expanded="true" signature="200475:200544" ph="insert into `missing_value`... " />
-                <marker date="1513159023000" expanded="true" signature="202882:202925" ph="update missi... " />
-                <marker date="1513159023000" expanded="true" signature="202970:203013" ph="update missi... " />
-                <marker date="1513159023000" expanded="true" signature="203145:203187" ph="update missi... " />
-                <marker date="1513159023000" expanded="true" signature="203232:203274" ph="update missi... " />
-                <marker date="1513159023000" expanded="true" signature="206227:206270" ph="update missi... " />
-                <marker date="1513159023000" expanded="true" signature="206366:206409" ph="update missi... " />
-                <marker date="1513159023000" expanded="true" signature="206555:206597" ph="update missi... " />
-                <marker date="1513159023000" expanded="true" signature="206693:206735" ph="update missi... " />
-                <marker date="1513159023000" expanded="true" signature="218811:218852" ph="select * fro... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="219272:219313" ph="select * fro... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="222747:222802" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="222979:223034" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="224084:224139" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="224332:224387" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="231814:231842" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="234932:234960" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="235972:236000" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="237478:237506" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="238612:238640" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="249687:249715" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="250515:250538" ph="select domai... " />
-                <marker date="1513159023000" expanded="true" signature="250810:250856" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="251113:251136" ph="select domai... " />
-                <marker date="1513159023000" expanded="true" signature="251414:251460" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="252064:252101" ph="select * fro... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="252263:252300" ph="select * fro... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="253262:253308" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="253360:253406" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="256217:256250" ph="select missi... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="256620:256657" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="256896:256933" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="257175:257267" ph="select start... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="257337:257428" ph="select start... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="257498:257630" ph="select start... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="257686:257744" ph="select start... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="265646:265674" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="267219:267273" ph="insert into `missing_value`... " />
-                <marker date="1513159023000" expanded="true" signature="267871:268309" ph="create table... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="268667:268728" ph="select actua... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="271645:271699" ph="insert into `missing_value`... " />
-                <marker date="1513159023000" expanded="true" signature="272000:272438" ph="create table... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="273311:273377" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="280329:280357" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="284280:284746" ph="create table... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="285129:285194" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="286153:286189" ph="select * fro... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="286265:286301" ph="select * fro... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="287933:287974" ph="select * fro... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="288397:288438" ph="select * fro... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="292019:292035" ph="select url f... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="299907:299953" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="301141:301183" ph="select scrip... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="303687:303720" ph="select * fro... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="305126:305181" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="305324:305379" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="308122:308162" ph="select cms_v... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="308540:308584" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="359627:359666" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="360752:360828" ph="select url f... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="361445:361496" ph="select url f... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="363470:363522" ph="select actua... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="364003:364052" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="368219:368271" ph="select actua... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="368806:368858" ph="select actua... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="369341:369384" ph="select port_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="370280:370323" ph="select port_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="371098:371152" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="373232:373277" ph="update `miss... " />
-                <marker date="1513159023000" expanded="true" signature="374923:374951" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="375472:375500" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="380189:380359" ph="select colum... columns" />
-                <marker date="1513159023000" expanded="true" signature="381061:381189" ph="select colum... columns" />
-                <marker date="1513159023000" expanded="true" signature="382032:382164" ph="select colum... columns" />
-                <marker date="1513159023000" expanded="true" signature="382943:383071" ph="select colum... columns" />
-                <marker date="1513159023000" expanded="true" signature="383957:384088" ph="select colum... columns" />
-                <marker date="1513159023000" expanded="true" signature="384938:385066" ph="select colum... columns" />
-                <marker date="1513159023000" expanded="true" signature="385939:386067" ph="select colum... columns" />
-                <marker date="1513159023000" expanded="true" signature="386980:387120" ph="select colum... columns" />
-                <marker date="1513159023000" expanded="true" signature="389667:389695" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="391167:391195" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="392964:392992" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="394436:394464" ph="select http_... missing_value" />
-                <marker date="1513159023000" expanded="true" signature="403664:403716" ph="select port_... missing_value" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="re.py" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.2/remote_sources/-1229856975/201545291/re.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="125">
-              <caret line="190" column="0" lean-forward="false" selection-start-line="190" selection-start-column="0" selection-end-line="190" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="exp10it_spider.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/crawler/crawler/spiders/exp10it_spider.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3327">
-              <caret line="244" column="0" lean-forward="false" selection-start-line="244" selection-start-column="0" selection-end-line="244" selection-end-column="0" />
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="pydev_monkey_qt.py" pinned="false" current-in-tab="false">
-        <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_bundle/pydev_monkey_qt.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="132">
-              <caret line="101" column="0" lean-forward="false" selection-start-line="101" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="connections.py" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.2/remote_sources/-1229856975/-1382175924/pymysql/connections.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="125">
-              <caret line="1000" column="0" lean-forward="false" selection-start-line="1000" selection-start-column="0" selection-end-line="1000" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ghostdriver.log" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ghostdriver.log">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="3xp10it.py" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/3xp10it/3xp10it.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="29" column="45" lean-forward="true" selection-start-line="29" selection-start-column="45" selection-end-line="29" selection-end-column="45" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="debug.py" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/3xp10it/debug.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state relative-caret-position="15">
+              <caret line="1" column="16" lean-forward="false" selection-start-line="1" selection-start-column="16" selection-end-line="1" selection-end-column="16" />
               <folding />
             </state>
           </provider>
@@ -233,28 +35,8 @@
       </file>
     </leaf>
   </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>^4\.</find>
-      <find>targets</find>
-      <find>vpn</find>
-      <find>15.whois</find>
-      <find>input a|A</find>
-      <find>a|A</find>
-      <find>splash_</find>
-    </findStrings>
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="IdeDocumentHistory">
-    <option name="CHANGED_PATHS">
-      <list>
-        <option value="$USER_HOME$/3xp10it/develop.md" />
-        <option value="$USER_HOME$/3xp10it/3xp10it.py" />
-        <option value="$PROJECT_DIR$/exp10it.py" />
-      </list>
-    </option>
   </component>
   <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
   <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
@@ -263,11 +45,11 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="y" value="23" />
-    <option name="width" value="1440" />
-    <option name="height" value="828" />
+    <option name="x" value="723" />
+    <option name="y" value="115" />
+    <option name="width" value="1400" />
+    <option name="height" value="1000" />
   </component>
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1">
       <flattenPackages />
@@ -283,6 +65,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -301,33 +84,17 @@
               <item name="crawler" type="462c0819:PsiDirectoryNode" />
               <item name="crawler" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="mypypi" type="b2602c69:ProjectViewProjectNode" />
-              <item name="mypypi" type="462c0819:PsiDirectoryNode" />
-              <item name="crawler" type="462c0819:PsiDirectoryNode" />
-              <item name="crawler" type="462c0819:PsiDirectoryNode" />
-              <item name="spiders" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="mypypi" type="b2602c69:ProjectViewProjectNode" />
-              <item name="3xp10it" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
       <pane id="Scope" />
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-  </component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$" />
-    </key>
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -341,112 +108,65 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.3xp10it">
-    <configuration name="3xp10it" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager">
+    <configuration name="ss" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="ssh://root@192.168.93.139:22/usr/bin/python3" />
-      <option name="WORKING_DIRECTORY" value="$USER_HOME$/3xp10it" />
+      <option name="SDK_HOME" value="/usr/local/bin/python3" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/crawler" />
       <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="3xp10it" />
+      <option name="ADD_CONTENT_ROOTS" value="false" />
+      <option name="ADD_SOURCE_ROOTS" value="false" />
+      <module name="mypypi" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <PathMappingSettings>
-        <option name="pathMappings">
-          <list>
-            <mapping local-root="$USER_HOME$/3xp10it" remote-root="/root/test-3xp10it" />
-          </list>
-        </option>
-      </PathMappingSettings>
-      <option name="SCRIPT_NAME" value="$USER_HOME$/3xp10it/3xp10it.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/crawler/ss.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="crawler" type="PythonConfigurationType" factoryName="Python">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="ssh://root@192.168.93.139:22/usr/bin/python3" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/crawler/crawler/spiders" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="3xp10it" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <PathMappingSettings>
-        <option name="pathMappings">
-          <list>
-            <mapping local-root="$PROJECT_DIR$" remote-root="/root/mypypi" />
-          </list>
-        </option>
-      </PathMappingSettings>
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/crawler/crawler/spiders/exp10it_spider.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
-    <list size="2">
-      <item index="0" class="java.lang.String" itemvalue="Python.crawler" />
-      <item index="1" class="java.lang.String" itemvalue="Python.3xp10it" />
-    </list>
-    <recent_temporary>
-      <list size="1">
-        <item index="0" class="java.lang.String" itemvalue="Python.3xp10it" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="ShelveChangesManager" show_recycled="false">
     <option name="remove_strategy" value="false" />
   </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="b27d6eec-72a2-48fb-99db-8121f24fbd8b" name="Default" comment="" />
-      <created>1513152289860</created>
+      <changelist id="d7af9243-29fa-4ee9-a49d-f5ab3487ac43" name="Default" comment="" />
+      <created>1513208952603</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1513152289860</updated>
+      <updated>1513208952603</updated>
     </task>
     <servers />
   </component>
-  <component name="TodoView" selected-index="3">
-    <todo-panel id="selected-file">
-      <is-autoscroll-to-source value="true" />
-      <is-preview-enabled value="true" />
-    </todo-panel>
-    <todo-panel id="all">
-      <are-packages-shown value="true" />
-      <is-autoscroll-to-source value="true" />
-    </todo-panel>
-  </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1440" height="828" extended-state="0" />
+    <frame x="723" y="115" width="1400" height="1000" extended-state="0" />
     <layout>
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.31920528" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="File Transfer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.329235" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.329235" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3287858" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32980132" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3287858" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25751072" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3297568" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24964234" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.42428377" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3397711" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32928178" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25773194" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Docker" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="SciView" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.40994474" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -457,710 +177,15 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/crawler/crawler/spiders/exp10it_spider.py</url>
-          <line>169</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/crawler/crawler/spiders/exp10it_spider.py</url>
-          <line>170</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/crawler/crawler/spiders/exp10it_spider.py</url>
-          <line>203</line>
-          <option name="timeStamp" value="8" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/crawler/crawler/spiders/exp10it_spider.py</url>
-          <line>244</line>
-          <option name="timeStamp" value="9" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/exp10it.py</url>
-          <line>5258</line>
-          <option name="timeStamp" value="11" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/crawler/crawler/spiders/exp10it_spider.py</url>
-          <line>33</line>
-          <option name="timeStamp" value="12" />
-        </line-breakpoint>
-      </breakpoints>
-      <breakpoints-dialog>
-        <breakpoints-dialog />
-      </breakpoints-dialog>
-      <option name="time" value="13" />
-    </breakpoint-manager>
+    <breakpoint-manager />
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/3xp10it/3xp10it.py">
+    <entry file="file://$PROJECT_DIR$/crawler/ss.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="25" lean-forward="false" selection-start-line="2" selection-start-column="25" selection-end-line="2" selection-end-column="25" />
+        <state relative-caret-position="15">
+          <caret line="1" column="16" lean-forward="false" selection-start-line="1" selection-start-column="16" selection-end-line="1" selection-end-column="16" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.2/remote_sources/-1229856975/201545291/configparser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="16980">
-          <caret line="1140" column="0" lean-forward="false" selection-start-line="1140" selection-start-column="0" selection-end-line="1140" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/3xp10it/IPProxyPool/README.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4725">
-          <caret line="315" column="34" lean-forward="false" selection-start-line="315" selection-start-column="34" selection-end-line="315" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/exp10it.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="134610">
-          <caret line="8974" column="32" lean-forward="true" selection-start-line="8974" selection-start-column="32" selection-end-line="8974" selection-end-column="32" />
-          <folding>
-            <marker date="1513159023000" expanded="true" signature="117741:117773" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="118460:118493" ph="select missi... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="119110:119147" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="121260:121306" ph="select domai... " />
-            <marker date="1513159023000" expanded="true" signature="121435:121479" ph="select domai... " />
-            <marker date="1513159023000" expanded="true" signature="123079:123122" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="155681:155745" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="167102:167154" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="168060:168121" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="169273:169334" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="170322:170383" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="171676:171696" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="171769:171789" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="171856:171889" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="171962:171995" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="172062:172094" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="172167:172199" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="172362:172474" ph="select table... tables" />
-            <marker date="1513159023000" expanded="true" signature="172642:172662" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="172784:172895" ph="select table... tables" />
-            <marker date="1513159023000" expanded="true" signature="173063:173083" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="178082:181593" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="181629:185140" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="187741:189246" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="189294:190799" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="191734:192172" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="192709:192778" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="193191:193260" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="195343:196844" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="196892:198397" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="199369:199807" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="199961:200030" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="200475:200544" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="202882:202925" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="202970:203013" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="203145:203187" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="203232:203274" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="206227:206270" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="206366:206409" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="206555:206597" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="206693:206735" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="218811:218852" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="219272:219313" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="222747:222802" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="222979:223034" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="224084:224139" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="224332:224387" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="231814:231842" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="234932:234960" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="235972:236000" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="237478:237506" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="238612:238640" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="249687:249715" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="250515:250538" ph="select domai... " />
-            <marker date="1513159023000" expanded="true" signature="250810:250856" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="251113:251136" ph="select domai... " />
-            <marker date="1513159023000" expanded="true" signature="251414:251460" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="252064:252101" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="252263:252300" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="253262:253308" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="253360:253406" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="256217:256250" ph="select missi... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="256620:256657" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="256896:256933" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="257175:257267" ph="select start... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="257337:257428" ph="select start... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="257498:257630" ph="select start... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="257686:257744" ph="select start... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="265646:265674" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="267219:267273" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="267871:268309" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="268667:268728" ph="select actua... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="271645:271699" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="272000:272438" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="273311:273377" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="280329:280357" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="284280:284746" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="285129:285194" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="286153:286189" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="286265:286301" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="287933:287974" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="288397:288438" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="292019:292035" ph="select url f... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="299907:299953" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="301141:301183" ph="select scrip... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="303687:303720" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="305126:305181" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="305324:305379" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="308122:308162" ph="select cms_v... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="308540:308584" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="359627:359666" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="360752:360828" ph="select url f... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="361445:361496" ph="select url f... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="363470:363522" ph="select actua... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="364003:364052" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="368219:368271" ph="select actua... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="368806:368858" ph="select actua... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="369341:369384" ph="select port_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="370280:370323" ph="select port_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="371098:371152" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="373232:373277" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="374923:374951" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="375472:375500" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="380189:380359" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="381061:381189" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="382032:382164" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="382943:383071" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="383957:384088" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="384938:385066" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="385939:386067" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="386980:387120" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="389667:389695" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="391167:391195" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="392964:392992" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="394436:394464" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="403664:403716" ph="select port_... missing_value" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/3xp10it/3xp10it.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="25" lean-forward="false" selection-start-line="2" selection-start-column="25" selection-end-line="2" selection-end-column="25" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.2/remote_sources/-1229856975/201545291/configparser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="16980">
-          <caret line="1140" column="0" lean-forward="false" selection-start-line="1140" selection-start-column="0" selection-end-line="1140" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/3xp10it/IPProxyPool/README.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4725">
-          <caret line="315" column="34" lean-forward="false" selection-start-line="315" selection-start-column="34" selection-end-line="315" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/3xp10it/develop.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3105">
-          <caret line="207" column="13" lean-forward="true" selection-start-line="207" selection-start-column="13" selection-end-line="207" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/exp10it.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="134610">
-          <caret line="8974" column="32" lean-forward="true" selection-start-line="8974" selection-start-column="32" selection-end-line="8974" selection-end-column="32" />
-          <folding>
-            <marker date="1513159023000" expanded="true" signature="117741:117773" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="118460:118493" ph="select missi... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="119110:119147" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="121260:121306" ph="select domai... " />
-            <marker date="1513159023000" expanded="true" signature="121435:121479" ph="select domai... " />
-            <marker date="1513159023000" expanded="true" signature="123079:123122" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="155681:155745" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="167102:167154" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="168060:168121" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="169273:169334" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="170322:170383" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="171676:171696" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="171769:171789" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="171856:171889" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="171962:171995" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="172062:172094" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="172167:172199" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="172362:172474" ph="select table... tables" />
-            <marker date="1513159023000" expanded="true" signature="172642:172662" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="172784:172895" ph="select table... tables" />
-            <marker date="1513159023000" expanded="true" signature="173063:173083" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="178082:181593" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="181629:185140" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="187741:189246" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="189294:190799" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="191734:192172" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="192709:192778" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="193191:193260" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="195343:196844" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="196892:198397" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="199369:199807" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="199961:200030" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="200475:200544" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="202882:202925" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="202970:203013" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="203145:203187" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="203232:203274" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="206227:206270" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="206366:206409" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="206555:206597" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="206693:206735" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="218811:218852" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="219272:219313" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="222747:222802" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="222979:223034" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="224084:224139" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="224332:224387" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="231814:231842" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="234932:234960" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="235972:236000" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="237478:237506" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="238612:238640" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="249687:249715" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="250515:250538" ph="select domai... " />
-            <marker date="1513159023000" expanded="true" signature="250810:250856" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="251113:251136" ph="select domai... " />
-            <marker date="1513159023000" expanded="true" signature="251414:251460" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="252064:252101" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="252263:252300" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="253262:253308" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="253360:253406" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="256217:256250" ph="select missi... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="256620:256657" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="256896:256933" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="257175:257267" ph="select start... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="257337:257428" ph="select start... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="257498:257630" ph="select start... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="257686:257744" ph="select start... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="265646:265674" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="267219:267273" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="267871:268309" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="268667:268728" ph="select actua... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="271645:271699" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="272000:272438" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="273311:273377" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="280329:280357" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="284280:284746" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="285129:285194" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="286153:286189" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="286265:286301" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="287933:287974" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="288397:288438" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="292019:292035" ph="select url f... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="299907:299953" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="301141:301183" ph="select scrip... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="303687:303720" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="305126:305181" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="305324:305379" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="308122:308162" ph="select cms_v... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="308540:308584" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="359627:359666" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="360752:360828" ph="select url f... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="361445:361496" ph="select url f... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="363470:363522" ph="select actua... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="364003:364052" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="368219:368271" ph="select actua... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="368806:368858" ph="select actua... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="369341:369384" ph="select port_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="370280:370323" ph="select port_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="371098:371152" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="373232:373277" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="374923:374951" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="375472:375500" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="380189:380359" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="381061:381189" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="382032:382164" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="382943:383071" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="383957:384088" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="384938:385066" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="385939:386067" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="386980:387120" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="389667:389695" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="391167:391195" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="392964:392992" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="394436:394464" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="403664:403716" ph="select port_... missing_value" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/3xp10it/3xp10it.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.2/remote_sources/-1229856975/201545291/configparser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17100">
-          <caret line="1140" column="0" lean-forward="false" selection-start-line="1140" selection-start-column="0" selection-end-line="1140" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/3xp10it/IPProxyPool/README.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4725">
-          <caret line="315" column="34" lean-forward="true" selection-start-line="315" selection-start-column="34" selection-end-line="315" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/exp10it.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144780">
-          <caret line="9652" column="20" lean-forward="true" selection-start-line="9652" selection-start-column="20" selection-end-line="9652" selection-end-column="20" />
-          <folding>
-            <marker date="1513159023000" expanded="true" signature="117741:117773" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="118460:118493" ph="select missi... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="119110:119147" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="121260:121306" ph="select domai... " />
-            <marker date="1513159023000" expanded="true" signature="121435:121479" ph="select domai... " />
-            <marker date="1513159023000" expanded="true" signature="123079:123122" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="155681:155745" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="167102:167154" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="168060:168121" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="169273:169334" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="170322:170383" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="171676:171696" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="171769:171789" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="171856:171889" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="171962:171995" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="172062:172094" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="172167:172199" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="172362:172474" ph="select table... tables" />
-            <marker date="1513159023000" expanded="true" signature="172642:172662" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="172784:172895" ph="select table... tables" />
-            <marker date="1513159023000" expanded="true" signature="173063:173083" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="178082:181593" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="181629:185140" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="187741:189246" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="189294:190799" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="191734:192172" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="192709:192778" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="193191:193260" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="195343:196844" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="196892:198397" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="199369:199807" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="199961:200030" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="200475:200544" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="202882:202925" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="202970:203013" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="203145:203187" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="203232:203274" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="206227:206270" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="206366:206409" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="206555:206597" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="206693:206735" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="218811:218852" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="219272:219313" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="222747:222802" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="222979:223034" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="224084:224139" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="224332:224387" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="231814:231842" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="234932:234960" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="235972:236000" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="237478:237506" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="238612:238640" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="249687:249715" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="250515:250538" ph="select domai... " />
-            <marker date="1513159023000" expanded="true" signature="250810:250856" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="251113:251136" ph="select domai... " />
-            <marker date="1513159023000" expanded="true" signature="251414:251460" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="252064:252101" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="252263:252300" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="253262:253308" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="253360:253406" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="256217:256250" ph="select missi... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="256620:256657" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="256896:256933" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="257175:257267" ph="select start... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="257337:257428" ph="select start... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="257498:257630" ph="select start... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="257686:257744" ph="select start... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="265646:265674" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="267219:267273" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="267871:268309" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="268667:268728" ph="select actua... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="271645:271699" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="272000:272438" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="273311:273377" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="280329:280357" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="284280:284746" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="285129:285194" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="286153:286189" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="286265:286301" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="287933:287974" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="288397:288438" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="292019:292035" ph="select url f... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="299907:299953" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="301141:301183" ph="select scrip... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="303687:303720" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="305126:305181" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="305324:305379" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="308122:308162" ph="select cms_v... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="308540:308584" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="359627:359666" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="360752:360828" ph="select url f... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="361445:361496" ph="select url f... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="363470:363522" ph="select actua... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="364003:364052" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="368219:368271" ph="select actua... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="368806:368858" ph="select actua... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="369341:369384" ph="select port_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="370280:370323" ph="select port_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="371098:371152" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="373232:373277" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="374923:374951" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="375472:375500" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="380189:380359" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="381061:381189" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="382032:382164" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="382943:383071" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="383957:384088" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="384938:385066" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="385939:386067" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="386980:387120" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="389667:389695" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="391167:391195" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="392964:392992" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="394436:394464" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="403664:403716" ph="select port_... missing_value" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/3xp10it/develop.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3105">
-          <caret line="207" column="13" lean-forward="true" selection-start-line="207" selection-start-column="13" selection-end-line="207" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/3xp10it/develop.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="674">
-          <caret line="207" column="13" lean-forward="true" selection-start-line="207" selection-start-column="13" selection-end-line="207" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/3xp10it/IPProxyPool/README.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="674">
-          <caret line="315" column="34" lean-forward="false" selection-start-line="315" selection-start-column="34" selection-end-line="315" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.2/remote_sources/-1229856975/201545291/configparser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="679">
-          <caret line="1140" column="0" lean-forward="false" selection-start-line="1140" selection-start-column="0" selection-end-line="1140" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/3xp10it/debug.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ghostdriver.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.2/remote_sources/-1229856975/-1382175924/pymysql/connections.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="125">
-          <caret line="1000" column="0" lean-forward="false" selection-start-line="1000" selection-start-column="0" selection-end-line="1000" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2017.2/remote_sources/-1229856975/201545291/re.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="125">
-          <caret line="190" column="0" lean-forward="false" selection-start-line="190" selection-start-column="0" selection-end-line="190" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/crawler/crawler/spiders/exp10it_spider.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3327">
-          <caret line="244" column="0" lean-forward="false" selection-start-line="244" selection-start-column="0" selection-end-line="244" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_bundle/pydev_monkey_qt.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="132">
-          <caret line="101" column="0" lean-forward="false" selection-start-line="101" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/3xp10it/3xp10it.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="29" column="45" lean-forward="true" selection-start-line="29" selection-start-column="45" selection-end-line="29" selection-end-column="45" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/exp10it.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="173">
-          <caret line="5270" column="0" lean-forward="false" selection-start-line="5270" selection-start-column="0" selection-end-line="5270" selection-end-column="0" />
-          <folding>
-            <marker date="1513159023000" expanded="true" signature="117741:117773" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="118460:118493" ph="select missi... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="119110:119147" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="121260:121306" ph="select domai... " />
-            <marker date="1513159023000" expanded="true" signature="121435:121479" ph="select domai... " />
-            <marker date="1513159023000" expanded="true" signature="123079:123122" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="155681:155745" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="167102:167154" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="168060:168121" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="169273:169334" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="170322:170383" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="171676:171696" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="171769:171789" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="171856:171889" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="171962:171995" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="172062:172094" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="172167:172199" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="172362:172474" ph="select table... tables" />
-            <marker date="1513159023000" expanded="true" signature="172642:172662" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="172784:172895" ph="select table... tables" />
-            <marker date="1513159023000" expanded="true" signature="173063:173083" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="178082:181593" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="181629:185140" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="187741:189246" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="189294:190799" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="191734:192172" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="192709:192778" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="193191:193260" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="195343:196844" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="196892:198397" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="199369:199807" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="199961:200030" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="200475:200544" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="202882:202925" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="202970:203013" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="203145:203187" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="203232:203274" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="206227:206270" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="206366:206409" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="206555:206597" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="206693:206735" ph="update missi... " />
-            <marker date="1513159023000" expanded="true" signature="218811:218852" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="219272:219313" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="222747:222802" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="222979:223034" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="224084:224139" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="224332:224387" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="231814:231842" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="234932:234960" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="235972:236000" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="237478:237506" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="238612:238640" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="249687:249715" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="250515:250538" ph="select domai... " />
-            <marker date="1513159023000" expanded="true" signature="250810:250856" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="251113:251136" ph="select domai... " />
-            <marker date="1513159023000" expanded="true" signature="251414:251460" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="252064:252101" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="252263:252300" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="253262:253308" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="253360:253406" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="256217:256250" ph="select missi... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="256620:256657" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="256896:256933" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="257175:257267" ph="select start... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="257337:257428" ph="select start... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="257498:257630" ph="select start... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="257686:257744" ph="select start... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="265646:265674" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="267219:267273" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="267871:268309" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="268667:268728" ph="select actua... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="271645:271699" ph="insert into `missing_value`... " />
-            <marker date="1513159023000" expanded="true" signature="272000:272438" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="273311:273377" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="280329:280357" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="284280:284746" ph="create table... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="285129:285194" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="286153:286189" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="286265:286301" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="287933:287974" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="288397:288438" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="292019:292035" ph="select url f... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="299907:299953" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="301141:301183" ph="select scrip... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="303687:303720" ph="select * fro... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="305126:305181" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="305324:305379" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="308122:308162" ph="select cms_v... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="308540:308584" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="359627:359666" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="360752:360828" ph="select url f... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="361445:361496" ph="select url f... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="363470:363522" ph="select actua... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="364003:364052" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="368219:368271" ph="select actua... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="368806:368858" ph="select actua... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="369341:369384" ph="select port_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="370280:370323" ph="select port_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="371098:371152" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="373232:373277" ph="update `miss... " />
-            <marker date="1513159023000" expanded="true" signature="374923:374951" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="375472:375500" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="380189:380359" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="381061:381189" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="382032:382164" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="382943:383071" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="383957:384088" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="384938:385066" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="385939:386067" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="386980:387120" ph="select colum... columns" />
-            <marker date="1513159023000" expanded="true" signature="389667:389695" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="391167:391195" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="392964:392992" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="394436:394464" ph="select http_... missing_value" />
-            <marker date="1513159023000" expanded="true" signature="403664:403716" ph="select port_... missing_value" />
-          </folding>
         </state>
       </provider>
     </entry>

@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$USER_HOME$/3xp10it/.idea/3xp10it.iml" filepath="$USER_HOME$/3xp10it/.idea/3xp10it.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/mypypi.iml" filepath="$PROJECT_DIR$/.idea/mypypi.iml" />
     </modules>
   </component>
