@@ -5269,9 +5269,10 @@ def scrapy_splash_crawl_url(url):
     modify_url=parsed.scheme+"://"+parsed.netloc+path
     cmd='''sed -i 's#target_url_to_crawl=".*"#target_url_to_crawl="%s"#g' %s''' % (modify_url,spider_file)
     os.system(cmd)
+    #cmd="cd %s && python3 -m scrapy crawl exp10it" % (ModulePath+"/crawler/crawler")
+    #os.system(cmd)
     from scrapy import cmdline
-    #os.chdir(ModulePath+"/crawler/")
-    cmdline.execute(['scrapy','crawl','exp10it'])
+    cmdline.execute('scrapy crawl exp10it'.split())
 
 def crawl_url(url):
     global DB_NAME
@@ -9679,7 +9680,7 @@ I suggest you input 1 unless you don't need cdn recgnization or don't care about
 
 def start_ipproxypool():
     if not os.path.exists("IPProxyPool"):
-        cmd="cd %s && git clone https://github.com/qiyeboy/IPProxyPool.git && cd IPProxyPool && pip install -r requirements.txt" % WORK_PATH
+        cmd="cd %s && git clone https://github.com/qiyeboy/IPProxyPool.git && pip install -r requirements.txt" % WORK_PATH
         #input(cmd)
         os.system(cmd)
     else:
