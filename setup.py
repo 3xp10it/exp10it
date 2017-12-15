@@ -1,5 +1,6 @@
 import codecs
 import os
+
 '''
 os.system(
     "pip3 install --use-wheel --no-index --find-links=wheelhouse -r requirements.txt")
@@ -25,7 +26,7 @@ def read(fname):
 
 
 NAME = "exp10it"
-PACKAGES = ['crawler', 'cms_identify', 'dicts', 'exps', 'tools']
+PACKAGES = ['cms_identify', 'dicts', 'tools']
 DESCRIPTION = "this is a package about web security"
 LONG_DESCRIPTION = read("README.md")
 KEYWORDS = "web security package"
@@ -33,7 +34,7 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.6.70"
+VERSION = "2.6.71"
 LICENSE = "MIT"
 setup(
     name=NAME,
