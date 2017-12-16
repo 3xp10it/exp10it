@@ -26,7 +26,7 @@ def read(fname):
 
 
 NAME = "exp10it"
-PACKAGES = ['cms_identify', 'dicts', 'tools']
+#PACKAGES = ['cms_identify', 'dicts', 'tools']
 DESCRIPTION = "this is a package about web security"
 LONG_DESCRIPTION = read("README.md")
 KEYWORDS = "web security package"
@@ -34,7 +34,7 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.6.71"
+VERSION = "2.6.72"
 LICENSE = "MIT"
 setup(
     name=NAME,
@@ -52,7 +52,7 @@ setup(
     author_email=AUTHOR_EMAIL,
     url=URL,
     license=LICENSE,
-    packages=PACKAGES,
+    #packages=PACKAGES,
     include_package_data=True,
     zip_safe=True,
     py_modules=['exp10it', 'updateapi'],

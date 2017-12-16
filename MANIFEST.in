@@ -1,5 +1,1 @@
 include *.md design.jpg
-recursive-include cms_identify *
-recursive-include dicts *
-recursive-include exps *
-recursive-include tools *
