@@ -10,14 +10,14 @@ file=sys.argv[1]
 if not os.path.exists(file):
     print("%s file not exists" % file)
 with open(file,"r+") as f:
-    allLines=f.readlines()
-print("老文件共%s个word" % str(len(allLines)))
-newList=[]
-for eachLine in allLines:    
-    eachWord=re.sub(r"\s$","",eachLine)
-    if eachWord not in newList and eachWord!="":
-        newList.append(eachWord)
-print("新文件共%s个word" % str(len(newList)))
-for eachWord in newList:
+    all_lines=f.readlines()
+print("老文件共%s个word" % str(len(all_lines)))
+new_list=[]
+for each_line in all_lines:    
+    each_word=re.sub(r"\s$","",each_line)
+    if each_word not in new_list and each_word!="":
+        new_list.append(each_word)
+print("新文件共%s个word" % str(len(new_list)))
+for each_word in new_list:
     with open("newfile","a+") as f:
-        f.write(eachWord+"\n")
+        f.write(each_word+"\n")

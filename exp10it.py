@@ -16,8 +16,11 @@ import selenium
 import requests
 import readline
 from requests.packages.urllib3.exceptions import InsecureRequestWarning, InsecurePlatformWarning
-from colorama import Fore
+from colorama import Fore,Style
 import subprocess
+
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
 
 
 def get_string_from_command(command):
@@ -27,32 +30,34 @@ def get_string_from_command(command):
     return subprocess.getstatusoutput(command)[1]
 
 
-# SystemPlatform为操作系统种类,x86orx64为系统位数
+# platform.system()为操作系统种类,x86orx64为系统位数
 #"Linux,Darwin,Windows"
-SystemPlatform = platform.system()
-x86orx64 = 0
-if SystemPlatform in ["Linux", "Darwin"]:
-    a = get_string_from_command("uname -a")
-    if re.search(r"x86_64", a):
-        x86orx64 = 64
-    else:
-        x86orx64 = 32
-elif SystemPlatform == "Windows":
-    if os.path.exists("c:\\Program Files(x86)"):
-        x86orx64 = 64
-    else:
-        x86orx64 = 32
+def get_system_bits():
+    # return 64 or 32,type is int.
+    x86orx64 = 0
+    if platform.system() in ["Linux", "Darwin"]:
+        a = get_string_from_command("uname -a")
+        if re.search(r"x86_64", a):
+            x86orx64 = 64
+        else:
+            x86orx64 = 32
+    elif platform.system() == "Windows":
+        if os.path.exists("c:\\Program Files(x86)"):
+            x86orx64 = 64
+        else:
+            x86orx64 = 32
+    return x86orx64
 
 
-def module_exist(moduleName):
+def module_exist(module_name):
     # 检测python模块是否已经安装
     # 有则返回True
     # 无则返回False
     import re
     import sys
-    out = get_string_from_command('''python3 -c "help('%s');"''' % moduleName)
+    out = get_string_from_command('''python3 -c "help('%s');"''' % module_name)
     a = get_string_from_command("python3 --help")
-    if SystemPlatform in ["Linux", "Darwin"]:
+    if platform.system() in ["Linux", "Darwin"]:
         if re.search(r"not found", a, re.I):
             print("Attention! I can not find `python3` in path,may be you didn't install it or didn't add it to PATH")
             sys.exit(1)
@@ -63,7 +68,7 @@ def module_exist(moduleName):
             print("Attention! I can not find `python3` in path,may be you didn't install it or didn't add it to PATH")
             print("请确保在python.exe目录下将python.exe复制成python3.exe,并保留两者")
             sys.exit(1)
-    if re.search(r"No Python documentation found for '%s'" % moduleName, out, re.I):
+    if re.search(r"No Python documentation found for '%s'" % module_name, out, re.I):
         return False
     else:
         return True
@@ -77,15 +82,13 @@ if sys.version_info <= (3, 0, 0):
     print("sorry,this module works on python3")
     sys.exit(0)
 
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
 
 
 def get_module_path():
     # 得到当前文件的路径
-    tmpPath = os.path.abspath(__file__)
-    modulePath = tmpPath[:-len(__file__.split("/")[-1])]
-    return modulePath
+    tmp_path = os.path.abspath(__file__)
+    module_path = tmp_path[:-len(__file__.split("/")[-1])]
+    return module_path
 
 
 def get_home_path():
@@ -93,7 +96,7 @@ def get_home_path():
     # open("~/.zshrc")函数也不认识~
     # 但是os.system认识~,可能只有os.system认识
     # 也即操作系统认识~,但是python不认识~
-    # macOS下的~是/var/root,ubuntu下的~是/root
+    # mac_o_s下的~是/var/root,ubuntu下的~是/root
     # 返回~目录的具体值,eg./var/root
     #a=get_string_from_command("cd ~ && pwd")
     # 后来发现os.path.expanduser函数可以认识~
@@ -101,8 +104,6 @@ def get_home_path():
 
 
 HOME_PATH = get_home_path()
-
-
 ModulePath = get_module_path()
 WORK_PATH = os.getcwd()
 
@@ -272,7 +273,7 @@ domain_suf_list = ['.aaa', '.aarp', '.abarth', '.abb', '.abbott', '.abbvie', '.a
                    '.xfinity', '.xihuan', '.xin', '.xperia', '.xxx', '.xyz', '.yachts', '.yahoo', '.yamaxun', '.yandex', '.ye', '.yodobashi', '.yoga', '.yokohama', '.you', '.youtube', '.yt', '.yun', '.za', '.zappos', '.zara', '.zero', '.zip', '.zippo', '.zm', '.zone', '.zuerich', '.zw']
 
 
-def combileMyParaAndArgvPara(command):
+def combile_my_para_and_argv_para(command):
     import sys
     import re
     '''
@@ -280,151 +281,151 @@ def combileMyParaAndArgvPara(command):
         options,args=getopt.getopt(sys.argv[1:],"u:v:",["batch","random-agent","smart","user-agent=","referer","level=","tamper=","proxy=","threads=","dbms=",])
     '''
 
-    singleArgvList = ["--drop-set-cookie", "--random-agent", "--ignore-proxy", "--ignore-redirects", "--ignore-timeouts", "--skip-urlencode", "-b", "--banner", "--current-user", "--current-db", "--is-dba", "--users", "--passwords", "--privileges", "--roles", "--dbs", "--tables", "--exclude-sysdbs", "--columns", "--schema", "--count", "--dump", "--dump-all", "--sql-shell", "--common-tables", "--common-columns", "--os-shell", "--os-pwn", "--os-smbrelay", "--os-bof", "--batch", "--eta", "--flush-session", "--forms", "--fresh-queries", "--hex",
+    single_argv_list = ["--drop-set-cookie", "--random-agent", "--ignore-proxy", "--ignore-redirects", "--ignore-timeouts", "--skip-urlencode", "-b", "--banner", "--current-user", "--current-db", "--is-dba", "--users", "--passwords", "--privileges", "--roles", "--dbs", "--tables", "--exclude-sysdbs", "--columns", "--schema", "--count", "--dump", "--dump-all", "--sql-shell", "--common-tables", "--common-columns", "--os-shell", "--os-pwn", "--os-smbrelay", "--os-bof", "--batch", "--eta", "--flush-session", "--forms", "--fresh-queries", "--hex",
                       "--no-cast", "--parse-errors", "--alert", "--beep", "--check-waf", "--cleanup", "--disable-coloring", "-hpp", "--identify-waf", "--purge-output", "--smart", "--wizard", "-h", "--help", "-hh", "--version", "--ignore-401", "--tor", "--check-tor", "--force-ssl", "-o", "--predict-output", "--keep-alive", "--null-connection", "--skip-static", "--no-escape", "-f", "--fingerprint", "-a", "--all", "--hostname", "--comments", "--priv-esc", "--reg-read", "--reg-add", "--reg-del", "--update", "--dependencies", "--offline", "--skip-waf", "--sqlmap-shell"]
-    doubleArgvList = ["-v", "-u", "--url", "--threads", "-l", "-m", "-r", "-g", "--data", "--param-del", "--cookie", "--cookie-del", "--load-cookies", "--level", "--user-agent", "--referer", "--headers", "--host", "-H", "--auth-type", "--auth-cred", "--auth-cert", "--auth-file", "--proxy", "--proxy-cred", "--proxy-file", "--delay", "--timeout", "--retries", "--randomize", "--scope", "--safe-url", "--safe-post", "--safe-req", "--safe-freq", "--eval", "-p", "--skip", "--dbms", "--os", "--invalid-bignum", "--invalid-logical", "--invalid-string", "--prefix", "--suffix", "--tamper", "--risk", "--string", "--not-string", "--regexp", "--code", "--text-only", "--titles", "--technique", "--time-sec", "--union-cols", "--union-char",
+    double_argv_list = ["-v", "-u", "--url", "--threads", "-l", "-m", "-r", "-g", "--data", "--param-del", "--cookie", "--cookie-del", "--load-cookies", "--level", "--user-agent", "--referer", "--headers", "--host", "-H", "--auth-type", "--auth-cred", "--auth-cert", "--auth-file", "--proxy", "--proxy-cred", "--proxy-file", "--delay", "--timeout", "--retries", "--randomize", "--scope", "--safe-url", "--safe-post", "--safe-req", "--safe-freq", "--eval", "-p", "--skip", "--dbms", "--os", "--invalid-bignum", "--invalid-logical", "--invalid-string", "--prefix", "--suffix", "--tamper", "--risk", "--string", "--not-string", "--regexp", "--code", "--text-only", "--titles", "--technique", "--time-sec", "--union-cols", "--union-char",
                       "--union-from", "--second-order", "-D", "-X", "-T", "-C", "--start", "--stop", "--first", "--last", "--search", "--sql-query", "--sql-file", "--udf-inject", "--shared-lib", "--file-read", "--file-write", "--file-dest", "--os-cmd", "--reg-key", "--reg-value", "--reg-data", "--reg-type", "-s", "-t", "--charset", "--crawl", "--crawl-exclude", "--csv-del", "--dbms-cred", "--dump-format", "--output-dir", "-z", "--answers", "--gpage", "--mobile", "-d", "-x", "-c", "--method", "--tor-port", "--tor-type", "--csrf-token", "--csrf-url", "--param-exclude", "--dns-domain", "-U", "--pivot-column", "--where", "--msf-path", "--tmp-path", "-s", "-t", "--binary-fields", "--save", "--test-filter", "--test-skip", "--tmp-dir", "--web-root"]
-    commandList = string2argv(command)
-    print(commandList)
+    command_list = string2argv(command)
+    print(command_list)
 
-    argvList = param2argv(sys.argv[1:])
-    # print(argvList)
+    argv_list = param2argv(sys.argv[1:])
+    # print(argv_list)
 
-    finalCommand = ""
-    argvIndex = 0
-    noneedParam = ""
-    for each in argvList:
-        if each in commandList:
-            if each in singleArgvList:
-                finalCommand += (" " +
+    final_command = ""
+    argv_index = 0
+    noneed_param = ""
+    for each in argv_list:
+        if each in command_list:
+            if each in single_argv_list:
+                final_command += (" " +
                                  each if " " not in each else '"' + each + '"')
                 pass
-            elif each in doubleArgvList:
-                finalCommand += (" " +
+            elif each in double_argv_list:
+                final_command += (" " +
                                  each if " " not in each else '"' + each + '"')
-                tmp = argvList[argvIndex + 1]
-                finalCommand += (" " +
+                tmp = argv_list[argv_index + 1]
+                final_command += (" " +
                                  (tmp if " " not in tmp else '"' + tmp + '"'))
-                noneedParam = argvList[argvIndex + 1]
+                noneed_param = argv_list[argv_index + 1]
                 pass
             else:
                 pass
         else:
-            if each in singleArgvList:
-                finalCommand += (" " +
+            if each in single_argv_list:
+                final_command += (" " +
                                  each if " " not in each else '"' + each + '"')
                 pass
-            elif each in doubleArgvList:
+            elif each in double_argv_list:
                 if each == "--suffix":
-                    print(finalCommand)
+                    print(final_command)
 
-                finalCommand += (" " +
+                final_command += (" " +
                                  each if " " not in each else '"' + each + '"')
-                tmp = argvList[argvIndex + 1]
+                tmp = argv_list[argv_index + 1]
                 # patch or --suffix " or '1'='1"
                 if " " in tmp:
                     tmp = tmp.replace(" ", "xxxxx")
-                finalCommand += (" " +
+                final_command += (" " +
                                  (tmp if "xxxxx" not in tmp else tmp))
-                noneedParam = argvList[argvIndex + 1]
+                noneed_param = argv_list[argv_index + 1]
                 pass
 
-            elif each != noneedParam:
-                finalCommand += (" " +
+            elif each != noneed_param:
+                final_command += (" " +
                                  each if " " not in each else '"' + each + '"')
                 pass
-        argvIndex += 1
+        argv_index += 1
 
-    commandIndex = 0
-    noneedParam = ""
-    for each in commandList:
-        if each in argvList and each != noneedParam:
-            if each in singleArgvList:
+    command_index = 0
+    noneed_param = ""
+    for each in command_list:
+        if each in argv_list and each != noneed_param:
+            if each in single_argv_list:
 
                 pass
-            elif each in doubleArgvList:
-                noneedParam = commandList[commandIndex + 1]
+            elif each in double_argv_list:
+                noneed_param = command_list[command_index + 1]
 
                 pass
             else:
                 pass
         else:
-            if each in singleArgvList:
-                finalCommand += (" " +
+            if each in single_argv_list:
+                final_command += (" " +
                                  each if " " not in each else '"' + each + '"')
                 pass
-            elif each in doubleArgvList:
-                finalCommand += (" " +
+            elif each in double_argv_list:
+                final_command += (" " +
                                  each if " " not in each else '"' + each + '"')
-                tmp = commandList[commandIndex + 1]
-                finalCommand += (" " +
+                tmp = command_list[command_index + 1]
+                final_command += (" " +
                                  (tmp if " " not in tmp else '"' + tmp + '"'))
                 pass
             else:
                 # 这种情况不可能,除非我在代码中用到的sqlmap参数是不正确的
                 pass
-        commandIndex += 1
-    # print(commandList)
+        command_index += 1
+    # print(command_list)
 
-    if "--tamper" in argvList:
-        argvListTamperList = []
-        commandListTamperList = []
-        argvIndex = 0
-        commandIndex = 0
-        for each in argvList:
+    if "--tamper" in argv_list:
+        argv_list_tamper_list = []
+        command_list_tamper_list = []
+        argv_index = 0
+        command_index = 0
+        for each in argv_list:
             if each == "--tamper":
-                argvListTamperString = argvList[argvIndex + 1]
-            argvIndex += 1
-        if "," not in argvListTamperString:
+                argv_list_tamper_string = argv_list[argv_index + 1]
+            argv_index += 1
+        if "," not in argv_list_tamper_string:
             # argv的tamper参数的值有1个tamper
-            argvListTamperList.append(argvListTamperString)
+            argv_list_tamper_list.append(argv_list_tamper_string)
         else:
             # argv的tamper参数的值有多个tamper
-            argvListTamperList = argvListTamperString.split(",")
+            argv_list_tamper_list = argv_list_tamper_string.split(",")
         # 到这里得到argv传入tamper参数中的tamper列表
 
         # 2017/08/30新增
-        commandListTamperString = ""
-        for each in commandList:
+        command_list_tamper_string = ""
+        for each in command_list:
             if each == "--tamper":
-                commandListTamperString = commandList[commandIndex + 1]
-            commandIndex += 1
-        if "," not in commandListTamperString:
-            commandListTamperList.append(commandListTamperString)
+                command_list_tamper_string = command_list[command_index + 1]
+            command_index += 1
+        if "," not in command_list_tamper_string:
+            command_list_tamper_list.append(command_list_tamper_string)
         else:
-            commandListTamperList = commandListTamperString.split(",")
+            command_list_tamper_list = command_list_tamper_string.split(",")
         # 到这里得到我的xwaf.py内置的tamper方案中的tamper列表
 
-        finalTamper = ""
-        for eachTamper in argvListTamperList:
-            finalTamper += (eachTamper + ",")
-        for eachTamper in commandListTamperList:
-            if eachTamper not in argvListTamperList:
-                finalTamper += (eachTamper + ",")
-        if finalTamper[-1] == ",":
-            finalTamper = finalTamper[:-1]
-        finalCommand = re.sub(r"--tamper[\s]+[^\s]+", "", finalCommand)
-        finalCommand += (" --tamper" + " " + finalTamper)
+        final_tamper = ""
+        for each_tamper in argv_list_tamper_list:
+            final_tamper += (each_tamper + ",")
+        for each_tamper in command_list_tamper_list:
+            if each_tamper not in argv_list_tamper_list:
+                final_tamper += (each_tamper + ",")
+        if final_tamper[-1] == ",":
+            final_tamper = final_tamper[:-1]
+        final_command = re.sub(r"--tamper[\s]+[^\s]+", "", final_command)
+        final_command += (" --tamper" + " " + final_tamper)
     else:
         pass
 
     # 1
 
-    finalCommandList = finalCommand[1:].split(" ")
+    final_command_list = final_command[1:].split(" ")
 
-    tmpList = []
-    for each in finalCommandList:
+    tmp_list = []
+    for each in final_command_list:
         if each != "" and each[0] != "-":
-            tmpList.append(' "' + each + '"')
+            tmp_list.append(' "' + each + '"')
         else:
-            tmpList.append(' ' + each)
-    finalCommand = "".join(tmpList)
+            tmp_list.append(' ' + each)
+    final_command = "".join(tmp_list)
     # 1
 
-    finalCommand = "python2 /usr/share/sqlmap/sqlmap.py" + finalCommand
-    if "xxxxx" in finalCommand:
-        finalCommand = finalCommand.replace("xxxxx", " ")
-    return finalCommand
+    final_command = "python2 /usr/share/sqlmap/sqlmap.py" + final_command
+    if "xxxxx" in final_command:
+        final_command = final_command.replace("xxxxx", " ")
+    return final_command
 
 
 def base64Str(string):
@@ -432,8 +433,8 @@ def base64Str(string):
     # 输入为str类型
     # 返回为str类型
     import base64
-    bytesString = (string).encode(encoding="utf-8")
-    bytesbase64Str = base64.b64encode(bytesString)
+    bytes_string = (string).encode(encoding="utf-8")
+    bytesbase64Str = base64.b64encode(bytes_string)
     base64Str = bytesbase64Str.decode()
     return base64Str
 
@@ -447,7 +448,7 @@ class CLIOutput(object):
     import subprocess
 
     def get_terminal_size(self):
-        """ getTerminalSize()
+        """ get_terminal_size()
          - get width and height of console
          - works on linux,os x,windows,cygwin(windows)
          originally retrieved from:
@@ -479,7 +480,7 @@ class CLIOutput(object):
             if res:
                 (bufx, bufy, curx, cury, wattr,
                  left, top, right, bottom,
-                 maxx, maxy) = struct.unpack("hhhhHhhhhhh", csbi.raw)
+                 maxx, maxy) = struct.unpack("hhhh_hhhhhhh", csbi.raw)
                 sizex = right - left + 1
                 sizey = bottom - top + 1
                 return sizex, sizey
@@ -498,7 +499,7 @@ class CLIOutput(object):
             pass
 
     def _get_terminal_size_linux(self):
-        def ioctl_GWINSZ(fd):
+        def ioctl__g_w_i_n_sZ(fd):
             try:
                 import fcntl
                 import termios
@@ -507,11 +508,11 @@ class CLIOutput(object):
                 return cr
             except:
                 pass
-        cr = ioctl_GWINSZ(0) or ioctl_GWINSZ(1) or ioctl_GWINSZ(2)
+        cr = ioctl__g_w_i_n_sZ(0) or ioctl__g_w_i_n_sZ(1) or ioctl__g_w_i_n_sZ(2)
         if not cr:
             try:
                 fd = os.open(os.ctermid(), os.O_RDONLY)
-                cr = ioctl_GWINSZ(fd)
+                cr = ioctl__g_w_i_n_sZ(fd)
                 os.close(fd)
             except:
                 pass
@@ -525,42 +526,42 @@ class CLIOutput(object):
     def __init__(self):
         # 这里为什么要调用scan_init()函数呢,奇怪,可能是手抖
         # scan_init()
-        self.lastLength = 0
-        self.lastOutput = ''
-        self.lastInLine = False
+        self.last_length = 0
+        self.last_output = ''
+        self.last_in_line = False
         self.mutex = threading.Lock()
         self.blacklists = {}
-        self.mutexCheckedPaths = threading.Lock()
-        self.basePath = None
+        self.mutex_checked_paths = threading.Lock()
+        self.base_path = None
         self.errors = 0
-        self.useProxy = False
+        self.use_proxy = False
 
         # 下面这个变量是用来控制屏幕底部输出结束的,self.stop_order=1时,结束在屏幕底部输出的线程
         self.stop_order = 0
 
-    def inLine(self, string):
+    def in_line(self, string):
         self.erase()
         sys.stdout.write(string)
         sys.stdout.flush()
-        self.lastInLine = True
+        self.last_in_line = True
 
     def erase(self):
         if platform.system() == 'Windows':
             csbi = GetConsoleScreenBufferInfo()
-            line = "\b" * int(csbi.dwCursorPosition.X)
+            line = "\b" * int(csbi.dw_cursor_position.X)
             sys.stdout.write(line)
-            width = csbi.dwCursorPosition.X
-            csbi.dwCursorPosition.X = 0
+            width = csbi.dw_cursor_position.X
+            csbi.dw_cursor_position.X = 0
             FillConsoleOutputCharacter(
-                STDOUT, ' ', width, csbi.dwCursorPosition)
+                STDOUT, ' ', width, csbi.dw_cursor_position)
             sys.stdout.write(line)
             sys.stdout.flush()
         else:
             sys.stdout.write('\033[1K')
             sys.stdout.write('\033[0G')
 
-    def newLine(self, string):
-        if self.lastInLine:
+    def new_line(self, string):
+        if self.last_in_line:
             self.erase()
         if platform.system() == 'Windows':
             sys.stdout.write(string)
@@ -570,7 +571,7 @@ class CLIOutput(object):
         else:
             sys.stdout.write(string + '\n')
         sys.stdout.flush()
-        self.lastInLine = False
+        self.last_in_line = False
         sys.stdout.flush()
 
     def good_print(self, message, color='green'):
@@ -588,7 +589,7 @@ class CLIOutput(object):
                 message = Fore.CYAN + message + Style.RESET_ALL
             if color == 'red':
                 message = Fore.RED + message + Style.RESET_ALL
-            self.newLine(message)
+            self.new_line(message)
 
     def bottom_print(self, message, color="red"):
         with self.mutex:
@@ -607,7 +608,7 @@ class CLIOutput(object):
                 message = Fore.YELLOW + message
             if color == 'red':
                 message = Fore.RED + message
-            self.inLine(message)
+            self.in_line(message)
 
     def error(self, reason):
         with self.mutex:
@@ -619,19 +620,19 @@ class CLIOutput(object):
             message += reason[start:end]
             message += Style.RESET_ALL
             message += reason[end:]
-            self.newLine(message)
+            self.new_line(message)
 
     def warning(self, reason):
         message = Style.BRIGHT + Fore.YELLOW + reason + Style.RESET_ALL
-        self.newLine(message)
+        self.new_line(message)
 
     def header(self, text):
         message = Style.BRIGHT + Fore.MAGENTA + text + Style.RESET_ALL
-        self.newLine(message)
+        self.new_line(message)
 
     def debug(self, info):
         line = "[{0}] - {1}".format(time.strftime('%H:%M:%S'), info)
-        self.newLine(line)
+        self.new_line(line)
 
     def continue_bottom_print(self, message):
         # 底部持续打印,可以起到显示当前状态作用
@@ -660,14 +661,14 @@ class CLIOutput(object):
         bottom_print_thread = MyThread(self.continue_bottom_print, [message])
         bottom_print_thread.start()
 
-    def os_system_with_bottom_status(self, command, proxyUrl=""):
+    def os_system_with_bottom_status(self, command, proxy_url=""):
         # 这个函数是在os.system函数的基础上在命令执行期间打印当前正在执行的命令到屏幕底部的函数
         # command是要执行的命令,这个函数调用了上面的new_thread_bottom_print函数,并利用当前类的self.stop_order
         # 作为打印开关
         # 但是一般来说会出现在非屏幕底部也会打印屏幕底部正在打印的string,因为一般的os.system执行的命令中的打印的
         # string没有上面的good_print函数好,一般的os.system执行的命令中的打印动作相当于print
         self.stop_order = 0
-        if not self.useProxy:
+        if not self.use_proxy:
             command = command
         else:
             command = command + " --proxy=%s" % get_one_useful_proxy()
@@ -675,13 +676,13 @@ class CLIOutput(object):
         os.system(command)
         self.stop_order = 1
 
-    def os_system_combine_argv_with_bottom_status(self, command, proxyUrl=""):
+    def os_system_combine_argv_with_bottom_status(self, command, proxy_url=""):
         # 这个函数是在os_system_with_bottom_status函数的基础上结合程序输入参数而执行命令的函数
         # command的优先级没有argv中的参数优先级高,如果在argv中有与command中相同的参数则取argv中的参数与对应对
         # 数值作为最后执行参数
-        command = combileMyParaAndArgvPara(command)
+        command = combile_my_para_and_argv_para(command)
         self.stop_order = 0
-        if not self.useProxy:
+        if not self.use_proxy:
             command = command
         else:
             command = re.sub(r"--proxy[\s]+[^\s]+", "", command)
@@ -707,77 +708,77 @@ def string2argv(string):
     # ['-u','http://1.php','--dbms','mysql','-v','3']
     # 最后将--url转化成-u,因为sqlmap中需要
     import re
-    tmpWord = ""
+    tmp_word = ""
     # 引号个数
-    yhIndex = 0
+    yh_index = 0
     # 表示开始进入引号中内容
-    startYHcontent = 0
+    start_y_hcontent = 0
     # 表示结束引号中内容
-    endYHcontent = 0
-    commandList = []
+    end_y_hcontent = 0
+    command_list = []
     for c in string:
         if re.match('''[^\s'"]''', c):
-            tmpWord += c
+            tmp_word += c
         elif re.match("\s", c):
-            if tmpWord != "" and startYHcontent == 0:
-                commandList.append(tmpWord)
-            if startYHcontent == 1 and endYHcontent == 0:
-                tmpWord += c
-            if startYHcontent == 0:
-                tmpWord = ""
+            if tmp_word != "" and start_y_hcontent == 0:
+                command_list.append(tmp_word)
+            if start_y_hcontent == 1 and end_y_hcontent == 0:
+                tmp_word += c
+            if start_y_hcontent == 0:
+                tmp_word = ""
         elif c in ["'", '"']:
-            yhIndex += 1
-            if yhIndex % 2 == 0:
-                endYHcontent = 1
-                startYHcontent = 0
-                # commandList.append(tmpWord)
-                tmpWord == ""
+            yh_index += 1
+            if yh_index % 2 == 0:
+                end_y_hcontent = 1
+                start_y_hcontent = 0
+                # command_list.append(tmp_word)
+                tmp_word == ""
             else:
-                startYHcontent = 1
-                endYHcontent = 0
-    if tmpWord != "":
-        commandList.append(tmpWord)
-    returnList = []
-    for each in commandList:
+                start_y_hcontent = 1
+                end_y_hcontent = 0
+    if tmp_word != "":
+        command_list.append(tmp_word)
+    return_list = []
+    for each in command_list:
         if not re.match("http", each) and re.search("=", each) and each[0:2] == "--":
-            tmpList = each.split("=")
-            returnList.append(tmpList[0])
-            returnList.append(tmpList[1])
+            tmp_list = each.split("=")
+            return_list.append(tmp_list[0])
+            return_list.append(tmp_list[1])
         else:
-            returnList.append(each)
+            return_list.append(each)
 
-    tmpList = []
-    for each in returnList:
+    tmp_list = []
+    for each in return_list:
         if each == "--url":
-            tmpList.append("-u")
+            tmp_list.append("-u")
         else:
-            tmpList.append(each)
+            tmp_list.append(each)
 
-    return tmpList
+    return tmp_list
 
 
-def param2argv(paramList):
+def param2argv(param_list):
     # 将形如['-u','http://a b1.php','--dbms=mysql','-v','3']转化成
     #['-u','http://a b1.php','--dbms','mysql','-v','3']
     # 最后将--url转化成-u,因为sqlmap中需要
     import re
-    returnList = []
-    for each in paramList:
+    return_list = []
+    for each in param_list:
         if not re.match("http", each) and re.search("=", each) and each[0:2] == "--":
-            tmpList = each.split('=')
-            returnList.append(tmpList[0])
-            returnList.append(tmpList[1])
+            tmp_list = each.split('=')
+            return_list.append(tmp_list[0])
+            return_list.append(tmp_list[1])
         else:
-            returnList.append(each)
+            return_list.append(each)
 
-    tmpList = []
-    for each in returnList:
+    tmp_list = []
+    for each in return_list:
         if each == "--url":
-            tmpList.append("-u")
+            tmp_list.append("-u")
         else:
-            tmpList.append(each)
+            tmp_list.append(each)
 
-    return tmpList
+    return tmp_list
 
 
 def install_scrapy():
@@ -808,23 +809,23 @@ cd /tmp && tar -xvzf medusa.tar.gz && cd medusa-2.2 && ./configure --enable-debu
 --enable-module-wrapper=yes --enable-module-web-form=yes --enable-module-rdp=yes && make && make install")
 
 
-def fileOutofDate(file, checkTime=3):
-    # 文件距离上次修改后到现在为止经过多久,如果超过checkTime的天数则认为文件过期,返回True
+def file_outof_date(file, check_time=3):
+    # 文件距离上次修改后到现在为止经过多久,如果超过check_time的天数则认为文件过期,返回True
     # 如果没有超过3天则认为文件没有过期,返回False
     import os
     import time
-    nowMonth = int(time.strftime("%m"))
-    nowDate = int(time.strftime("%d"))
+    now_month = int(time.strftime("%m"))
+    now_date = int(time.strftime("%d"))
     t = os.stat(file)
     a = time.localtime(t.st_mtime)
-    modifyMonth = a.tm_mon
-    modifyDate = a.tm_mday
-    if modifyMonth != nowMonth:
+    modify_month = a.tm_mon
+    modify_date = a.tm_mday
+    if modify_month != now_month:
         return True
-    if modifyMonth == nowMonth:
-        if nowDate - modifyDate > checkTime:
+    if modify_month == now_month:
+        if now_date - modify_date > check_time:
             return True
-        elif nowDate < modifyDate:
+        elif now_date < modify_date:
             return True
         else:
             return False
@@ -837,7 +838,7 @@ def tab_complete_file_path():
     import glob
 
     def tab_complete_for_file_path():
-        class tabCompleter(object):
+        class tab_completer(object):
             """
             A tab completer that can either complete from
             the filesystem or from a list.
@@ -846,7 +847,7 @@ def tab_complete_file_path():
             source code:https://gist.github.com/iamatypeofwalrus/5637895
             """
 
-            def pathCompleter(self, text, state):
+            def path_completer(self, text, state):
                 """
                 This is the tab completer for systems paths.
                 Only tested on *nix systems
@@ -854,29 +855,29 @@ def tab_complete_file_path():
                 # line = readline.get_line_buffer().split()
                 return [x for x in glob.glob(text + '*')][state]
 
-            def createListCompleter(self, ll):
+            def create_list_completer(self, ll):
                 """
                 This is a closure that creates a method that autocompletes from
                 the given list.
                 Since the autocomplete function can't be given a list to complete from
-                a closure is used to create the listCompleter function with a list to complete
+                a closure is used to create the list_completer function with a list to complete
                 from.
                 """
-                def listCompleter(text, state):
+                def list_completer(text, state):
                     line = readline.get_line_buffer()
                     if not line:
                         return [
                             c + " " for c in ll if c.startswith(line)][state]
-                self.listCompleter = listCompleter
-        t = tabCompleter()
-        t.createListCompleter(["ab", "aa", "bcd", "bdf"])
+                self.list_completer = list_completer
+        t = tab_completer()
+        t.create_list_completer(["ab", "aa", "bcd", "bdf"])
 
         readline.set_completer_delims('\t')
         readline.parse_and_bind("tab: complete")
-        # readline.set_completer(t.listCompleter)
+        # readline.set_completer(t.list_completer)
         # ans = raw_input("Complete from list ")
         # print ans
-        readline.set_completer(t.pathCompleter)
+        readline.set_completer(t.path_completer)
 
     if platform.system() == "Linux":
         try:
@@ -904,6 +905,23 @@ def seconds2hms(seconds):
     return "%02d:%02d:%02d" % (h, m, s)
 
 
+def checkvpn():
+    # 检测vpn是否连接成功
+    import os
+    import re
+    # windows:-n 2
+    # linux:-c 2
+    # 如果不存在配置文件则要求可访问google才返回1
+    a = 'wget https://www.google.com/ --timeout=3 -O /tmp/google_test'
+    output = get_string_from_command(a)
+    os.system("rm /tmp/google_test")
+    if re.search(r"200 OK", output, re.I):
+        return 1
+    else:
+        return 0
+
+
+
 class Xcdn(object):
     # Xcdn是获取cdn背后真实ip的类
     # 使用方法Xcdn(domain).return_value为真实ip,如果结果为0代表没有获得成功
@@ -919,17 +937,17 @@ class Xcdn(object):
                 time.sleep(1)
                 print("vpn is off,connect vpn first")
         # 首先保证hosts文件中没有与domain相关的项,有则删除相关
-        domainPattern = domain.replace(".", "\.")
+        domain_pattern = domain.replace(".", "\.")
         # 下面的sed的正则中不能有\n,sed匹配\n比较特殊
         # http://stackoverflow.com/questions/1251999/how-can-i-replace-a-newline-n-using-sed
-        command = "sed -ri 's/.*\s+%s//' /etc/hosts" % domainPattern
+        command = "sed -ri 's/.*\s+%s//' /etc/hosts" % domain_pattern
         os.system(command)
 
         self.domain = domain
         self.http_or_https = get_http_or_https(self.domain)
         print('domain的http或https是:%s' % self.http_or_https)
         result = get_request(self.http_or_https + "://" + self.domain)
-        #result = get_request(self.http_or_https + "://" + self.domain,'seleniumPhantomJS')
+        #result = get_request(self.http_or_https + "://" + self.domain,'selenium_phantom_jS')
         self.domain_title = result['title']
         # 下面调用相当于main函数的get_actual_ip_from_domain函数
         actual_ip = self.get_actual_ip_from_domain()
@@ -980,7 +998,7 @@ class Xcdn(object):
             url = self.http_or_https + "://" + self.domain + "/" + each
             CLIOutput().good_print("现在访问%s" % url)
             visit = get_request(url)
-            #visit = get_request(url, 'seleniumPhantomJS')
+            #visit = get_request(url, 'selenium_phantom_jS')
             code = visit['code']
             content = visit['content']
             pattern = re.compile(r"remote_addr", re.I)
@@ -997,12 +1015,12 @@ class Xcdn(object):
         # 要刷新dns cache才能让修改hosts文件有效
 
         #CLIOutput().good_print("现在刷新系统的dns cache")
-        sysInfo = get_string_from_command("uname -a")
-        if re.search(r"kali", sysInfo, re.I) and re.search(r"debian", sysInfo, re.I):
+        sys_info = get_string_from_command("uname -a")
+        if re.search(r"kali", sys_info, re.I) and re.search(r"debian", sys_info, re.I):
             # 说明是kali linux,如果使用的时默认的get_request方法(非selenium)kali
             # linux不刷新dns时/etc/hosts也生效
             pass
-        elif re.search(r"ubuntu", sysInfo, re.I):
+        elif re.search(r"ubuntu", sys_info, re.I):
             # 说明是ubuntu,ubuntu刷新dns方法如下,按理来说这里不刷新dns也可，因为默认的get_request请求不用刷新dns
             # 时/etc/hosts也生效，在kali linux上测试是这样的，ubuntu下暂时没有测试
             # command = "/etc/init.d/dns-clean start && /etc/init.d/networking force-reload"
@@ -1041,7 +1059,7 @@ class Xcdn(object):
         # 使用默认的get_request请求方法不刷新dns的话/etc/hosts文件也会生效
         hosts_changed_domain_title = get_request(
             self.http_or_https + "://%s" % self.domain)['title']
-        #hosts_changed_domain_title = get_request(self.http_or_https + "://%s" % self.domain, 'seleniumPhantomJS')['title']
+        #hosts_changed_domain_title = get_request(self.http_or_https + "://%s" % self.domain, 'selenium_phantom_jS')['title']
         os.system("rm /etc/hosts && mv /etc/hosts.bak /etc/hosts")
         # 这里要用title判断,html判断不可以,title相同则认为相同
         if self.domain_title == hosts_changed_domain_title:
@@ -1057,24 +1075,24 @@ class Xcdn(object):
             # 这里不用nmap扫描,nmap扫描结果不准
             os.system("apt-get -y install masscan")
         if self.http_or_https == "http":
-            scanPort = 80
+            scan_port = 80
             CLIOutput().good_print("现在进行%s的c段开了80端口机器的扫描" % ip)
         if self.http_or_https == "https":
-            scanPort = 443
+            scan_port = 443
             CLIOutput().good_print("现在进行%s的c段开了443端口机器的扫描" % ip)
         masscan_command = "masscan -p%d %s/24 > /tmp/masscan.out" % (
-            scanPort, ip)
+            scan_port, ip)
         os.system(masscan_command)
         with open("/tmp/masscan.out", "r+") as f:
             strings = f.read()
         # os.system("rm /tmp/masscan.out")
         import re
-        allIP = re.findall(r"((\d{1,3}\.){3}\d{1,3})", strings)
-        ipList = []
-        for each in allIP:
-            ipList.append(each[0])
-        print(ipList)
-        return ipList
+        all_iP = re.findall(r"((\d{1,3}\.){3}\d{1,3})", strings)
+        ip_list = []
+        for each in all_iP:
+            ip_list.append(each[0])
+        print(ip_list)
+        return ip_list
 
     def check_if_ip_c_machines_has_actual_ip_of_domain(self, ip):
         # 检测ip的c段有没有domain的真实ip,如果有则返回真实ip,如果没有则返回0
@@ -1124,9 +1142,9 @@ class Xcdn(object):
         url = "http://www.crimeflare.com/cgi-bin/cfsearch.cgi"
         post_data = 'cfS=%s' % self.domain
         content = post_request(url, post_data)
-        findIp = re.search(r"((\d{1,3}\.){3}\d{1,3})", content)
-        if findIp:
-            return findIp.group(1)
+        find_ip = re.search(r"((\d{1,3}\.){3}\d{1,3})", content)
+        if find_ip:
+            return find_ip.group(1)
         return 0
 
     def get_actual_ip_from_domain(self):
@@ -1252,33 +1270,33 @@ def lin2win(file_abs_path):
     f1.close()
 
 
-def getCainKey(lstFile):
+def get_cain_key(lst_file):
     # 参数为cain目录下的包含用户名口令的文件,eg.pop3.lst,imap.lst,smtp.lst,http.lst,ftp.lst...
-    # 效果为在程序当前目录下生成一个xxx-cainOutPut.txt为整理后的文件
+    # 效果为在程序当前目录下生成一个xxx-cain_out_put.txt为整理后的文件
     import re
-    with open(lstFile, "r+") as f:
-        allLines = f.readlines()
+    with open(lst_file, "r+") as f:
+        all_lines = f.readlines()
     AddedLines = []
-    for eachLine in allLines:
+    for each_line in all_lines:
         a = re.search(
-            r"[\S]+\s+-\s+[\S]+\s+[\S]+\s+[\S]+\s+([\S]+)\s+([\S]+).*\s", eachLine, re.I)
+            r"[\S]+\s+-\s+[\S]+\s+[\S]+\s+[\S]+\s+([\S]+)\s+([\S]+).*\s", each_line, re.I)
         if a:
-            userField = a.group(1)
-            passField = a.group(2)
-            string2write = userField + ":" + passField + "\n"
+            user_field = a.group(1)
+            pass_field = a.group(2)
+            string2write = user_field + ":" + pass_field + "\n"
             print(string2write)
             if string2write not in AddedLines:
-                shouldWrite = 1
+                should_write = 1
                 for each in AddedLines:
-                    if each[:len(userField)] != userField:
+                    if each[:len(user_field)] != user_field:
                         continue
                     else:
-                        if passField == each.split(":")[1][:-1]:
-                            shouldWrite = 0
+                        if pass_field == each.split(":")[1][:-1]:
+                            should_write = 0
                         break
-                if shouldWrite == 1:
+                if should_write == 1:
                     AddedLines.append(string2write)
-                    with open(lstFile + "-cainOutPut.txt", "a+") as f:
+                    with open(lst_file + "-cain_out_put.txt", "a+") as f:
                         f.write(string2write)
 
 
@@ -1299,8 +1317,8 @@ def post_requests(url, data, headers):
     else:
         pass
 
-    returnValue = requests.post(url, data, headers, timeout=10)
-    return returnValue
+    return_value = requests.post(url, data, headers, timeout=10)
+    return return_value
 
 
 def get_all_abs_path_file_name(folder, ext_list):
@@ -1521,8 +1539,8 @@ def post_request(url, data, verify=True):
         page = browser.post(url, data=data, timeout=10)
     content = page.content
     import chardet
-    bytesEncoding = chardet.detect(content)['encoding']
-    return content.decode(encoding=bytesEncoding, errors="ignore")
+    bytes_encoding = chardet.detect(content)['encoding']
+    return content.decode(encoding=bytes_encoding, errors="ignore")
 
 
 def get_random_ua():
@@ -1662,12 +1680,12 @@ def check_banned(url):
         return False
     else:
         result = get_request(
-            url, proxyUrl=get_one_useful_proxy(), by="MechanicalSoup")
+            url, proxy_url=get_one_useful_proxy(), by="MechanicalSoup")
         if result['code'] != 0:
             return True
         else:
             result = get_request(
-                url, proxyUrl=get_one_useful_proxy(), by="MechanicalSoup")
+                url, proxy_url=get_one_useful_proxy(), by="MechanicalSoup")
             if result['code'] != 0:
                 return True
             else:
@@ -1684,7 +1702,7 @@ def get_proxy_list():
     list_url = get_list_page(listurl="http://www.xicidaili.com/nt/")
     if list_url == 0:
         return 0
-    startTime = time.time()
+    start_time = time.time()
     for url in list_url:
         iplist = page_data(url)
         for ip in iplist:
@@ -1696,13 +1714,13 @@ def get_proxy_list():
                 # print u"file_put" #写入文件
                 save_ip(str(arr[1] + ':' + arr[2] + ':' + arr[3]))
                 with open("proxy.txt", "r+") as f:
-                    gotList = f.readlines()
-                if len(gotList) < 10:
+                    got_list = f.readlines()
+                if len(got_list) < 10:
                     # 只获取10个代理,获取所有代理要花很多时间
                     continue
                 else:
-                    spendTime = time.time() - startTime
-                    print("获取10个代理花费时间:%s" % seconds2hms(spendTime))
+                    spend_time = time.time() - start_time
+                    print("获取10个代理花费时间:%s" % seconds2hms(spend_time))
                     return
 
             else:
@@ -1725,10 +1743,10 @@ def get_one_proxy():
     import random
     import os
     import re
-    proxyCount = 0
-    proxyList = []
+    proxy_count = 0
+    proxy_list = []
     if os.path.exists("proxy.txt"):
-        if fileOutofDate("proxy.txt"):
+        if file_outof_date("proxy.txt"):
             os.system("rm proxy.txt")
             a = get_proxy_list()
             if a == 0:
@@ -1736,12 +1754,12 @@ def get_one_proxy():
                 return 0
 
         with open("proxy.txt") as f:
-            for eachLine in f:
-                eachLine = re.sub(r"\s$", "", eachLine)
-                proxyCount += 1
-                proxyList.append(eachLine)
+            for each_line in f:
+                each_line = re.sub(r"\s$", "", each_line)
+                proxy_count += 1
+                proxy_list.append(each_line)
 
-        if proxyCount > 10:
+        if proxy_count > 10:
             pass
         else:
             # 小于10个代理则重新获取
@@ -1756,40 +1774,40 @@ def get_one_proxy():
             print("try to get proxy ip list,but the server blocked it")
             return 0
 
-    finalList = []
+    final_list = []
     with open("proxy.txt", "r+") as f:
-        for eachLine in f:
-            eachLine = re.sub(r"\s$", "", eachLine)
-            finalList.append(eachLine)
-    return_value = random.choice(finalList)
+        for each_line in f:
+            each_line = re.sub(r"\s$", "", each_line)
+            final_list.append(each_line)
+    return_value = random.choice(final_list)
     return return_value
 
 
 def get_one_useful_proxy():
     # 相比get_one_proxy函数,这个函数得到的是经过验证的有效的代理
-    tryProxyCount = 0
+    try_proxy_count = 0
     while 1:
-        proxyIp = get_one_proxy()
-        tryProxyCount += 1
-        if tryProxyCount > 10:
+        proxy_ip = get_one_proxy()
+        try_proxy_count += 1
+        if try_proxy_count > 10:
             # 随便10个代理都没用时重新获取代理列表
             a = get_proxy_list()
             if a == 0:
                 print("try to get proxy ip list,but the server blocked it")
                 return 0
-            tryProxyCount = 0
+            try_proxy_count = 0
             continue
 
-        if proxyIp == 0:
+        if proxy_ip == 0:
             print("大爷,不要用代理了,获取代理列表失败了")
             return 0
         else:
-            parameFirstPart = proxyIp.split(":")[0]
-            parameSecondPart = proxyIp
-            parame = {parameFirstPart: parameSecondPart}
+            parame_first_part = proxy_ip.split(":")[0]
+            parame_second_part = proxy_ip
+            parame = {parame_first_part: parame_second_part}
             if proxies(parame):
-                print("恭喜大爷,得到的有效的代理:" + proxyIp)
-                return proxyIp
+                print("恭喜大爷,得到的有效的代理:" + proxy_ip)
+                return proxy_ip
             else:
                 continue
 
@@ -1806,34 +1824,34 @@ def get_param_list_from_param_part(param_part):
 def get_param_part_from_content(content):
     form_part_value = re.search(
         r'''<form[^<>]+>(((?!=</form>)[\s\S])+)</form>''', content, re.I).group(1)
-    inputParamList = re.findall(
+    input_param_list = re.findall(
         r'''(<[^<>]+\s+name\s*=\s*['"]?([^\s'"]+)['"]?[^<>]*>)''', form_part_value, re.I)
-    paramPartValue = ""
-    paramNameList = []
-    for each in inputParamList:
-        paramName = each[-1]
-        if paramName not in paramNameList:
+    param_part_value = ""
+    param_name_list = []
+    for each in input_param_list:
+        param_name = each[-1]
+        if param_name not in param_name_list:
             # 防止有重复的参数
-            paramNameList.append(paramName)
+            param_name_list.append(param_name)
 
-            existDefaultValue = re.search(
+            exist_default_value = re.search(
                 r'''value=('|")?([^'"<>]*)('|")?''', each[0], re.I)
-            if existDefaultValue:
+            if exist_default_value:
                 # 如果有默认值
-                defaultValue = existDefaultValue.group(2)
-                defaultValue = re.sub(r"\s+", "+", defaultValue)
-                paramPartValue += (paramName + "=" + defaultValue + "&")
+                default_value = exist_default_value.group(2)
+                default_value = re.sub(r"\s+", "+", default_value)
+                param_part_value += (param_name + "=" + default_value + "&")
             else:
                 # 如果没有默认值
                 if re.search(r'''required=('|")?required('|")?''', each[0], re.I):
                     # 处理必须要填的参数
-                    paramPartValue += (paramName + "=requiredParamValue&")
+                    param_part_value += (param_name + "=required_param_value&")
                 else:
-                    paramPartValue += (paramName + "=&")
+                    param_part_value += (param_name + "=&")
 
-    if paramPartValue != "" and paramPartValue[-1] == "&":
-        paramPartValue = paramPartValue[:-1]
-    return paramPartValue
+    if param_part_value != "" and param_part_value[-1] == "&":
+        param_part_value = param_part_value[:-1]
+    return param_part_value
 
 
 # 上面主要用于获取代理，用法为get_one_useful_proxy(),返回0则获取失败
@@ -1856,37 +1874,37 @@ def test_speed(address):
     return sum / 12
 
 
-def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=1):
-    # 如果用在爬虫或其他需要页面执行js的场合,用by="seleniumPhantomJS",此外用by="MechanicalSoup"
-    # 因为by="seleniumPhantomJS"无法得到http的响应的code(状态码)
+def get_request(url, by="MechanicalSoup", proxy_url="", cookie="", delay_switcher=1):
+    # 如果用在爬虫或其他需要页面执行js的场合,用by="selenium_phantom_jS",此外用by="MechanicalSoup"
+    # 因为by="selenium_phantom_jS"无法得到http的响应的code(状态码)
     # 如果用selenium,用firefox打开可直接访问,要是用ie或chrome打开则要先安装相应浏览器驱动
     # 默认用MechanicalSoup方式访问url
     # 发出get请求,返回值为一个字典,有5个键值对
-    # eg.{"code":200,"title":None,"content":"",'hasFormAction',"",'formActionValue':""}
+    # eg.{"code":200,"title":None,"content":"",'has_form_action',"",'form_action_value':""}
     # code是int类型
     # title如果没有则返回None,有则返回str类型
     # content如果没有则返回""
-    # hasFormAction的值为True或False,True代表url对应的html中有表单可提交
-    # formActionValue的值为hasFormAction为True时要测试的url
-    # formActionValue is not from the value in "<form action="valuePart">"
-    # formActionValue is the final request url the browser should make to the server
+    # has_form_action的值为True或False,True代表url对应的html中有表单可提交
+    # form_action_value的值为has_form_action为True时要测试的url
+    # form_action_value is not from the value in "<form action="value_part">"
+    # form_action_value is the final request url the browser should make to the server
     # 如http://www.baidu.com/1.php^a=1&b=2 (post提交表单类型的测试url)
     # 如http://www.baidu.com/1.php?a=1&b=2 (get提交表单类型的测试url)
     # by是使用方法,有两种:MechanicalSoup|chromedriver
     # https://github.com/hickford/MechanicalSoup
     # selenium+chromedriver,chromedriver不能得到code,默认用MechanicalSoup方法
-    # delaySwitcher用于设置当前调用get_request函数时是否要按照延时设置来延时,如果设置为0则不需要延时,这种情况用于
+    # delay_switcher用于设置当前调用get_request函数时是否要按照延时设置来延时,如果设置为0则不需要延时,这种情况用于
     # 一些不担心被服务器禁止访问的场合
     # current_url is the true url the browser is visiting.
-    # if redirect exist,returnCurrentUrl is not url
-    # if no redirect exist,returnCurrentUrl is url
+    # if redirect exist,return_current_url is not url
+    # if no redirect exist,return_current_url is url
     # 其中selenium设置phantomjs的cookie的正确方法为
     # https://stackoverflow.com/questions/35666067/selenium-phantomjs-custom-headers-in-python
 
     # 这里的delay用于所有用到get_request函数的http请求的时间隔,eg:在3xp10it扫描工具的爬虫模块中用到这里
 
     global DELAY
-    if delaySwitcher == 1:
+    if delay_switcher == 1:
         # 如果打开了delay开关则需要根据配置文件中的delay参数来延时访问
         if DELAY != "":
             import time
@@ -1897,11 +1915,11 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
     code = None
     title = None
     content = None
-    hasFormAction = False
-    formActionValue = ""
+    has_form_action = False
+    form_action_value = ""
     current_url = url
 
-    if by == "seleniumPhantomJS":
+    if by == "selenium_phantom_jS":
 
         if module_exist("selenium") is False:
             os.system("pip3 install selenium")
@@ -1909,11 +1927,11 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
         # from selenium.common.exceptions import TimeoutException
         result = get_string_from_command("phantomjs --help")
         if re.search(r"(not found)|(不是内部或外部命令)|(Unknown command)", result, re.I):
-            if SystemPlatform == "Darwin":
+            if platform.system() == "Darwin":
                 os.system("brew install phantomjs")
-            elif SystemPlatform == 'Linux':
+            elif platform.system() == 'Linux':
                 os.system("apt-get install phantomjs")
-            elif SystemPlatform == 'Windows':
+            elif platform.system() == 'Windows':
                 import wget
                 try:
                     wget.download(
@@ -1924,14 +1942,14 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
                     input("下载速度太慢,还是手工用迅雷下载吧,下载后将可执行文件phantomjs.exe存放到PATH中,再按任意键继续...")
         import time
 
-        if proxyUrl == "" or proxyUrl == 0:
+        if proxy_url == "" or proxy_url == 0:
             service_args_value = ['--ignore-ssl-errors=true',
                                   '--ssl-protocol=any', '--web-security=false']
-        if proxyUrl != "" and proxyUrl != 0:
-            proxyType = proxyUrl.split(":")[0]
-            proxyValueWithType = proxyUrl.split("/")[-1]
+        if proxy_url != "" and proxy_url != 0:
+            proxy_type = proxy_url.split(":")[0]
+            proxy_value_with_type = proxy_url.split("/")[-1]
             service_args_value = ['--ignore-ssl-errors=true', '--ssl-protocol=any', '--web-security=false',
-                                  '--proxy=%s' % proxyValueWithType, '--proxy-type=%s' % proxyType]
+                                  '--proxy=%s' % proxy_value_with_type, '--proxy-type=%s' % proxy_type]
             service_args_value.append('--load-images=no')  # 关闭图片加载
             service_args_value.append('--disk-cache=yes')  # 开启缓存
 
@@ -1948,7 +1966,7 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
                 headers = {'User-Agent': '%s' % ua,
                            'Referer': '%s' % get_http_domain_from_url(url)}
             for key in headers:
-                capability_key = 'phantomjs.page.customHeaders.{}'.format(key)
+                capability_key = 'phantomjs.page.custom_headers.{}'.format(key)
                 webdriver.DesiredCapabilities.PHANTOMJS[capability_key] = headers[key]
             driver = webdriver.PhantomJS(service_args=service_args_value)
 
@@ -1966,34 +1984,34 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
             title = driver.title
             print(title)
             content = driver.page_source
-            # returnCurrentUrl is the true url the browser is visiting.
-            # if redirect exist,returnCurrentUrl is not url
-            # if no redirect exist,returnCurrentUrl is url
+            # return_current_url is the true url the browser is visiting.
+            # if redirect exist,return_current_url is not url
+            # if no redirect exist,return_current_url is url
             current_url = driver.current_url
             # 表单页面处理
             try:
                 # form = driver.find_element_by_css_selector('form').submit()
-                hasFormAction = True
+                has_form_action = True
                 if re.search(r'''<form[^<>]*method=('|")?get('|")?[^<>]*>''', content, re.I):
                     # 说明是get请求提交的参数
                     # get提交表单的处理
-                    formActionValue = driver.current_url
+                    form_action_value = driver.current_url
                 else:
                     if re.search(r'''<form[^<>]*method=('|")?post('|")?[^<>]*>''', content, re.I):
                         # post提交表单的处理采用自行查找所有表单中的参数
                         # post的测试url中有^,这是人为添加的,便于放到数据库中
-                        formActionValue += (driver.current_url + "^")
+                        form_action_value += (driver.current_url + "^")
 
                     else:
                         # 其他情况当作get请求,并用正则找出表单中的参数(不用selenium的submit)
-                        formActionValue += (driver.current_url + "?")
+                        form_action_value += (driver.current_url + "?")
 
-                    pureContent = re.sub(r"<!--.*-->", "", content)
-                    paramPartValue = get_param_part_from_content(pureContent)
-                    formActionValue += paramPartValue
+                    pure_content = re.sub(r"<!--.*-->", "", content)
+                    param_part_value = get_param_part_from_content(pure_content)
+                    form_action_value += param_part_value
 
             except selenium.common.exceptions.NoSuchElementException:
-                hasFormAction = False
+                has_form_action = False
                 # print("没找到表单...")
             #print("len content is :\n" + str(len(content)))
             print("[title:" + title + "]" + url)
@@ -2006,7 +2024,7 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
         if content is None or title is None or (re.search(r"(页面不存在)|(未找到页面)|(page\s+not\s+found)|(404\s+not\s+found)", content, re.I) and len(content) < 10000) or re.search(r"404", title, re.I):
             if content and re.search(r'''<form\s+[^<>]*>''', content, re.I):
                 input("需要调整代码!!!!!!!!!")
-            return get_request(url, by="MechanicalSoup", proxyUrl=proxyUrl, cookie=cookie, delaySwitcher=delaySwitcher)
+            return get_request(url, by="MechanicalSoup", proxy_url=proxy_url, cookie=cookie, delay_switcher=delay_switcher)
 
         return {
             'code': code,
@@ -2014,12 +2032,12 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
             # 下面比较特殊,PhantomJS得到的html不用decode,直接就是string类型
             'content': content,
             #True or False
-            'hasFormAction': hasFormAction,
+            'has_form_action': has_form_action,
             # eg,https://www.baidu.com^a=1&b=2
             # eg,https://www.baidu.com/?a=1&b=2
             # 上面?表示formAction对应get请求,^表示formAction对应post请求
-            'formActionValue': formActionValue,
-            'currentUrl': current_url}
+            'form_action_value': form_action_value,
+            'current_url': current_url}
 
     else:
         import mechanicalsoup
@@ -2034,8 +2052,8 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
 
             # headers=browser.session.headers
             # if 'Cookie' in headers:
-            #    originalCookie=headers['Cookie']
-            #    print(orinalCookie)
+            #    original_cookie=headers['Cookie']
+            #    print(orinal_cookie)
 
             if cookie == "":
                 # 调用当前函数时没有传入cookie
@@ -2059,10 +2077,10 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
             # content是bytes类型
             content = result.content
             import chardet
-            bytesEncoding = chardet.detect(content)['encoding']
+            bytes_encoding = chardet.detect(content)['encoding']
             # 使用检测出来的编码方式解码
-            #content = content.decode(bytesEncoding)
-            content = content.decode(encoding=bytesEncoding, errors="ignore")
+            #content = content.decode(bytes_encoding)
+            content = content.decode(encoding=bytes_encoding, errors="ignore")
             title = BeautifulSoup(content, "lxml").title
             if title is not None:
                 title_value = title.string
@@ -2073,35 +2091,35 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
             a = re.search(
                 r'''<form[^<>]*action=('|")?([^\s'"<>]*)('|")?[^<>]*>''', content, re.I)
             if not a and re.search(r'''<form\s+((?!action|>|<).)*>''', content, re.I):
-                # 有form没有action则调用seleniumPhantomJS来重新发送get请求,因为这种情况无法获得表单要提交的url
-                return get_request(url, by="seleniumPhantomJS", proxyUrl=proxyUrl, cookie=cookie, delaySwitcher=delaySwitcher)
+                # 有form没有action则调用selenium_phantom_jS来重新发送get请求,因为这种情况无法获得表单要提交的url
+                return get_request(url, by="selenium_phantom_jS", proxy_url=proxy_url, cookie=cookie, delay_switcher=delay_switcher)
             if a:
-                pureActionValue = a.group(2)
-                if pureActionValue[0] == '/':
-                    pureActionValue = get_http_netloc_from_url(
-                        current_url) + pureActionValue
-                elif re.match(r"http(s)?://.*", pureActionValue, re.I):
-                    pureActionValue = pureActionValue
-                elif re.match(r"#+", pureActionValue) or re.match(r"\s*", pureActionValue):
-                    pureActionValue = current_url
+                pure_action_value = a.group(2)
+                if pure_action_value[0] == '/':
+                    pure_action_value = get_http_netloc_from_url(
+                        current_url) + pure_action_value
+                elif re.match(r"http(s)?://.*", pure_action_value, re.I):
+                    pure_action_value = pure_action_value
+                elif re.match(r"#+", pure_action_value) or re.match(r"\s*", pure_action_value):
+                    pure_action_value = current_url
                 else:
-                    pureActionValue = get_value_from_url(
-                        current_url)['y2'] + "/" + pureActionValue
+                    pure_action_value = get_value_from_url(
+                        current_url)['y2'] + "/" + pure_action_value
 
                 # 有表单
-                hasFormAction = True
-                pureContent = re.sub(r"<!--.*-->", "", content)
-                paramPartValue = get_param_part_from_content(pureContent)
+                has_form_action = True
+                pure_content = re.sub(r"<!--.*-->", "", content)
+                param_part_value = get_param_part_from_content(pure_content)
                 if re.search(r'''<form[^<>]*method=('|")?get('|")?[^<>]*>''', content, re.I):
                     # get提交表单的处理
-                    formActionValue += pureActionValue + "?" + paramPartValue
+                    form_action_value += pure_action_value + "?" + param_part_value
                 elif re.search(r'''<form[^<>]*method=('|")?post('|")?[^<>]*>''', content, re.I):
                     # post提交表单的处理采用自行查找所有表单中的参数
                     # post的测试url中有^,这是人为添加的,便于放到数据库中
-                    formActionValue += pureActionValue + "^" + paramPartValue
+                    form_action_value += pure_action_value + "^" + param_part_value
                 else:
                     # 对于非get或post的表单默认用get来提交(一般是js提交)
-                    formActionValue += pureActionValue + "?" + paramPartValue
+                    form_action_value += pure_action_value + "?" + param_part_value
 
         except:
             # 请求次数过多时被目标服务器禁止访问时
@@ -2113,9 +2131,9 @@ def get_request(url, by="MechanicalSoup", proxyUrl="", cookie="", delaySwitcher=
             'code': code,
             'title': title_value,
             'content': content,
-            'hasFormAction': hasFormAction,
-            'formActionValue': formActionValue,
-            'currentUrl': current_url}
+            'has_form_action': has_form_action,
+            'form_action_value': form_action_value,
+            'current_url': current_url}
         return return_value
 
 
@@ -2374,10 +2392,10 @@ your python module's name,so I will exit:)")
 
 def blog():
     # 便捷写博客(jekyll+github)函数
-    if SystemPlatform == "Windows":
+    if platform.system() == "Windows":
         print("Sorry,current function 'def blog():' does not support windows")
         return
-    if SystemPlatform == "Darwin":
+    if platform.system() == "Darwin":
         a = get_string_from_command("gsed")
         if re.search(r"command not found", a, re.I):
             print("Please install gnu-sed,eg.brew install gnu-sed")
@@ -2401,39 +2419,39 @@ def blog():
     file_abs_path = HOME_PATH + "/myblog/_posts/" + filename
     cmd = "cp ~/myblog/_posts/*隐藏webshell.md %s" % file_abs_path
     os.system(cmd)
-    ubuntuCmd = "sed -i 's/^title.*/title:      %s/g' %s" % (
+    ubuntu_cmd = "sed -i 's/^title.*/title:      %s/g' %s" % (
         title, file_abs_path)
-    #macosCmd="sed -i '' 's/^title.*/title:      %s/g' %s" % (title, file_abs_path)
-    macosCmd = "gsed -i 's/^title.*/title:      %s/g' %s" % (
+    #macos_cmd="sed -i '' 's/^title.*/title:      %s/g' %s" % (title, file_abs_path)
+    macos_cmd = "gsed -i 's/^title.*/title:      %s/g' %s" % (
         title, file_abs_path)
-    os.system(ubuntuCmd) if SystemPlatform != "Darwin" else os.system(macosCmd)
-    ubuntuCmd = "sed -i 's/date:       .*/date:       %s/g' %s" % (
+    os.system(ubuntu_cmd) if platform.system() != "Darwin" else os.system(macos_cmd)
+    ubuntu_cmd = "sed -i 's/date:       .*/date:       %s/g' %s" % (
         str(date), file_abs_path)
-    #macosCmd="sed -i '' 's/date:       .*/date:       %s/g' %s" % (str(date), file_abs_path)
-    macosCmd = "gsed -i 's/date:       .*/date:       %s/g' %s" % (
+    #macos_cmd="sed -i '' 's/date:       .*/date:       %s/g' %s" % (str(date), file_abs_path)
+    macos_cmd = "gsed -i 's/date:       .*/date:       %s/g' %s" % (
         str(date), file_abs_path)
-    os.system(ubuntuCmd) if SystemPlatform != "Darwin" else os.system(macosCmd)
-    ubuntuCmd = "sed -i 's/summary:    隐藏webshell的几条建议/summary:    %s/g' %s" % (
+    os.system(ubuntu_cmd) if platform.system() != "Darwin" else os.system(macos_cmd)
+    ubuntu_cmd = "sed -i 's/summary:    隐藏webshell的几条建议/summary:    %s/g' %s" % (
         title, file_abs_path)
-    #macosCmd="sed -i '' 's/summary:    隐藏webshell的几条建议/summary:    %s/g' %s" % (title, file_abs_path)
-    macosCmd = "gsed -i 's/summary:    隐藏webshell的几条建议/summary:    %s/g' %s" % (
+    #macos_cmd="sed -i '' 's/summary:    隐藏webshell的几条建议/summary:    %s/g' %s" % (title, file_abs_path)
+    macos_cmd = "gsed -i 's/summary:    隐藏webshell的几条建议/summary:    %s/g' %s" % (
         title, file_abs_path)
-    os.system(ubuntuCmd) if SystemPlatform != "Darwin" else os.system(macosCmd)
-    ubuntuCmd = "sed -i '11,$d' %s" % file_abs_path
-    #macosCmd="sed -i '' '11,$d' %s" % file_abs_path
-    macosCmd = "gsed -i '11,$d' %s" % file_abs_path
-    os.system(ubuntuCmd) if SystemPlatform != "Darwin" else os.system(macosCmd)
-    ubuntuCmd = "sed -i 's/categories: web/categories: %s/g' %s" % (
+    os.system(ubuntu_cmd) if platform.system() != "Darwin" else os.system(macos_cmd)
+    ubuntu_cmd = "sed -i '11,$d' %s" % file_abs_path
+    #macos_cmd="sed -i '' '11,$d' %s" % file_abs_path
+    macos_cmd = "gsed -i '11,$d' %s" % file_abs_path
+    os.system(ubuntu_cmd) if platform.system() != "Darwin" else os.system(macos_cmd)
+    ubuntu_cmd = "sed -i 's/categories: web/categories: %s/g' %s" % (
         categories, file_abs_path)
-    #macosCmd="sed -i '' 's/categories: web/categories: %s/g' %s" % (categories, file_abs_path)
-    macosCmd = "gsed -i 's/categories: web/categories: %s/g' %s" % (
+    #macos_cmd="sed -i '' 's/categories: web/categories: %s/g' %s" % (categories, file_abs_path)
+    macos_cmd = "gsed -i 's/categories: web/categories: %s/g' %s" % (
         categories, file_abs_path)
-    os.system(ubuntuCmd) if SystemPlatform != "Darwin" else os.system(macosCmd)
-    ubuntuCmd = "sed '/ - webshell/c\\\n%s' %s > /tmp/1" % (
+    os.system(ubuntu_cmd) if platform.system() != "Darwin" else os.system(macos_cmd)
+    ubuntu_cmd = "sed '/ - webshell/c\\\n%s' %s > /tmp/1" % (
         tags_write_to_file, file_abs_path)
-    macosCmd = "gsed '/ - webshell/c\\\n%s' %s > /tmp/1" % (
+    macos_cmd = "gsed '/ - webshell/c\\\n%s' %s > /tmp/1" % (
         tags_write_to_file, file_abs_path)
-    os.system(ubuntuCmd) if SystemPlatform != "Darwin" else os.system(macosCmd)
+    os.system(ubuntu_cmd) if platform.system() != "Darwin" else os.system(macos_cmd)
     os.system("cat /tmp/1 > %s && rm /tmp/1" % file_abs_path)
     os.system("/Applications/MacVim.app/Contents/MacOS/Vim %s" % file_abs_path)
 
@@ -2534,15 +2552,15 @@ def config_file_has_key_value(file, section, key_name):
     # 检测配置文件中的节点中的键有没有具体值
     # 节点中没有键或键的值为空返回False
     # 否则返回True
-    hasPlanValue = 0
+    has_plan_value = 0
     try:
-        existPlan = get_key_value_from_config_file(file, section, key_name)
-        if existPlan is not None and existPlan != "":
-            hasPlanValue = 1
+        exist_plan = get_key_value_from_config_file(file, section, key_name)
+        if exist_plan is not None and exist_plan != "":
+            has_plan_value = 1
     except:
         # print("没有这项")
         pass
-    if hasPlanValue == 0:
+    if has_plan_value == 0:
         return False
     return True
 
@@ -2586,10 +2604,10 @@ def update_config_file_key_value(file, section, key_name, key_value):
     import configparser
     config = configparser.ConfigParser()
     config.read(file)
-    sectionList = config.sections()
+    section_list = config.sections()
     if (isinstance(key_value, int) or '%' not in key_value) and not re.search(r":", key_name, re.I):
         # configparser模块的bug,无法写入'%'
-        if section not in sectionList:
+        if section not in section_list:
             config.add_section(section)
         config.set(section, key_name, str(key_value))
         with open(file, 'w') as f:
@@ -2609,9 +2627,9 @@ def update_config_file_key_value(file, section, key_name, key_value):
                             (section.replace(".", "\."), key_name), content, re.I)
             if tmp:
                 # 有这个域名section且有这个key_name
-                preContent = tmp.group(1)
+                pre_content = tmp.group(1)
                 newcontent = re.sub(r"\[%s\]\n+(.+\n+)*%s[^\n\S]*=[^\n\S]*.+" %
-                                    (section.replace(".", "\."), key_name), "%s%s = %s" % (preContent, section, key_name, key_value), content)
+                                    (section.replace(".", "\."), key_name), "%s%s = %s" % (pre_content, section, key_name, key_value), content)
                 os.system("rm %s" % file)
                 with open(file, "a+") as f:
                     f.write(newcontent)
@@ -2619,16 +2637,16 @@ def update_config_file_key_value(file, section, key_name, key_value):
                 # 有这个域名section但没有这个key_name
                 tmp = re.search(r"(\[%s\]\n+(.+\n+)*)(\n+)(\[.*\])?" %
                                 section.replace(".", "\."), content, re.I)
-                preContent = tmp.group(1)
-                input(preContent)
+                pre_content = tmp.group(1)
+                input(pre_content)
                 huanhang = tmp.group(3)
                 input(huanhang)
-                sufContent = tmp.group(4)
-                input(sufContent)
-                if sufContent is None:
-                    sufContent = ""
+                suf_content = tmp.group(4)
+                input(suf_content)
+                if suf_content is None:
+                    suf_content = ""
                 newcontent = re.sub(r"\[%s\]\n+(.+\n+)*\n+(\[.*\])?" % section.replace(".", "\."), "%s%s = %s%s%s" %
-                                    (preContent, key_name, key_value + "\n", huanhang, sufContent), content, re.I)
+                                    (pre_content, key_name, key_value + "\n", huanhang, suf_content), content, re.I)
                 input(newcontent)
                 os.system("rm %s" % file)
                 with open(file, "a+") as f:
@@ -3012,32 +3030,32 @@ def get_user_and_pass_form_from_html(html):
 def get_url_has_csrf_token(url):
     # test if url has csrf token
     # return a dict
-    # return dict['hasCsrfToken']=True for has
-    # return dict['hasCsrfToken']=False for has not
-    # return dict['csrfTokenName']="csrf token param name value" or ""
-    returnValue = {'hasCsrfToken': False, 'csrfTokenName': ''}
+    # return dict['has_csrf_token']=True for has
+    # return dict['has_csrf_token']=False for has not
+    # return dict['csrf_token_name']="csrf token param name value" or ""
+    return_value = {'has_csrf_token': False, 'csrf_token_name': ''}
     if "^" in url:
         url = url.split("^")[0]
     elif "?" in url:
         url = url.split("?")[0]
-    hasCsrfToken = False
-    a = get_request(url, by="seleniumPhantomJS")
-    if a['hasFormAction']:
-        firstCsrfToken = re.search(
-            r"([^&?\^]*token[^=]*)=([^&]+)", a['formActionValue'], re.I)
-        if firstCsrfToken:
-            firstCsrfTokenValue = firstCsrfToken.group(2)
-            b = get_request(url, by="seleniumPhantomJS")
-            if b['hasFormAction']:
-                secondCsrfTokenValue = re.search(
-                    r"([^&?\^]*token[^=]*)=([^&]+)", b['formActionValue'], re.I).group(2)
-                if secondCsrfTokenValue != firstCsrfTokenValue:
-                    hasCsrfToken = True
-                    csrfTokenName = firstCsrfToken.group(1)
+    has_csrf_token = False
+    a = get_request(url, by="selenium_phantom_jS")
+    if a['has_form_action']:
+        first_csrf_token = re.search(
+            r"([^&?\^]*token[^=]*)=([^&]+)", a['form_action_value'], re.I)
+        if first_csrf_token:
+            first_csrf_token_value = first_csrf_token.group(2)
+            b = get_request(url, by="selenium_phantom_jS")
+            if b['has_form_action']:
+                second_csrf_token_value = re.search(
+                    r"([^&?\^]*token[^=]*)=([^&]+)", b['form_action_value'], re.I).group(2)
+                if second_csrf_token_value != first_csrf_token_value:
+                    has_csrf_token = True
+                    csrf_token_name = first_csrf_token.group(1)
 
-    returnValue['hasCsrfToken'] = hasCsrfToken
-    returnValue['csrfTokenName'] = csrfTokenName
-    return returnValue
+    return_value['has_csrf_token'] = has_csrf_token
+    return_value['csrf_token_name'] = csrf_token_name
+    return return_value
 
 
 def get_user_and_pass_form_from_url(url):
@@ -3049,7 +3067,7 @@ def get_user_and_pass_form_from_url(url):
     # 之所以要每次在有访问url结果的函数里面返回url访问结果,这样是为了可以只访问一次url,这样就可以一直将访问的返\
     # 回结果传递下去,不用多访问,效率更高
     url = re.sub(r'(\s)$', '', url)
-    response_key_value = get_request(url, by="seleniumPhantomJS")
+    response_key_value = get_request(url, by="selenium_phantom_jS")
     content = response_key_value['content']
     return_value = get_user_and_pass_form_from_html(content)
     return_value['response_key_value'] = response_key_value
@@ -3060,7 +3078,7 @@ def get_user_and_pass_form_from_url(url):
 def get_yanzhengma_form_and_src_from_url(url):
     # 得到url对应的html中的验证码的表单名和验证码src地址
     parsed = urlparse(url)
-    content = get_request(url, by="seleniumPhantomJS")['content']
+    content = get_request(url, by="selenium_phantom_jS")['content']
     # sub useless html content
     content = re.sub(r"<!--.+-->", "", content)
     yanzhengma_form_name = None
@@ -3208,14 +3226,14 @@ def crack_ext_direct_webshell_url(url, pass_dict_file, ext):
     return {'cracked': get_flag[0], 'password': return_password[0]}
 
 
-def jieDiQi_crack_ext_direct_webshell_url(url, pass_dict_file, ext):
+def jie_di_qi_crack_ext_direct_webshell_url(url, pass_dict_file, ext):
     # 爆破php|asp|aspx|jsp的一句话类型的webshell
     # 表单形式爆破的webshell爆破起来方法一样,不用分类
     # 一句话形式的webshell爆破需要根据后缀对应的脚本的语法的不同来爆破
 
     def ext_direct_webshell_crack_thread(password, url, ext):
         values = {}
-        checkValues = {}
+        check_values = {}
         if get_flag[0] == 1:
             return
         if ext in ["php", "asp", "aspx"]:
@@ -3229,17 +3247,17 @@ def jieDiQi_crack_ext_direct_webshell_url(url, pass_dict_file, ext):
             # assert形式,这样的情况不能用echo来判断,因为assert不能执行echo]
             for each in password:
                 values[each] = 'print_r("29289");'
-                checkValues[each] = 'print_r("%s");' % each
+                check_values[each] = 'print_r("%s");' % each
         elif ext == "asp":
             # asp后面不能加分号
             for each in password:
                 values[each] = 'response.write("29289")'
-                checkValues[each] = 'response.write("%s")' % each
+                check_values[each] = 'response.write("%s")' % each
         elif ext == "aspx":
             # aspx后面可加可不加分号
             for each in password:
                 values[each] = 'Response.Write("29289");'
-                checkValues[each] = 'Response.Write("%s");' % each
+                check_values[each] = 'Response.Write("%s");' % each
         elif ext == "jsp":
             # jsp一句话比较特殊,似乎没有直接执行命令的post参数
             # A后面没有分号
@@ -3269,18 +3287,18 @@ def jieDiQi_crack_ext_direct_webshell_url(url, pass_dict_file, ext):
             print(Fore.RED + "congratulations!!! find webshell password group,now try to get the only one password...")
             if ext != "jsp":
                 # html即为密码内容
-                html = post_request(url, checkValues)
-                finalPassword = html
+                html = post_request(url, check_values)
+                final_password = html
             else:
                 for each in password:
-                    postValues = {'%s' % each: 'A'}
-                    html = post_request(url, postValues)
+                    post_values = {'%s' % each: 'A'}
+                    html = post_request(url, post_values)
                     if re.search(pattern, html):
-                        finalPassword = each
+                        final_password = each
                         break
 
-            string = "cracked webshell:%s password:%s" % (url, finalPassword)
-            return_password[0] = finalPassword
+            string = "cracked webshell:%s password:%s" % (url, final_password)
+            return_password[0] = final_password
             print(Fore.RED + string)
             end = time.time()
             print("you spend time:" + seconds2hms(end - start[0]))
@@ -3410,7 +3428,7 @@ def like_admin_login_content(html):
 
 def like_admin_login_url(url):
     # 判断url对应的html内容是否可能是管理员登录页面
-    html = get_request(url, by="seleniumPhantomJS")['content']
+    html = get_request(url, by="selenium_phantom_jS")['content']
     return like_admin_login_content(html)
 
 
@@ -3587,11 +3605,11 @@ def mail_msg_to(msg, mailto='config', subject='test', user='config', password='c
     from email.header import Header
 
     host = 'smtp.163.com'
-    fromMail = user
+    from_mail = user
     body = msg
     if isinstance(body, str) is True:
         body = str(body)
-    me = ("%s<" + fromMail + ">") % (Header('naruto', 'utf-8'),)
+    me = ("%s<" + from_mail + ">") % (Header('naruto', 'utf-8'),)
     msg = MIMEText(body, format, 'utf-8')
     if not isinstance(subject, str):
         subject = str(subject)
@@ -3654,7 +3672,7 @@ def get_input_intime1(default_choose, timeout=10):
     time_left_thread = MyThread(print_time_func, ())
     input_thread = MyThread(input_func, ())
     time_left_thread.start()
-    input_thread.setDaemon(True)
+    input_thread.set_daemon(True)
     input_thread.start()
     time_left_thread.join()
     if choosed[0] == 0 or chioce[0] == default_choose[0]:
@@ -3716,33 +3734,6 @@ def get_input_intime(default_choose, timeout=10):
     return chioce[0]
 
 
-def checkvpn():
-    # 检测vpn是否连接成功
-    import os
-    import re
-    # windows:-n 2
-    # linux:-c 2
-    if os.path.exists(CONFIG_INI_PATH):
-        # forcevpn为1时代表强制要求可访问google才返回1,否则函数返回0
-        forcevpn = eval(get_key_value_from_config_file(
-            CONFIG_INI_PATH, 'default', 'forcevpn'))
-        if forcevpn == 1:
-            pass
-        # 如果forcevpn为0则代表不要求可访问google,直接返回1,表示成功
-        else:
-            return 1
-    else:
-        pass
-
-    # 如果不存在配置文件则要求可访问google才返回1
-    a = 'wget https://www.google.com/ --timeout=3 -O /tmp/googleTest'
-    output = get_string_from_command(a)
-    os.system("rm /tmp/googleTest")
-    if re.search(r"200 OK", output, re.I):
-        return 1
-    else:
-        return 0
-
 
 def able_connect_site(site):
     # 检测与site之间是否能成功连接
@@ -3763,27 +3754,27 @@ def able_connect_site(site):
         pass
 
     # 如果不存在配置文件则要求可访问google才返回1
-    a = 'wget %s --timeout=7 -O /tmp/ableConnectSite' % site
+    a = 'wget %s --timeout=7 -O /tmp/able_connect_site' % site
     output = get_string_from_command(a)
-    os.system("rm /tmp/ableConnectSite")
+    os.system("rm /tmp/able_connect_site")
     if re.search(r"200 OK", output, re.I):
         return 1
     else:
         return 0
 
 
-def searchKeyWords(keyWords, by='bing'):
+def search_key_words(key_words, by='bing'):
     # 通过搜索引擎搜索关键字
     # 返回搜索得到的html页面
     # 默认用bing搜索引擎
-    bingSearch = "http://cn.bing.com/search?q="
-    baiduSearch = "http://www.baidu.com/s?wd="
+    bing_search = "http://cn.bing.com/search?q="
+    baidu_search = "http://www.baidu.com/s?wd="
     return_value = ''
     if by == 'bing':
-        result = get_request(bingSearch + keyWords, by="seleniumPhantomJS")
+        result = get_request(bing_search + key_words, by="selenium_phantom_jS")
         return_value = result['content']
     if by == 'baidu':
-        result = get_request(baiduSearch + keyWords, by="seleniumPhantomJS")
+        result = get_request(baidu_search + key_words, by="selenium_phantom_jS")
         return_value = result['content']
     return return_value
 
@@ -3795,8 +3786,8 @@ def collect_urls_from_url(url):
     rsp = requests.get(url)
     code = rsp.status_code
     content = rsp.content
-    bytesEncoding = chardet.detect(content)['encoding']
-    content = content.decode(encoding=bytesEncoding, errors="ignore")
+    bytes_encoding = chardet.detect(content)['encoding']
+    content = content.decode(encoding=bytes_encoding, errors="ignore")
     has_title = re.search(r"<title>([\s\S]*)</title>", content, re.I)
     if has_title:
         title = has_title[1]
@@ -3816,22 +3807,22 @@ def collect_urls_from_html(content, url):
     a = re.search(r'''(<form\s+.+>)''', content, re.I)
     if a:
         if "action=" in a.group(1):
-            pureActionValue = re.search(
+            pure_action_value = re.search(
                 r'''action=('|")?([^\s'"<>]*)('|")?''', a.group(1), re.I).group(2)
         else:
             # eg.url=http://192.168.93.139/dvwa/vulnerabilities/xss_s/
-            pureActionValue = url.split("?")[0]
-        pureActionValue = urljoin(url, pureActionValue)
+            pure_action_value = url.split("?")[0]
+        pure_action_value = urljoin(url, pure_action_value)
 
         if re.search(r'''\smethod\s*=\s*('|")?POST('|")?''', a.group(1), re.I):
             # post表单
-            formActionValue = pureActionValue + "^" + \
+            form_action_value = pure_action_value + "^" + \
                 get_param_part_from_content(content)
 
         else:
             # get表单
-            if "?" not in pureActionValue:
-                formActionValue = pureActionValue + "?" + \
+            if "?" not in pure_action_value:
+                form_action_value = pure_action_value + "?" + \
                     get_param_part_from_content(content)
             else:
                 param_part = get_param_part_from_content(content)
@@ -3846,11 +3837,11 @@ def collect_urls_from_html(content, url):
                         new_param_part += (each_param + each_param_value + "&")
                 if new_param_part != "":
                     new_param_part = new_param_part[:-1]
-                    formActionValue = pureActionValue + "&" + new_param_part
+                    form_action_value = pure_action_value + "&" + new_param_part
                 else:
-                    formActionValue = pureActionValue
+                    form_action_value = pure_action_value
 
-        all_uris.append(formActionValue)
+        all_uris.append(form_action_value)
 
     bs = BeautifulSoup(content, 'lxml')
     if re.match(
@@ -3907,10 +3898,10 @@ def collect_urls_from_html(content, url):
                 else:
                     each = get_value_from_url(url)['y2'] + '/' + each
             # 将多余的/去除
-            httpPrefix = each.split(":")[0] + "://"
-            nothttpPrefix = each[len(httpPrefix):]
-            nothttpPrefix = re.sub(r"/+", "/", nothttpPrefix)
-            each = httpPrefix + nothttpPrefix
+            http_prefix = each.split(":")[0] + "://"
+            nothttp_prefix = each[len(http_prefix):]
+            nothttp_prefix = re.sub(r"/+", "/", nothttp_prefix)
+            each = http_prefix + nothttp_prefix
             each = html.unescape(each)
             if each not in return_all_urls:
                 return_all_urls.append(each)
@@ -3929,11 +3920,11 @@ def collect_urls_from_html(content, url):
 
 def get_http_or_https_from_search_engine(domain):
     # 从搜索引擎中得到domain是http还是https
-    bingSearch = "http://cn.bing.com/search?q="
-    url = bingSearch + "site:" + domain
-    urlsList = collect_urls_from_url(url)['y1']
+    bing_search = "http://cn.bing.com/search?q="
+    url = bing_search + "site:" + domain
+    urls_list = collect_urls_from_url(url)['y1']
     http_num = https_num = 0
-    for each in urlsList:
+    for each in urls_list:
         if "http://" + domain in each:
             http_num += 1
         if "https://" + domain in each:
@@ -3960,8 +3951,8 @@ def get_http_or_https(domain):
 
     # 首先由搜索引擎尝试获取
     bing_has_record = False
-    bingRecord = get_http_or_https_from_search_engine(domain)
-    if bingRecord != 0:
+    bing_record = get_http_or_https_from_search_engine(domain)
+    if bing_record != 0:
         bing_has_record = True
     else:
         pass
@@ -3983,7 +3974,7 @@ def get_http_or_https(domain):
             return "https"
         if http_code == 200 and https_code == 200:
             if bing_has_record:
-                return bingRecord
+                return bing_record
             elif len(http_content) >= len(https_content):
                 return "http"
             else:
@@ -4067,9 +4058,9 @@ def bing_search(query, search_type):
     # python2下后面没有decode('...'),python3下要加decode('...')
     response_data = response.read()
     import chardet
-    bytesEncoding = chardet.detect(response_data)['encoding']
+    bytes_encoding = chardet.detect(response_data)['encoding']
     response_data = response_data.decode(
-        encoding=bytesEncoding, errors="ignore")
+        encoding=bytes_encoding, errors="ignore")
     import json
     json_result = json.loads(response_data)
     result_list = json_result['d']['results']
@@ -4079,15 +4070,15 @@ def bing_search(query, search_type):
 def get_ip_domains_list(ip):
     # 不再用bing接口查询旁站
     resp = get_request(
-        "https://x.threatbook.cn/7e2935f1ac5e47fd8ae79305f36200c8/ipRelatives?ip=%s&domain=fuck.com" %
+        "https://x.threatbook.cn/7e2935f1ac5e47fd8ae79305f36200c8/ip_relatives?ip=%s&domain=fuck.com" %
         ip, by="MechanicalSoup")
     html = resp['content']
     import re
-    returnDomainList = re.findall(r'''target="_blank">(.*)</a>''', html)
+    return_domain_list = re.findall(r'''target="_blank">(.*)</a>''', html)
     # print(all)
     # print(len(all))
     # print(html)
-    return returnDomainList
+    return return_domain_list
 
 
 def get_root_domain(domain):
@@ -4108,16 +4099,16 @@ def get_root_domain_bak(domain):
         domain = domain.split("/")[-1]
     split_list = domain.split(".")
     i = 1
-    returnValue = ""
+    return_value = ""
     while i > 0:
         a = "." + split_list[-i]
         if a in domain_suf_list and a not in [".bing", ".baidu", ".google", ".yahoo"]:
             i += 1
-            returnValue = a + returnValue
+            return_value = a + return_value
         else:
             break
-    returnValue = split_list[-i] + returnValue
-    return returnValue
+    return_value = split_list[-i] + return_value
+    return return_value
 
 
 def is_wrong_html(html):
@@ -4197,14 +4188,14 @@ def get_server_type(url):
     # phpstudy中试验上面4种的php默认post参数最大个数为1000个
     import requests
     r = requests.get(url)
-    serverType = r.headers['server']
-    return serverType
+    server_type = r.headers['server']
+    return server_type
 
 
 def get_cms_entry_from_start_url(start_url):
     # eg.start_url="http://192.168.1.10/dvwa/index.php"
     # return:"http://192.168.1.10/dvwa/"
-    # eg.start_Url="http://192.168.1.10:8000"
+    # eg.start__url="http://192.168.1.10:8000"
     # return:"http://192.168.1.10:8000/"
     from urllib.parse import urlparse
     parsed = urlparse(start_url)
