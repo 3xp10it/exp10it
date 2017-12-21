@@ -1310,12 +1310,14 @@ def get_cain_key(lst_file):
 
 def post_requests(url, data, headers):
     import requests
+    '''
     global DELAY
     if DELAY != "":
         import time
         time.sleep(DELAY)
     else:
         pass
+    '''
 
     return_value = requests.post(url, data, headers, timeout=10)
     return return_value
@@ -1903,6 +1905,7 @@ def get_request(url, by="MechanicalSoup", proxy_url="", cookie="", delay_switche
 
     # 这里的delay用于所有用到get_request函数的http请求的时间隔,eg:在3xp10it扫描工具的爬虫模块中用到这里
 
+    '''
     global DELAY
     if delay_switcher == 1:
         # 如果打开了delay开关则需要根据配置文件中的delay参数来延时访问
@@ -1911,6 +1914,7 @@ def get_request(url, by="MechanicalSoup", proxy_url="", cookie="", delay_switche
             time.sleep(DELAY)
         else:
             pass
+    '''
 
     code = None
     title = None
@@ -4220,9 +4224,10 @@ def start_ipproxypool():
         # input(cmd)
         os.system(cmd)
     else:
-        cmd = "cd %s && git pull" % (WORK_PATH + "/IPProxyPool")
+        pass
+        # cmd = "cd %s && git pull" % (WORK_PATH + "/IPProxyPool")
         # input(cmd)
-        os.system(cmd)
+        # os.system(cmd)
     cmd = "cd %s && nohup python2 IPProxy.py > IPProxyPool.log &" % (
         WORK_PATH + "/IPProxyPool")
     # input(cmd)
