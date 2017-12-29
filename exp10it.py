@@ -1354,7 +1354,7 @@ def get_all_abs_path_file_name(folder, ext_list):
                     tmp_all_file_name_list.append(each_abspath)
                 else:
                     for each_ext in ext_list:
-                        if(filename.split('.')[-1] == each_ext):
+                        if(each_abspath.split('.')[-1] == each_ext):
                             # print filename
                             tmp_all_file_name_list.append(each_abspath)
         return tmp_all_file_name_list
@@ -4224,10 +4224,9 @@ def start_ipproxypool():
         # input(cmd)
         os.system(cmd)
     else:
-        pass
-        # cmd = "cd %s && git pull" % (WORK_PATH + "/IPProxyPool")
+        cmd = "cd %s && git pull" % (WORK_PATH + "/IPProxyPool")
         # input(cmd)
-        # os.system(cmd)
+        os.system(cmd)
     cmd = "cd %s && nohup python2 IPProxy.py > IPProxyPool.log &" % (
         WORK_PATH + "/IPProxyPool")
     # input(cmd)
