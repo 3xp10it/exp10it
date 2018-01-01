@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import os
 import sys
 
@@ -65,3 +66,12 @@ for abs_file_path in file_list:
             line_num = get_key_word_line_num_from_file(key_word, abs_file_path)
             print("在%s文件的第%s行发现敏感词%s" %
                   (abs_file_path, str(line_num), key_word))
+=======
+import sys
+#from exp10it import get_all_abs_path_file_name
+from exp10it import get_all_file_name
+folder_path=input("请输入待识别的文件夹:\n > ")
+files_list=get_all_file_name(folder_path,['txt'])
+print(files_list)
+
+>>>>>>> 98426d02726f46c71213493452d82c8c9d7a49dc
