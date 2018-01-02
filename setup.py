@@ -1,11 +1,6 @@
 import codecs
 import os
 
-'''
-os.system(
-    "pip3 install --use-wheel --no-index --find-links=wheelhouse -r requirements.txt")
-'''
-
 try:
     from setuptools import setup
 except:
@@ -34,7 +29,7 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.6.72"
+VERSION = "2.6.74"
 LICENSE = "MIT"
 setup(
     name=NAME,
@@ -48,6 +43,7 @@ setup(
         'Operating System :: OS Independent',
     ],
     keywords=KEYWORDS,
+    install_requires = ['mechanicalsoup','bs4','selenium','readline','colorama','requests','configparser','chardet','wget'],
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
     url=URL,

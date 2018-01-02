@@ -1310,15 +1310,18 @@ def get_cain_key(lst_file):
 
 def post_requests(url, data, headers):
     import requests
+    '''
     global DELAY
     if DELAY != "":
         import time
         time.sleep(DELAY)
     else:
         pass
+    '''
 
     return_value = requests.post(url, data, headers, timeout=10)
     return return_value
+
 
 
 def get_all_abs_path_file_name(folder, ext_list):
@@ -1327,22 +1330,13 @@ def get_all_abs_path_file_name(folder, ext_list):
     # eg.folder="~"时,当~目录下有一个文件夹a,一个文件2.txt,a中有一个文件1.txt
     # 得到的函数返回值为['a/1.txt','2.txt']
 
-    tmp_get_file_name_value = [0]
     tmp_all_file_name_list = []
 
     def get_all_abs_path_file_name_inside_func(f, e):
         folder = f
         ext_list = e
         import os
-        tmp_get_file_name_value[0] += 1
-        if tmp_get_file_name_value[0] == 1:
-            if folder[-1] == '/':
-                root_dir = folder[:-1]
-            else:
-                root_dir = folder
-
         allfile = os.listdir(folder)
-
         for each in allfile:
             each_abspath = os.path.join(folder, each)
             if os.path.isdir(each_abspath):
@@ -1352,11 +1346,13 @@ def get_all_abs_path_file_name(folder, ext_list):
                     tmp_all_file_name_list.append(each_abspath)
                 else:
                     for each_ext in ext_list:
-                        if(filename.split('.')[-1] == each_ext):
+                        if(each_abspath.split('.')[-1] == each_ext):
                             # print filename
                             tmp_all_file_name_list.append(each_abspath)
         return tmp_all_file_name_list
     return get_all_abs_path_file_name_inside_func(folder, ext_list)
+
+
 
 
 def get_all_file_name(folder, ext_list):
@@ -1903,6 +1899,7 @@ def get_request(url, by="MechanicalSoup", proxy_url="", cookie="", delay_switche
 
     # 这里的delay用于所有用到get_request函数的http请求的时间隔,eg:在3xp10it扫描工具的爬虫模块中用到这里
 
+    '''
     global DELAY
     if delay_switcher == 1:
         # 如果打开了delay开关则需要根据配置文件中的delay参数来延时访问
@@ -1911,6 +1908,7 @@ def get_request(url, by="MechanicalSoup", proxy_url="", cookie="", delay_switche
             time.sleep(DELAY)
         else:
             pass
+    '''
 
     code = None
     title = None
@@ -4220,9 +4218,10 @@ def start_ipproxypool():
         # input(cmd)
         os.system(cmd)
     else:
-        cmd = "cd %s && git pull" % (WORK_PATH + "/IPProxyPool")
+        pass
+        # cmd = "cd %s && git pull" % (WORK_PATH + "/IPProxyPool")
         # input(cmd)
-        os.system(cmd)
+        # os.system(cmd)
     cmd = "cd %s && nohup python2 IPProxy.py > IPProxyPool.log &" % (
         WORK_PATH + "/IPProxyPool")
     # input(cmd)
