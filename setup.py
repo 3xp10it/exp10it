@@ -5,9 +5,6 @@ try:
     from setuptools import setup
 except:
     from distutils.core import setup
-"""
-打包的用的setup必须引入，
-"""
 
 
 def read(fname):
@@ -22,7 +19,7 @@ def read(fname):
 
 NAME = "exp10it"
 #PACKAGES = ['cms_identify', 'dicts', 'tools']
-DESCRIPTION = "this is a package about web security"
+DESCRIPTION = "This is a package about web security"
 LONG_DESCRIPTION = read("README.md")
 KEYWORDS = "web security package"
 AUTHOR = "quanyechavshuo"
@@ -43,12 +40,13 @@ setup(
         'Operating System :: OS Independent',
     ],
     keywords=KEYWORDS,
-    install_requires = ['mechanicalsoup','bs4','selenium','readline','colorama','requests','configparser','chardet','wget'],
+    install_requires=['mechanicalsoup', 'bs4', 'selenium', 'readline',
+                      'colorama', 'requests', 'configparser', 'chardet', 'wget'],
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
     url=URL,
     license=LICENSE,
-    #packages=PACKAGES,
+    # packages=PACKAGES,
     include_package_data=True,
     zip_safe=True,
     py_modules=['exp10it', 'updateapi'],
