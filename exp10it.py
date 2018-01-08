@@ -16,7 +16,7 @@ import selenium
 import requests
 import readline
 from requests.packages.urllib3.exceptions import InsecureRequestWarning, InsecurePlatformWarning
-from colorama import Fore,Style
+from colorama import Fore, Style
 import subprocess
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -81,7 +81,6 @@ if sys.version_info >= (2, 7, 9):
 if sys.version_info <= (3, 0, 0):
     print("sorry,this module works on python3")
     sys.exit(0)
-
 
 
 def get_module_path():
@@ -282,9 +281,9 @@ def combile_my_para_and_argv_para(command):
     '''
 
     single_argv_list = ["--drop-set-cookie", "--random-agent", "--ignore-proxy", "--ignore-redirects", "--ignore-timeouts", "--skip-urlencode", "-b", "--banner", "--current-user", "--current-db", "--is-dba", "--users", "--passwords", "--privileges", "--roles", "--dbs", "--tables", "--exclude-sysdbs", "--columns", "--schema", "--count", "--dump", "--dump-all", "--sql-shell", "--common-tables", "--common-columns", "--os-shell", "--os-pwn", "--os-smbrelay", "--os-bof", "--batch", "--eta", "--flush-session", "--forms", "--fresh-queries", "--hex",
-                      "--no-cast", "--parse-errors", "--alert", "--beep", "--check-waf", "--cleanup", "--disable-coloring", "-hpp", "--identify-waf", "--purge-output", "--smart", "--wizard", "-h", "--help", "-hh", "--version", "--ignore-401", "--tor", "--check-tor", "--force-ssl", "-o", "--predict-output", "--keep-alive", "--null-connection", "--skip-static", "--no-escape", "-f", "--fingerprint", "-a", "--all", "--hostname", "--comments", "--priv-esc", "--reg-read", "--reg-add", "--reg-del", "--update", "--dependencies", "--offline", "--skip-waf", "--sqlmap-shell"]
+                        "--no-cast", "--parse-errors", "--alert", "--beep", "--check-waf", "--cleanup", "--disable-coloring", "-hpp", "--identify-waf", "--purge-output", "--smart", "--wizard", "-h", "--help", "-hh", "--version", "--ignore-401", "--tor", "--check-tor", "--force-ssl", "-o", "--predict-output", "--keep-alive", "--null-connection", "--skip-static", "--no-escape", "-f", "--fingerprint", "-a", "--all", "--hostname", "--comments", "--priv-esc", "--reg-read", "--reg-add", "--reg-del", "--update", "--dependencies", "--offline", "--skip-waf", "--sqlmap-shell"]
     double_argv_list = ["-v", "-u", "--url", "--threads", "-l", "-m", "-r", "-g", "--data", "--param-del", "--cookie", "--cookie-del", "--load-cookies", "--level", "--user-agent", "--referer", "--headers", "--host", "-H", "--auth-type", "--auth-cred", "--auth-cert", "--auth-file", "--proxy", "--proxy-cred", "--proxy-file", "--delay", "--timeout", "--retries", "--randomize", "--scope", "--safe-url", "--safe-post", "--safe-req", "--safe-freq", "--eval", "-p", "--skip", "--dbms", "--os", "--invalid-bignum", "--invalid-logical", "--invalid-string", "--prefix", "--suffix", "--tamper", "--risk", "--string", "--not-string", "--regexp", "--code", "--text-only", "--titles", "--technique", "--time-sec", "--union-cols", "--union-char",
-                      "--union-from", "--second-order", "-D", "-X", "-T", "-C", "--start", "--stop", "--first", "--last", "--search", "--sql-query", "--sql-file", "--udf-inject", "--shared-lib", "--file-read", "--file-write", "--file-dest", "--os-cmd", "--reg-key", "--reg-value", "--reg-data", "--reg-type", "-s", "-t", "--charset", "--crawl", "--crawl-exclude", "--csv-del", "--dbms-cred", "--dump-format", "--output-dir", "-z", "--answers", "--gpage", "--mobile", "-d", "-x", "-c", "--method", "--tor-port", "--tor-type", "--csrf-token", "--csrf-url", "--param-exclude", "--dns-domain", "-U", "--pivot-column", "--where", "--msf-path", "--tmp-path", "-s", "-t", "--binary-fields", "--save", "--test-filter", "--test-skip", "--tmp-dir", "--web-root"]
+                        "--union-from", "--second-order", "-D", "-X", "-T", "-C", "--start", "--stop", "--first", "--last", "--search", "--sql-query", "--sql-file", "--udf-inject", "--shared-lib", "--file-read", "--file-write", "--file-dest", "--os-cmd", "--reg-key", "--reg-value", "--reg-data", "--reg-type", "-s", "-t", "--charset", "--crawl", "--crawl-exclude", "--csv-del", "--dbms-cred", "--dump-format", "--output-dir", "-z", "--answers", "--gpage", "--mobile", "-d", "-x", "-c", "--method", "--tor-port", "--tor-type", "--csrf-token", "--csrf-url", "--param-exclude", "--dns-domain", "-U", "--pivot-column", "--where", "--msf-path", "--tmp-path", "-s", "-t", "--binary-fields", "--save", "--test-filter", "--test-skip", "--tmp-dir", "--web-root"]
     command_list = string2argv(command)
     print(command_list)
 
@@ -298,14 +297,14 @@ def combile_my_para_and_argv_para(command):
         if each in command_list:
             if each in single_argv_list:
                 final_command += (" " +
-                                 each if " " not in each else '"' + each + '"')
+                                  each if " " not in each else '"' + each + '"')
                 pass
             elif each in double_argv_list:
                 final_command += (" " +
-                                 each if " " not in each else '"' + each + '"')
+                                  each if " " not in each else '"' + each + '"')
                 tmp = argv_list[argv_index + 1]
                 final_command += (" " +
-                                 (tmp if " " not in tmp else '"' + tmp + '"'))
+                                  (tmp if " " not in tmp else '"' + tmp + '"'))
                 noneed_param = argv_list[argv_index + 1]
                 pass
             else:
@@ -313,26 +312,26 @@ def combile_my_para_and_argv_para(command):
         else:
             if each in single_argv_list:
                 final_command += (" " +
-                                 each if " " not in each else '"' + each + '"')
+                                  each if " " not in each else '"' + each + '"')
                 pass
             elif each in double_argv_list:
                 if each == "--suffix":
                     print(final_command)
 
                 final_command += (" " +
-                                 each if " " not in each else '"' + each + '"')
+                                  each if " " not in each else '"' + each + '"')
                 tmp = argv_list[argv_index + 1]
                 # patch or --suffix " or '1'='1"
                 if " " in tmp:
                     tmp = tmp.replace(" ", "xxxxx")
                 final_command += (" " +
-                                 (tmp if "xxxxx" not in tmp else tmp))
+                                  (tmp if "xxxxx" not in tmp else tmp))
                 noneed_param = argv_list[argv_index + 1]
                 pass
 
             elif each != noneed_param:
                 final_command += (" " +
-                                 each if " " not in each else '"' + each + '"')
+                                  each if " " not in each else '"' + each + '"')
                 pass
         argv_index += 1
 
@@ -352,14 +351,14 @@ def combile_my_para_and_argv_para(command):
         else:
             if each in single_argv_list:
                 final_command += (" " +
-                                 each if " " not in each else '"' + each + '"')
+                                  each if " " not in each else '"' + each + '"')
                 pass
             elif each in double_argv_list:
                 final_command += (" " +
-                                 each if " " not in each else '"' + each + '"')
+                                  each if " " not in each else '"' + each + '"')
                 tmp = command_list[command_index + 1]
                 final_command += (" " +
-                                 (tmp if " " not in tmp else '"' + tmp + '"'))
+                                  (tmp if " " not in tmp else '"' + tmp + '"'))
                 pass
             else:
                 # 这种情况不可能,除非我在代码中用到的sqlmap参数是不正确的
@@ -428,7 +427,7 @@ def combile_my_para_and_argv_para(command):
     return final_command
 
 
-def base64Str(string):
+def base64encodeStr(string):
     # 得到base64的字符串
     # 输入为str类型
     # 返回为str类型
@@ -437,6 +436,13 @@ def base64Str(string):
     bytesbase64Str = base64.b64encode(bytes_string)
     base64Str = bytesbase64Str.decode()
     return base64Str
+
+def base64decodeStr(string):
+    # 得到经过base64加密后字符串解密后的明文
+    # 输入为str类型
+    # 返回为str类型
+    import base64
+    return base64.b64decode(string).decode("utf-8")
 
 
 class CLIOutput(object):
@@ -508,7 +514,8 @@ class CLIOutput(object):
                 return cr
             except:
                 pass
-        cr = ioctl__g_w_i_n_sZ(0) or ioctl__g_w_i_n_sZ(1) or ioctl__g_w_i_n_sZ(2)
+        cr = ioctl__g_w_i_n_sZ(0) or ioctl__g_w_i_n_sZ(
+            1) or ioctl__g_w_i_n_sZ(2)
         if not cr:
             try:
                 fd = os.open(os.ctermid(), os.O_RDONLY)
@@ -921,7 +928,6 @@ def checkvpn():
         return 0
 
 
-
 class Xcdn(object):
     # Xcdn是获取cdn背后真实ip的类
     # 使用方法Xcdn(domain).return_value为真实ip,如果结果为0代表没有获得成功
@@ -1323,7 +1329,6 @@ def post_requests(url, data, headers):
     return return_value
 
 
-
 def get_all_abs_path_file_name(folder, ext_list):
     # ext_list为空时,得到目录下的所有绝对路径形式的文件名,不返回空文件夹名
     # ext_list为eg.['jpg','png']
@@ -1351,8 +1356,6 @@ def get_all_abs_path_file_name(folder, ext_list):
                             tmp_all_file_name_list.append(each_abspath)
         return tmp_all_file_name_list
     return get_all_abs_path_file_name_inside_func(folder, ext_list)
-
-
 
 
 def get_all_file_name(folder, ext_list):
@@ -1898,7 +1901,6 @@ def get_request(url, by="MechanicalSoup", proxy_url="", cookie="", delay_switche
     # https://stackoverflow.com/questions/35666067/selenium-phantomjs-custom-headers-in-python
 
     # 这里的delay用于所有用到get_request函数的http请求的时间隔,eg:在3xp10it扫描工具的爬虫模块中用到这里
-
     '''
     global DELAY
     if delay_switcher == 1:
@@ -2005,7 +2007,8 @@ def get_request(url, by="MechanicalSoup", proxy_url="", cookie="", delay_switche
                         form_action_value += (driver.current_url + "?")
 
                     pure_content = re.sub(r"<!--.*-->", "", content)
-                    param_part_value = get_param_part_from_content(pure_content)
+                    param_part_value = get_param_part_from_content(
+                        pure_content)
                     form_action_value += param_part_value
 
             except selenium.common.exceptions.NoSuchElementException:
@@ -2152,9 +2155,10 @@ def check_start_time(want_time):
     print("到点,现在时刻:%s" % a)
 
 
-def send_http_package(string, http_or_https):
+def send_http_package(string, http_or_https, proxies={}):
     # 发http请求包封装函数,string可以是burpsuite等截包工具中拦截到的包
-    # string要求是burpsuite中抓包抓到的字符串
+    # string要求是burpsuite中抓包抓到的字符串,也即已经经过urlencode
+    # proxy_url为代理地址,eg."http://127.0.0.1:8080"
     # 返回的内容为html
     string = re.sub(r"^\s", "", string)
     uri_line = re.search(r"(^.+)", string).group(1)
@@ -2165,12 +2169,20 @@ def send_http_package(string, http_or_https):
     url = http_or_https + "://" + re.search(r"Host: (.+)", string, re.I).group(
         1) + re.search(r" (\S+)", uri_line, re.I).group(1)
     if string[:3] == "GET":
-        res = requests.get(url, headers=header_dict)
+        if proxies == {}:
+            res = requests.get(url, headers=header_dict)
+        else:
+            res = requests.get(url, headers=header_dict, proxies=proxies)
         html = res.text
     elif string[:4] == "POST":
         post_string = re.search(r"\n\n(.+)", string).group(1)
         post_string_bytes = post_string.encode("utf8")
-        res = requests.post(url, headers=header_dict, data=post_string_bytes)
+        if proxies == {}:
+            res = requests.post(url, headers=header_dict,
+                                data=post_string_bytes)
+        else:
+            res = requests.post(url, headers=header_dict,
+                                data=post_string_bytes, proxies=proxies)
         html = res.text
     return html
 
@@ -2422,34 +2434,40 @@ def blog():
     #macos_cmd="sed -i '' 's/^title.*/title:      %s/g' %s" % (title, file_abs_path)
     macos_cmd = "gsed -i 's/^title.*/title:      %s/g' %s" % (
         title, file_abs_path)
-    os.system(ubuntu_cmd) if platform.system() != "Darwin" else os.system(macos_cmd)
+    os.system(ubuntu_cmd) if platform.system(
+    ) != "Darwin" else os.system(macos_cmd)
     ubuntu_cmd = "sed -i 's/date:       .*/date:       %s/g' %s" % (
         str(date), file_abs_path)
     #macos_cmd="sed -i '' 's/date:       .*/date:       %s/g' %s" % (str(date), file_abs_path)
     macos_cmd = "gsed -i 's/date:       .*/date:       %s/g' %s" % (
         str(date), file_abs_path)
-    os.system(ubuntu_cmd) if platform.system() != "Darwin" else os.system(macos_cmd)
+    os.system(ubuntu_cmd) if platform.system(
+    ) != "Darwin" else os.system(macos_cmd)
     ubuntu_cmd = "sed -i 's/summary:    隐藏webshell的几条建议/summary:    %s/g' %s" % (
         title, file_abs_path)
     #macos_cmd="sed -i '' 's/summary:    隐藏webshell的几条建议/summary:    %s/g' %s" % (title, file_abs_path)
     macos_cmd = "gsed -i 's/summary:    隐藏webshell的几条建议/summary:    %s/g' %s" % (
         title, file_abs_path)
-    os.system(ubuntu_cmd) if platform.system() != "Darwin" else os.system(macos_cmd)
+    os.system(ubuntu_cmd) if platform.system(
+    ) != "Darwin" else os.system(macos_cmd)
     ubuntu_cmd = "sed -i '11,$d' %s" % file_abs_path
     #macos_cmd="sed -i '' '11,$d' %s" % file_abs_path
     macos_cmd = "gsed -i '11,$d' %s" % file_abs_path
-    os.system(ubuntu_cmd) if platform.system() != "Darwin" else os.system(macos_cmd)
+    os.system(ubuntu_cmd) if platform.system(
+    ) != "Darwin" else os.system(macos_cmd)
     ubuntu_cmd = "sed -i 's/categories: web/categories: %s/g' %s" % (
         categories, file_abs_path)
     #macos_cmd="sed -i '' 's/categories: web/categories: %s/g' %s" % (categories, file_abs_path)
     macos_cmd = "gsed -i 's/categories: web/categories: %s/g' %s" % (
         categories, file_abs_path)
-    os.system(ubuntu_cmd) if platform.system() != "Darwin" else os.system(macos_cmd)
+    os.system(ubuntu_cmd) if platform.system(
+    ) != "Darwin" else os.system(macos_cmd)
     ubuntu_cmd = "sed '/ - webshell/c\\\n%s' %s > /tmp/1" % (
         tags_write_to_file, file_abs_path)
     macos_cmd = "gsed '/ - webshell/c\\\n%s' %s > /tmp/1" % (
         tags_write_to_file, file_abs_path)
-    os.system(ubuntu_cmd) if platform.system() != "Darwin" else os.system(macos_cmd)
+    os.system(ubuntu_cmd) if platform.system(
+    ) != "Darwin" else os.system(macos_cmd)
     os.system("cat /tmp/1 > %s && rm /tmp/1" % file_abs_path)
     os.system("/Applications/MacVim.app/Contents/MacOS/Vim %s" % file_abs_path)
 
@@ -3732,7 +3750,6 @@ def get_input_intime(default_choose, timeout=10):
     return chioce[0]
 
 
-
 def able_connect_site(site):
     # 检测与site之间是否能成功连接
     import os
@@ -3772,7 +3789,8 @@ def search_key_words(key_words, by='bing'):
         result = get_request(bing_search + key_words, by="selenium_phantom_jS")
         return_value = result['content']
     if by == 'baidu':
-        result = get_request(baidu_search + key_words, by="selenium_phantom_jS")
+        result = get_request(baidu_search + key_words,
+                             by="selenium_phantom_jS")
         return_value = result['content']
     return return_value
 
