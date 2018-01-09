@@ -2166,7 +2166,7 @@ def send_http_package(string, http_or_https, proxies={}):
     header_list = re.findall(r"([^:\s]+): (.+)\n", string)
     for each in header_list:
         header_dict[each[0]] = each[1]
-    url = http_or_https + "://" + re.search(r"Host: (.+)", string, re.I).group(
+    url = http_or_https + "://" + re.search(r"Host: (\S+)", string, re.I).group(
         1) + re.search(r" (\S+)", uri_line, re.I).group(1)
     if string[:3] == "GET":
         if proxies == {}:
@@ -2175,7 +2175,7 @@ def send_http_package(string, http_or_https, proxies={}):
             res = requests.get(url, headers=header_dict, proxies=proxies)
         html = res.text
     elif string[:4] == "POST":
-        post_string = re.search(r"\n\n(.+)", string).group(1)
+        post_string = re.search(r"((\r\n\r\n)|(\n\n))(.+)", string).group(4)
         post_string_bytes = post_string.encode("utf8")
         if proxies == {}:
             res = requests.post(url, headers=header_dict,
