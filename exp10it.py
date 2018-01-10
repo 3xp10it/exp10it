@@ -4247,4 +4247,4 @@ def start_ipproxypool():
 
 
 def start_scrapy_splash():
-    os.system("docker run -p 8050:8050 scrapinghub/splash")
+    os.system("docker run -p 8050:8050 scrapinghub/splash --max-timeout 3600")
