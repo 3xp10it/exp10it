@@ -1,3 +1,4 @@
+import pdb
 import platform
 import os
 import re
@@ -919,6 +920,7 @@ def checkvpn():
     # windows:-n 2
     # linux:-c 2
     # 如果不存在配置文件则要求可访问google才返回1
+    return 1
     a = 'wget https://www.google.com/ --timeout=3 -O /tmp/google_test'
     output = get_string_from_command(a)
     os.system("rm /tmp/google_test")
@@ -936,6 +938,11 @@ class Xcdn(object):
         # 必须保证连上了vpn,要在可以ping通google的条件下使用本工具,否则有些domain由于被GFW拦截无法正常访问会导致
         # 本工具判断错误,checkvpn在可以ping通google的条件下返回1
         import os
+        pdb.set_trace()
+        if re.match(r"(\d+\.){3}\d+",domain):
+            print("Your input domain is an ip,I will return the ip direcly as the actual address")
+            self.return_value=domain
+            return
         while 1:
             if checkvpn() == 1:
                 break
