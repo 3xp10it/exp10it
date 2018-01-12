@@ -938,7 +938,6 @@ class Xcdn(object):
         # 必须保证连上了vpn,要在可以ping通google的条件下使用本工具,否则有些domain由于被GFW拦截无法正常访问会导致
         # 本工具判断错误,checkvpn在可以ping通google的条件下返回1
         import os
-        pdb.set_trace()
         if re.match(r"(\d+\.){3}\d+",domain):
             print("Your input domain is an ip,I will return the ip direcly as the actual address")
             self.return_value=domain
@@ -3590,72 +3589,6 @@ def get_string_from_url_or_picfile(url_or_picfile):
     return string
 
 
-def mail_msg_to(msg, mailto='config', subject='test', user='config', password='config', format='plain'):
-    # 使用163的邮箱发送邮件
-    # msg是要发送的string
-    # mailto是发送的目标邮箱地址
-    # subject是主题名
-    # user,password是用户名密码,其中user要带上邮箱地址后缀
-
-    if mailto == user == password == 'config':
-        if not os.path.exists(CONFIG_INI_PATH):
-            os.system("touch %s" % CONFIG_INI_PATH)
-        with open(CONFIG_INI_PATH, "r+") as f:
-            content = f.read()
-        if re.search(r"mailto", content):
-            mailto = eval(get_key_value_from_config_file(
-                CONFIG_INI_PATH, 'mail', 'mailto'))
-        else:
-            mailto = input("please input email address you want send to:")
-            update_config_file_key_value(
-                CONFIG_INI_PATH, 'mail', 'mailto', "'" + mailto + "'")
-        if re.search(r"user", content):
-            user = eval(get_key_value_from_config_file(
-                CONFIG_INI_PATH, 'mail', 'user'))
-        else:
-            user = input("please input your email account:")
-            update_config_file_key_value(
-                CONFIG_INI_PATH, 'mail', 'user', "'" + user + "'")
-        if re.search(r"password", content):
-            password = eval(get_key_value_from_config_file(
-                CONFIG_INI_PATH, 'mail', 'password'))
-        else:
-            password = input("please input your email account password:")
-            update_config_file_key_value(
-                CONFIG_INI_PATH, 'mail', 'password', "'" + password + "'")
-    import smtplib
-    from email.mime.text import MIMEText
-    from email.header import Header
-
-    host = 'smtp.163.com'
-    from_mail = user
-    body = msg
-    if isinstance(body, str) is True:
-        body = str(body)
-    me = ("%s<" + from_mail + ">") % (Header('naruto', 'utf-8'),)
-    msg = MIMEText(body, format, 'utf-8')
-    if not isinstance(subject, str):
-        subject = str(subject)
-    msg['Subject'] = subject
-    msg['From'] = me
-    msg['To'] = mailto
-    msg["Accept-Language"] = "zh-CN"
-    msg["Accept-Charset"] = "ISO-8859-1,utf-8"
-    try:
-        s = smtplib.SMTP()
-        s.connect(host)
-        s.ehlo()
-        s.starttls()
-        s.ehlo()
-        s.set_debuglevel(3)
-        s.login(user, password)
-        s.sendmail(me, mailto, msg.as_string())
-        s.quit()
-        return True
-    except Exception as e:
-        print(str(e))
-        return False
-
 
 def get_input_intime1(default_choose, timeout=10):
     # http://www.cnblogs.com/jefferybest/archive/2011/10/09/2204050.html
@@ -3763,18 +3696,6 @@ def able_connect_site(site):
     import re
     # windows:-n 2
     # linux:-c 2
-    if os.path.exists(CONFIG_INI_PATH):
-        # forcevpn为1时代表强制要求可访问google才返回1,否则函数返回0
-        forcevpn = eval(get_key_value_from_config_file(
-            CONFIG_INI_PATH, 'default', 'forcevpn'))
-        if forcevpn == 1:
-            pass
-        # 如果forcevpn为0则代表不要求可访问google,直接返回1,表示成功
-        else:
-            return 1
-    else:
-        pass
-
     # 如果不存在配置文件则要求可访问google才返回1
     a = 'wget %s --timeout=7 -O /tmp/able_connect_site' % site
     output = get_string_from_command(a)
@@ -4045,49 +3966,6 @@ def save_url_to_file(url_list, name):
             file.flush()
             file.close()
 
-
-def bing_search(query, search_type):
-    # the main function to search use bing api
-    # search_type: Web, Image, News, Video
-    if os.path.exists(CONFIG_INI_PATH):
-        pass
-    else:
-        os.system("touch %s" % CONFIG_INI_PATH)
-    with open(CONFIG_INI_PATH, 'r+') as f:
-        content = f.read()
-    if re.search(r"bingapikey", content):
-        key = eval(get_key_value_from_config_file(
-            CONFIG_INI_PATH, 'default', 'bingapikey'))
-    else:
-        print("please input your bing api key:")
-        key = input()
-        update_config_file_key_value(
-            CONFIG_INI_PATH, 'default', 'bingapikey', "'" + key + "'")
-    query = urllib.parse.quote(query)
-    # print "bing_search s query is %s" % query
-    # create credential for authentication
-    user_agent = 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; FDM; .NET CLR 2.0.50727; InfoPath.2; .NET CLR 1.1.4322)'
-    import base64
-    credentials = str(base64.b64encode((':%s' % key).encode('utf-8')), 'utf-8')
-    auth = 'Basic %s' % credentials
-    print(auth)
-    url = 'https://api.datamarket.azure.com/Data.ashx/Bing/Search/' + search_type + \
-        '?Query=%27' + query + '%27&$top=100&$format=json'  # &$top=5&$format=json'
-    request = urllib.request.Request(url)
-    request.add_header('Authorization', auth)
-    request.add_header('User-Agent', user_agent)
-    request_opener = urllib.request.build_opener()
-    response = request_opener.open(request)
-    # python2下后面没有decode('...'),python3下要加decode('...')
-    response_data = response.read()
-    import chardet
-    bytes_encoding = chardet.detect(response_data)['encoding']
-    response_data = response_data.decode(
-        encoding=bytes_encoding, errors="ignore")
-    import json
-    json_result = json.loads(response_data)
-    result_list = json_result['d']['results']
-    return result_list
 
 
 def get_ip_domains_list(ip):
