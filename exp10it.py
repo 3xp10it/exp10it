@@ -3049,7 +3049,7 @@ def get_user_and_pass_form_from_html(html):
     return return_value
 
 
-def get_url_has_csrf_token(url):
+def get_url_has_csrf_token(url,cookie=""):
     # test if url has csrf token
     # return a dict
     # return dict['has_csrf_token']=True for has
@@ -3060,8 +3060,9 @@ def get_url_has_csrf_token(url):
         url = url.split("^")[0]
     elif "?" in url:
         url = url.split("?")[0]
+    a = get_request(url, by="selenium_phantom_jS",cookie=cookie)
     has_csrf_token = False
-    a = get_request(url, by="selenium_phantom_jS")
+    csrf_token_name=""
     if a['has_form_action']:
         first_csrf_token = re.search(
             r"([^&?\^]*token[^=]*)=([^&]+)", a['form_action_value'], re.I)
