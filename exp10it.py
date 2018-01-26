@@ -18,6 +18,7 @@ import requests
 import readline
 from requests.packages.urllib3.exceptions import InsecureRequestWarning, InsecurePlatformWarning
 from colorama import Fore, Style
+from functools import reduce
 import subprocess
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -438,12 +439,24 @@ def base64encodeStr(string):
     base64Str = bytesbase64Str.decode()
     return base64Str
 
+
 def base64decodeStr(string):
     # 得到经过base64加密后字符串解密后的明文
     # 输入为str类型
     # 返回为str类型
     import base64
     return base64.b64decode(string).decode("utf-8")
+
+
+def is_internal_ip(ip):
+    # 判断ip是不是内网ip
+    def ip_into_int(ip):
+        return reduce(lambda x, y: (x << 8) + y, list(map(int, ip.split('.'))))
+    ip = ip_into_int(ip)
+    net_a = ip_into_int('10.255.255.255') >> 24
+    net_b = ip_into_int('172.31.255.255') >> 20
+    net_c = ip_into_int('192.168.255.255') >> 16
+    return ip >> 24 == net_a or ip >> 20 == net_b or ip >> 16 == net_c
 
 
 class CLIOutput(object):
@@ -938,9 +951,10 @@ class Xcdn(object):
         # 必须保证连上了vpn,要在可以ping通google的条件下使用本工具,否则有些domain由于被GFW拦截无法正常访问会导致
         # 本工具判断错误,checkvpn在可以ping通google的条件下返回1
         import os
-        if re.match(r"(\d+\.){3}\d+",domain):
-            print("Your input domain is an ip,I will return the ip direcly as the actual address")
-            self.return_value=domain
+        if re.match(r"(\d+\.){3}\d+", domain):
+            print(
+                "Your input domain is an ip,I will return the ip direcly as the actual address")
+            self.return_value = domain
             return
         while 1:
             if checkvpn() == 1:
@@ -3049,7 +3063,7 @@ def get_user_and_pass_form_from_html(html):
     return return_value
 
 
-def get_url_has_csrf_token(url,cookie=""):
+def get_url_has_csrf_token(url, cookie=""):
     # test if url has csrf token
     # return a dict
     # return dict['has_csrf_token']=True for has
@@ -3060,9 +3074,9 @@ def get_url_has_csrf_token(url,cookie=""):
         url = url.split("^")[0]
     elif "?" in url:
         url = url.split("?")[0]
-    a = get_request(url, by="selenium_phantom_jS",cookie=cookie)
+    a = get_request(url, by="selenium_phantom_jS", cookie=cookie)
     has_csrf_token = False
-    csrf_token_name=""
+    csrf_token_name = ""
     if a['has_form_action']:
         first_csrf_token = re.search(
             r"([^&?\^]*token[^=]*)=([^&]+)", a['form_action_value'], re.I)
@@ -3590,7 +3604,6 @@ def get_string_from_url_or_picfile(url_or_picfile):
     return string
 
 
-
 def get_input_intime1(default_choose, timeout=10):
     # http://www.cnblogs.com/jefferybest/archive/2011/10/09/2204050.html
     # 在一定时间内得到选择的值,如果没有选择则返回默认选择
@@ -3966,7 +3979,6 @@ def save_url_to_file(url_list, name):
             file.write(ur + "\r\n")
             file.flush()
             file.close()
-
 
 
 def get_ip_domains_list(ip):
