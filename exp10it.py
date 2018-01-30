@@ -2195,7 +2195,7 @@ def send_http_package(string, http_or_https, proxies={}):
             res = requests.get(url, headers=header_dict, proxies=proxies)
         html = res.text
     elif string[:4] == "POST":
-        post_string = re.search(r"((\r\n\r\n)|(\n\n))(.+)", string).group(4)
+        post_string = re.search(r"((\r\n\r\n)|(\n\n))(.*)", string).group(4)
         post_string_bytes = post_string.encode("utf8")
         if proxies == {}:
             res = requests.post(url, headers=header_dict,
