@@ -108,8 +108,8 @@ def get_param_list_from_param_part(param_part):
 def test_speed(address):
     # test ping speed
 def get_request(url, by="MechanicalSoup", proxy_url="", cookie="", delay_switcher=1):
-    # 如果用在爬虫或其他需要页面执行js的场合,用by="selenium_phantom_jS",此外用by="MechanicalSoup"
-    # 因为by="selenium_phantom_jS"无法得到http的响应的code(状态码)
+    # 如果用在爬虫或其他需要页面执行js的场合,用by="selenium_phantom_js",此外用by="MechanicalSoup"
+    # 因为by="selenium_phantom_js"无法得到http的响应的code(状态码)
     # 如果用selenium,用firefox打开可直接访问,要是用ie或chrome打开则要先安装相应浏览器驱动
     # 默认用MechanicalSoup方式访问url
     # 发出get请求,返回值为一个字典,有5个键值对

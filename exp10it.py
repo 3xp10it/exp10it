@@ -973,7 +973,7 @@ class Xcdn(object):
         self.http_or_https = get_http_or_https(self.domain)
         print('domain的http或https是:%s' % self.http_or_https)
         result = get_request(self.http_or_https + "://" + self.domain)
-        #result = get_request(self.http_or_https + "://" + self.domain,'selenium_phantom_jS')
+        #result = get_request(self.http_or_https + "://" + self.domain,'selenium_phantom_js')
         self.domain_title = result['title']
         # 下面调用相当于main函数的get_actual_ip_from_domain函数
         actual_ip = self.get_actual_ip_from_domain()
@@ -1024,7 +1024,7 @@ class Xcdn(object):
             url = self.http_or_https + "://" + self.domain + "/" + each
             CLIOutput().good_print("现在访问%s" % url)
             visit = get_request(url)
-            #visit = get_request(url, 'selenium_phantom_jS')
+            #visit = get_request(url, 'selenium_phantom_js')
             code = visit['code']
             content = visit['content']
             pattern = re.compile(r"remote_addr", re.I)
@@ -1085,7 +1085,7 @@ class Xcdn(object):
         # 使用默认的get_request请求方法不刷新dns的话/etc/hosts文件也会生效
         hosts_changed_domain_title = get_request(
             self.http_or_https + "://%s" % self.domain)['title']
-        #hosts_changed_domain_title = get_request(self.http_or_https + "://%s" % self.domain, 'selenium_phantom_jS')['title']
+        #hosts_changed_domain_title = get_request(self.http_or_https + "://%s" % self.domain, 'selenium_phantom_js')['title']
         os.system("rm /etc/hosts && mv /etc/hosts.bak /etc/hosts")
         # 这里要用title判断,html判断不可以,title相同则认为相同
         if self.domain_title == hosts_changed_domain_title:
@@ -1894,8 +1894,8 @@ def test_speed(address):
 
 
 def get_request(url, by="MechanicalSoup", proxy_url="", cookie="", delay_switcher=1):
-    # 如果用在爬虫或其他需要页面执行js的场合,用by="selenium_phantom_jS",此外用by="MechanicalSoup"
-    # 因为by="selenium_phantom_jS"无法得到http的响应的code(状态码)
+    # 如果用在爬虫或其他需要页面执行js的场合,用by="selenium_phantom_js",此外用by="MechanicalSoup"
+    # 因为by="selenium_phantom_js"无法得到http的响应的code(状态码)
     # 如果用selenium,用firefox打开可直接访问,要是用ie或chrome打开则要先安装相应浏览器驱动
     # 默认用MechanicalSoup方式访问url
     # 发出get请求,返回值为一个字典,有5个键值对
@@ -1939,7 +1939,7 @@ def get_request(url, by="MechanicalSoup", proxy_url="", cookie="", delay_switche
     form_action_value = ""
     current_url = url
 
-    if by == "selenium_phantom_jS":
+    if by == "selenium_phantom_js":
 
         if module_exist("selenium") is False:
             os.system("pip3 install selenium")
@@ -2112,8 +2112,8 @@ def get_request(url, by="MechanicalSoup", proxy_url="", cookie="", delay_switche
             a = re.search(
                 r'''<form[^<>]*action=('|")?([^\s'"<>]*)('|")?[^<>]*>''', content, re.I)
             if not a and re.search(r'''<form\s+((?!action|>|<).)*>''', content, re.I):
-                # 有form没有action则调用selenium_phantom_jS来重新发送get请求,因为这种情况无法获得表单要提交的url
-                return get_request(url, by="selenium_phantom_jS", proxy_url=proxy_url, cookie=cookie, delay_switcher=delay_switcher)
+                # 有form没有action则调用selenium_phantom_js来重新发送get请求,因为这种情况无法获得表单要提交的url
+                return get_request(url, by="selenium_phantom_js", proxy_url=proxy_url, cookie=cookie, delay_switcher=delay_switcher)
             if a:
                 pure_action_value = a.group(2)
                 if pure_action_value[0] == '/':
@@ -3074,7 +3074,7 @@ def get_url_has_csrf_token(url, cookie=""):
         url = url.split("^")[0]
     elif "?" in url:
         url = url.split("?")[0]
-    a = get_request(url, by="selenium_phantom_jS", cookie=cookie)
+    a = get_request(url, by="selenium_phantom_js", cookie=cookie)
     has_csrf_token = False
     csrf_token_name = ""
     if a['has_form_action']:
@@ -3082,7 +3082,7 @@ def get_url_has_csrf_token(url, cookie=""):
             r"([^&?\^]*token[^=]*)=([^&]+)", a['form_action_value'], re.I)
         if first_csrf_token:
             first_csrf_token_value = first_csrf_token.group(2)
-            b = get_request(url, by="selenium_phantom_jS")
+            b = get_request(url, by="selenium_phantom_js")
             if b['has_form_action']:
                 second_csrf_token_value = re.search(
                     r"([^&?\^]*token[^=]*)=([^&]+)", b['form_action_value'], re.I).group(2)
@@ -3104,7 +3104,7 @@ def get_user_and_pass_form_from_url(url):
     # 之所以要每次在有访问url结果的函数里面返回url访问结果,这样是为了可以只访问一次url,这样就可以一直将访问的返\
     # 回结果传递下去,不用多访问,效率更高
     url = re.sub(r'(\s)$', '', url)
-    response_key_value = get_request(url, by="selenium_phantom_jS")
+    response_key_value = get_request(url, by="selenium_phantom_js")
     content = response_key_value['content']
     return_value = get_user_and_pass_form_from_html(content)
     return_value['response_key_value'] = response_key_value
@@ -3115,7 +3115,7 @@ def get_user_and_pass_form_from_url(url):
 def get_yanzhengma_form_and_src_from_url(url):
     # 得到url对应的html中的验证码的表单名和验证码src地址
     parsed = urlparse(url)
-    content = get_request(url, by="selenium_phantom_jS")['content']
+    content = get_request(url, by="selenium_phantom_js")['content']
     # sub useless html content
     content = re.sub(r"<!--.+-->", "", content)
     yanzhengma_form_name = None
@@ -3465,7 +3465,7 @@ def like_admin_login_content(html):
 
 def like_admin_login_url(url):
     # 判断url对应的html内容是否可能是管理员登录页面
-    html = get_request(url, by="selenium_phantom_jS")['content']
+    html = get_request(url, by="selenium_phantom_js")['content']
     return like_admin_login_content(html)
 
 
@@ -3728,11 +3728,11 @@ def search_key_words(key_words, by='bing'):
     baidu_search = "http://www.baidu.com/s?wd="
     return_value = ''
     if by == 'bing':
-        result = get_request(bing_search + key_words, by="selenium_phantom_jS")
+        result = get_request(bing_search + key_words, by="selenium_phantom_js")
         return_value = result['content']
     if by == 'baidu':
         result = get_request(baidu_search + key_words,
-                             by="selenium_phantom_jS")
+                             by="selenium_phantom_js")
         return_value = result['content']
     return return_value
 
