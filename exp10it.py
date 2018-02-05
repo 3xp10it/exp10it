@@ -5,9 +5,6 @@ import re
 import sys
 import random
 import time
-import urllib.request
-import urllib.parse
-import urllib.error
 import datetime
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
