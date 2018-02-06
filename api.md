@@ -120,7 +120,7 @@ def get_request(url, by="MechanicalSoup", proxy_url="", cookie="", delay_switche
     # has_form_action的值为True或False,True代表url对应的html中有表单可提交
 def check_start_time(want_time):
     # eg:a="11:59:59"
-def send_http_package(string, http_or_https):
+def send_http_packet(string, http_or_https):
     # 发http请求包封装函数,string可以是burpsuite等截包工具中拦截到的包
     # string要求是burpsuite中抓包抓到的字符串
     # 返回的内容为html

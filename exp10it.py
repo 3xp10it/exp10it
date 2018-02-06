@@ -1849,21 +1849,29 @@ def get_param_part_from_content(content):
         if param_name not in param_name_list:
             # 防止有重复的参数
             param_name_list.append(param_name)
-
-            exist_default_value = re.search(
-                r'''value=('|")?([^'"<>]*)('|")?''', each[0], re.I)
-            if exist_default_value:
-                # 如果有默认值
-                default_value = exist_default_value.group(2)
-                default_value = re.sub(r"\s+", "+", default_value)
-                param_part_value += (param_name + "=" + default_value + "&")
+            exist_file_param = re.search(
+                r'''type=('|")?file('|")?''', each[0], re.I)
+            if exist_file_param:
+                # 如果当前参数是file参数,表示要上传文件,这种特殊情况返回param_name=filevalue
+                param_part_value += (param_name + "=filevalue&")
             else:
-                # 如果没有默认值
-                if re.search(r'''required=('|")?required('|")?''', each[0], re.I):
-                    # 处理必须要填的参数
-                    param_part_value += (param_name + "=required_param_value&")
+                # 当前参数不是file参数
+                exist_default_value = re.search(
+                    r'''value=('|")?([^'"<>]*)('|")?''', each[0], re.I)
+                if exist_default_value:
+                    # 如果有默认值
+                    default_value = exist_default_value.group(2)
+                    default_value = re.sub(r"\s+", "+", default_value)
+                    param_part_value += (param_name + "=" +
+                                         default_value + "&")
                 else:
-                    param_part_value += (param_name + "=&")
+                    # 如果没有默认值
+                    if re.search(r'''required=('|")?required('|")?''', each[0], re.I):
+                        # 处理必须要填的参数
+                        param_part_value += (param_name +
+                                             "=required_param_value&")
+                    else:
+                        param_part_value += (param_name + "=&")
 
     if param_part_value != "" and param_part_value[-1] == "&":
         param_part_value = param_part_value[:-1]
@@ -2172,15 +2180,16 @@ def check_start_time(want_time):
     print("到点,现在时刻:%s" % a)
 
 
-def send_http_package(string, http_or_https, proxies={}):
+def send_http_packet(string, http_or_https, proxies={}):
     # 发http请求包封装函数,string可以是burpsuite等截包工具中拦截到的包
     # string要求是burpsuite中抓包抓到的字符串,也即已经经过urlencode
     # proxy_url为代理地址,eg."http://127.0.0.1:8080"
-    # 返回的内容为html
+    # 返回的内容为一个字典,{'code':xxx,'html':'xxx'},其中code为int类型,html为str类型
+    return_value = {'code': 0, 'html': ''}
     string = re.sub(r"^\s", "", string)
     uri_line = re.search(r"(^.+)", string).group(1)
     header_dict = {}
-    header_list = re.findall(r"([^:\s]+): (.+)\n", string)
+    header_list = re.findall(r"([^:\s]+): ([^\r\n]+)((\n)|(\r\n))", string)
     for each in header_list:
         header_dict[each[0]] = each[1]
     url = http_or_https + "://" + re.search(r"Host: (\S+)", string, re.I).group(
@@ -2190,6 +2199,7 @@ def send_http_package(string, http_or_https, proxies={}):
             res = requests.get(url, headers=header_dict)
         else:
             res = requests.get(url, headers=header_dict, proxies=proxies)
+        code = res.status_code
         html = res.text
     elif string[:4] == "POST":
         post_string = re.search(r"((\r\n\r\n)|(\n\n))(.*)", string).group(4)
@@ -2200,8 +2210,11 @@ def send_http_package(string, http_or_https, proxies={}):
         else:
             res = requests.post(url, headers=header_dict,
                                 data=post_string_bytes, proxies=proxies)
+        code = res.status_code
         html = res.text
-    return html
+    return_value['code'] = code
+    return_value['html'] = html
+    return return_value
 
 
 def keep_session(url, cookie):
