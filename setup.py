@@ -28,7 +28,7 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.6.75"
+VERSION = "2.6.76"
 LICENSE = "MIT"
 sysinfo = get_string_from_command("uname -a")
 if re.search(r"kali", sysinfo, re.I):
