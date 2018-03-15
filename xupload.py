@@ -120,7 +120,10 @@ def post_multipart_form_data(packet):
             code = response.code
             html = response.read()
             encoding = chardet.detect(html)['encoding']
-            html = html.decode(encoding=encoding)
+            if html != b"":
+                html = html.decode(encoding=encoding)
+            else:
+                html = ""
         return_value['code'] = code
         return_value['html'] = html
         return return_value
@@ -140,9 +143,9 @@ def get_work_file_info():
                     "Content-Type: image/jpeg", "Content-Type: image/jpeg")
                 packet = packet.replace(jpg_file_content, jpg_file_content)
                 rsp = post_multipart_form_data(packet)
-                pdb.set_trace()
-                check_upload_succeed(packet, rsp, origin_html)
-                if rsp['code'] == 200:
+                succeed = check_upload_succeed(
+                    packet, rsp, origin_html, check='normal')
+                if succeed:
                     return {'file_suffix': 'jpg', 'content_type': 'image/jpeg', 'file_content': jpg_file_content, 'work_packet': packet}
             elif file_suffix == 'png':
                 packet = origin_packet
@@ -152,7 +155,9 @@ def get_work_file_info():
                     'Content-Type: image/jpeg', 'Content-Type: image/png')
                 packet = packet.replace(jpg_file_content, png_file_content)
                 rsp = post_multipart_form_data(packet)
-                if rsp['code'] == 200:
+                succeed = check_upload_succeed(
+                    packet, rsp, origin_html, check='normal')
+                if succeed:
                     return {'file_suffix': 'png', 'content_type': 'image/png', 'file_content': png_file_content, 'work_packet': packet}
             elif file_suffix == 'gif':
                 packet = origin_packet
@@ -162,7 +167,9 @@ def get_work_file_info():
                     'Content-Type: image/jpeg', 'Content-Type: image/gif')
                 packet = packet.replace(jpg_file_content, gif_file_content)
                 rsp = post_multipart_form_data(packet)
-                if rsp['code'] == 200:
+                succeed = check_upload_succeed(
+                    packet, rsp, origin_html, check='normal')
+                if succeed:
                     return {'file_suffix': 'gif', 'content_type': 'image/gif', 'file_content': gif_file_content, 'work_packet': packet}
             elif file_suffix == 'txt':
                 packet = origin_packet
@@ -172,7 +179,9 @@ def get_work_file_info():
                     'Content-Type: image/jpeg', 'Content-Type: text/plain')
                 packet = packet.replace(jpg_file_content, jpg_file_content)
                 rsp = post_multipart_form_data(packet)
-                if rsp['code'] == 200:
+                succeed = check_upload_succeed(
+                    packet, rsp, origin_html, check='normal')
+                if succeed:
                     return {'file_suffix': 'txt', 'content_type': 'text/plain', 'file_content': jpg_file_content, 'work_packet': packet}
             elif file_suffix == 'xxx':
                 packet = origin_packet
@@ -182,7 +191,9 @@ def get_work_file_info():
                     'Content-Type: image/jpeg', 'Content-Type: xxx/xxx')
                 packet = packet.replace(jpg_file_content, jpg_file_content)
                 rsp = post_multipart_form_data(packet)
-                if rsp['code'] == 200:
+                succeed = check_upload_succeed(
+                    packet, rsp, origin_html, check='normal')
+                if succeed:
                     return {'file_suffix': 'xxx', 'content_type': 'xxx/xxx', 'file_content': jpg_file_content, 'work_packet': packet}
         print("正常上传jpg/gif/png/txt/xxx全部失败,这个url的上传功能可能存在问题...")
         sys.exit(0)
@@ -202,10 +213,10 @@ def get_work_file_info():
                                 b'Content-Type: image/jpeg', packet)
                 packet = packet.replace(
                     file_content, unicode_to_bytes(jpg_file_content))
-                pdb.set_trace()
                 rsp = post_multipart_form_data(packet)
-                check_upload_succeed(packet, rsp, origin_html)
-                if rsp['code'] == 200:
+                succeed = check_upload_succeed(
+                    packet, rsp, origin_html, check="normal")
+                if succeed:
                     return {'file_suffix': 'jpg', 'content_type': 'image/jpeg', 'file_content': jpg_file_content, 'work_packet': packet}
             elif file_suffix == 'png':
                 packet = packet.replace(
@@ -215,7 +226,9 @@ def get_work_file_info():
                 packet = packet.replace(
                     file_content, unicode_to_bytes(png_file_content))
                 rsp = post_multipart_form_data(packet)
-                if rsp['code'] == 200:
+                succeed = check_upload_succeed(
+                    packet, rsp, origin_html, check="normal")
+                if succeed:
                     return {'file_suffix': 'png', 'content_type': 'image/png', 'file_content': png_file_content, 'work_packet': packet}
             elif file_suffix == 'gif':
                 packet = packet.replace(
@@ -225,7 +238,9 @@ def get_work_file_info():
                 packet = packet.replace(
                     file_content, unicode_to_bytes(gif_file_content))
                 rsp = post_multipart_form_data(packet)
-                if rsp['code'] == 200:
+                succeed = check_upload_succeed(
+                    packet, rsp, origin_html, check="normal")
+                if succeed:
                     return {'file_suffix': 'gif', 'content_type': 'image/gif', 'file_content': gif_file_content, 'work_packet': packet}
             elif file_suffix == 'txt':
                 packet = packet.replace(
@@ -235,7 +250,9 @@ def get_work_file_info():
                 packet = packet.replace(
                     file_content, unicode_to_bytes(jpg_file_content))
                 rsp = post_multipart_form_data(packet)
-                if rsp['code'] == 200:
+                succeed = check_upload_succeed(
+                    packet, rsp, origin_html, check="normal")
+                if succeed:
                     return {'file_suffix': 'txt', 'content_type': 'text/plain', 'file_content': jpg_file_content, 'work_packet': packet}
             elif file_suffix == 'xxx':
                 packet = packet.replace(
@@ -245,13 +262,15 @@ def get_work_file_info():
                 packet = packet.replace(
                     file_content, unicode_to_bytes(jpg_file_content))
                 rsp = post_multipart_form_data(packet)
-                if rsp['code'] == 200:
+                succeed = check_upload_succeed(
+                    packet, rsp, origin_html, check="normal")
+                if succeed:
                     return {'file_suffix': 'xxx', 'content_type': 'xxx/xxx', 'file_content': jpg_file_content, 'work_packet': packet}
         print("正常上传jpg/gif/png/txt/xxx全部失败,这个url的上传功能可能存在问题...")
         sys.exit(0)
 
 
-def check_upload_succeed(packet, rsp, origin_html,check='webshell'):
+def check_upload_succeed(packet, rsp, origin_html, check='webshell'):
     code = rsp['code']
     html = rsp['html']
     if code != 200:
@@ -259,12 +278,14 @@ def check_upload_succeed(packet, rsp, origin_html,check='webshell'):
     lines = re.findall(r"([^\r\n]+)", html)
     for line in lines:
         if not re.match(r"^\s+$", line) and line not in origin_html:
-            if check=='webshell':
-                result = re.search(r"([^\s<>]+\.\S+)", line, re.I)
-                if result:
-                    result = result.group(1)
-                    if re.match(r".*\.[^<>]+$", result, re.I):
-                        if not re.match(r".*\.((jpg)|(jpeg)|(gif)|(png)|(txt)|(xxx))$", result, re.I):
+            if check == 'webshell':
+                match_items = re.findall(r"([^\s<>]+\.\S+)", line, re.I)
+                if match_items:
+                    for result in match_items:
+                        result_suffix = result.split(".")[-1]
+                        result_suffix_set = set(result_suffix)
+                        script_suffix_set = set(script_suffix)
+                        if script_suffix_set.issubset(result_suffix_set) or re.match(r"^((phtm)|(phtml)|(pht)|(pjpg)|(html)|(inc)|(lnk)|(asa)|(cer)|(cdx)|(ashx)|(ascx)|(asax)|(asmx)|(jspx)|(jspf))$", result_suffix, re.I):
                             print(result)
                             if not use_packet_file:
                                 with open("result.txt", "a+") as f:
@@ -280,17 +301,33 @@ def check_upload_succeed(packet, rsp, origin_html,check='webshell'):
                                 global succeed_times
                                 succeed_times += 1
                                 if succeed_times > 20:
-                                    print("You can view succeed packet in result.txt")
+                                    print(
+                                        "You can view succeed packet in result.txt")
                                     sys.exit(0)
                             else:
                                 input(
                                     "Press any key to continue testing other payloads...")
                                 return
-            elif check=='normal':
+                else:
+                    if re.search(r"(succes)|(succeed)|(成功)", line, re.I):
+                        result = "上传成功但是没有返回路径"
+                        if not use_packet_file:
+                            with open("result.txt", "a+") as f:
+                                f.write("%s\n\n%s\n" % (result, packet) + '-' * 45 +
+                                        'I am a beautiful dividing line' + '-' * 45 + '\n\n')
+                        else:
+                            with open("result.txt", "ab+") as f:
+                                result = unicode_to_bytes(result)
+                                f.write(b"%s\n\n%s\n" % (result, packet) + b'-' * 45 +
+                                        b'I am a beautiful dividing line' + b'-' * 45 + b'\n\n')
+                        sys.exit(0)
+                        return True
+            elif check == 'normal':
                 # 检测上传正常非webshell文件时成功上传的情况
-                if re.search(r"(success)|(succeed)|(成功)",line,re.I):
+                if re.search(r"(succes)|(succeed)|(成功)", line, re.I):
                     return True
     return False
+
 
 def fuzz_upload_webshell():
     # url = 'http://192.168.135.39/dvwa/vulnerabilities/upload/'
