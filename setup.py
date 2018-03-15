@@ -28,11 +28,11 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.6.76"
+VERSION = "2.6.77"
 LICENSE = "MIT"
 sysinfo = get_string_from_command("uname -a")
 if re.search(r"kali", sysinfo, re.I):
-    os.system("sudo apt-get install libncurses5-dev")
+    os.system("sudo apt-get update && apt-get install libncurses5-dev")
 setup(
     name=NAME,
     version=VERSION,
