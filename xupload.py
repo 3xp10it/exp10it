@@ -1094,4 +1094,3 @@ Content-Type: multipart/form-data; boundary=%s''' % (url, cookie, boundary)
     origin_packet = origin_packet.replace("\n", "\r\n") + "\r\n\r\n" + data
 succeed_times = 0
 if __name__ == "__main__":
-    fuzz_upload_webshell()
