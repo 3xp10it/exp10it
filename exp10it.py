@@ -2095,7 +2095,7 @@ def get_request(url, by="MechanicalSoup", proxy_url="", cookie="", delay_switche
 
             # 添加verify=False用于访问形如https://forum.90sec.org等服务器公钥没有通过验证的url的访问
             result = browser.get(url,
-                                 timeout=10, verify=False)
+                    timeout=10, verify=False)
             if url != result.url:
                 # redirect url
                 current_url = result.url
@@ -4098,7 +4098,7 @@ def get_target_script_type(target):
         executor.map(check_with_type, script_type_list)
 
     if return_value == []:
-        return_value.append('php')
+        return_value=['php','jsp']
 
     return return_value
 
@@ -4140,6 +4140,7 @@ def get_cms_entry_from_start_url(start_url):
 
 
 def start_ipproxypool():
+    # 默认在8000端口开服务
     if not os.path.exists("IPProxyPool"):
         cmd = "cd %s && git clone https://github.com/qiyeboy/IPProxyPool.git && pip install -r requirements.txt" % WORK_PATH
         # input(cmd)
