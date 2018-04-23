@@ -1,7 +1,6 @@
 import codecs
 import os
 import re
-from exp10it import get_string_from_command
 
 try:
     from setuptools import setup
@@ -28,13 +27,14 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.6.78"
+VERSION = "2.6.86"
 LICENSE = "MIT"
-print(6666666666666)
-sysinfo = get_string_from_command("uname -a")
-print(7777777777777777777)
+os.system("uname -a > /tmp/exp10it_setup")
+with open("/tmp/exp10it_setup", "r+") as f:
+    sysinfo = f.read()
+os.system("rm /tmp/exp10it_setup")
 if re.search(r"kali", sysinfo, re.I):
-    os.system("sudo apt-get update && apt-get install libncurses5-dev")
+    os.system("apt-get update && (echo y | apt-get install libncurses5-dev)")
 setup(
     name=NAME,
     version=VERSION,
