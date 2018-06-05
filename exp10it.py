@@ -1343,7 +1343,7 @@ def post_requests(url, data, headers):
         pass
     '''
 
-    return_value = requests.post(url, data, headers, timeout=10)
+    return_value = requests.post(url, data, headers, timeout=10,verify=False)
     return return_value
 
 
@@ -2197,9 +2197,9 @@ def send_http_packet(string, http_or_https, proxies={}):
         1) + re.search(r" (\S+)", uri_line, re.I).group(1)
     if string[:3] == "GET":
         if proxies == {}:
-            res = requests.get(url, headers=header_dict)
+            res = requests.get(url, headers=header_dict,timeout=10,verify=False)
         else:
-            res = requests.get(url, headers=header_dict, proxies=proxies)
+            res = requests.get(url, headers=header_dict, proxies=proxies,timeout=10,verify=False)
         code = res.status_code
         html = res.text
     elif string[:4] == "POST":
@@ -2207,10 +2207,10 @@ def send_http_packet(string, http_or_https, proxies={}):
         post_string_bytes = post_string.encode("utf8")
         if proxies == {}:
             res = requests.post(url, headers=header_dict,
-                                data=post_string_bytes)
+                                data=post_string_bytes,timeout=10,verify=False)
         else:
             res = requests.post(url, headers=header_dict,
-                                data=post_string_bytes, proxies=proxies)
+                                data=post_string_bytes, proxies=proxies,timeout=10,verify=False)
         code = res.status_code
         html = res.text
     return_value['code'] = code
@@ -3752,7 +3752,7 @@ def collect_urls_from_url(url):
     import requests
     import chardet
     return_value = {}
-    rsp = requests.get(url)
+    rsp = requests.get(url,timeout=10,verify=False)
     code = rsp.status_code
     content = rsp.content
     bytes_encoding = chardet.detect(content)['encoding']
@@ -4112,7 +4112,7 @@ def get_server_type(url):
     # 得到url对应web服务器的类型,eg.apache,iis,nginx,lighttpd
     # phpstudy中试验上面4种的php默认post参数最大个数为1000个
     import requests
-    r = requests.get(url)
+    r = requests.get(url,timeout=10,verify=False)
     server_type = r.headers['server']
     return server_type
 
