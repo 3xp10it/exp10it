@@ -3042,8 +3042,10 @@ def get_user_and_pass_form_from_html(html):
         index += 1
         if re.search(r'''<input .*type=('|")?password.*>''', each):
             user_form_line = all_input_line[index - 1]
-            pass_form_line = each
-            has_pass_form = True
+            if "hidden" in user_form_line:
+                user_form_line=all_input_line[index-2]
+                pass_form_line = each
+                has_pass_form = True
 
     user_pattern = re.compile(r'''name=('|")?([^'" ]{,20})('|")?''', re.I)
     pass_pattern = re.compile(r'''name=('|")?([^'" ]{,20})('|")?''', re.I)
@@ -3072,6 +3074,7 @@ def get_user_and_pass_form_from_html(html):
         'form_action_url': form_action_url}
     # print return_value
     return return_value
+
 
 
 def get_url_has_csrf_token(url, cookie=""):
