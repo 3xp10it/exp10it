@@ -98,7 +98,12 @@ def get_home_path():
     # 返回~目录的具体值,eg./var/root
     #a=get_string_from_command("cd ~ && pwd")
     # 后来发现os.path.expanduser函数可以认识~
-    return os.path.expanduser("~")
+    system = platform.system()
+    if system == "Windows":
+        # eg. c:\\users\\administrator
+        return get_string_from_command("echo %HOMEDRIVE%%HOMEPATH%")
+    else:
+        return os.path.expanduser("~")
 
 
 HOME_PATH = get_home_path()
