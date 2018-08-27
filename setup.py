@@ -7,6 +7,9 @@ try:
 except:
     from distutils.core import setup
 
+def get_string_from_command(command):
+    import subprocess
+    return subprocess.getstatusoutput(command)[1]
 
 def read(fname):
     """
@@ -27,14 +30,16 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.6.91"
+VERSION = "2.6.94"
 LICENSE = "MIT"
 os.system("uname -a > /tmp/exp10it_setup")
 with open("/tmp/exp10it_setup", "r+") as f:
     sysinfo = f.read()
 os.system("rm /tmp/exp10it_setup")
 if re.search(r"kali", sysinfo, re.I):
-    os.system("apt-get update && (echo y | apt-get install libncurses5-dev)")
+    content=get_string_from_command("apt search libncurses5-dev")
+    if "libncurses5-dev" not in content:
+        os.system("apt-get update && (echo y | apt-get install libncurses5-dev)")
 setup(
     name=NAME,
     version=VERSION,

@@ -3798,7 +3798,7 @@ def collect_urls_from_url(url):
     content = content.decode(encoding=bytes_encoding, errors="ignore")
     has_title = re.search(r"<title>([\s\S]*)</title>", content, re.I)
     if has_title:
-        title = has_title.group[1]
+        title = has_title.group(1)
     else:
         title = ""
     return_value['y1'] = collect_urls_from_html(content, url)
