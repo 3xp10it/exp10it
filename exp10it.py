@@ -2536,7 +2536,10 @@ def blog():
     os.system(ubuntu_cmd) if platform.system(
     ) != "Darwin" else os.system(macos_cmd)
     os.system("cat /tmp/1 > %s && rm /tmp/1" % file_abs_path)
-    os.system("/Applications/MacVim.app/Contents/MacOS/Vim %s" % file_abs_path)
+    ubuntu_cmd="vim %s" % file_abs_path
+    macos_cmd="/Applications/MacVim.app/Contents/MacOS/Vim %s" % file_abs_path
+    os.system(ubuntu_cmd) if platform.system(
+    ) != "Darwin" else os.system(macos_cmd)
 
     print("do you want to update your remote 3xp10it.cc's blog?")
     print("your chioce: Y/n,default[Y]:>", end=' ')
