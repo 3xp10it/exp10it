@@ -1572,13 +1572,6 @@ def post_request(url, data, verify=True):
     # 这里的verify=False是为了防止https服务器证书无法通过校验导致无法完成https会话而设置的,并不一定有效,后期可能
     # 要改
 
-    global DELAY
-    if DELAY != "":
-        import time
-        time.sleep(DELAY)
-    else:
-        pass
-
     import mechanicalsoup
     browser = mechanicalsoup.Browser(soup_config={"features": "lxml"})
     ua = get_random_ua()
