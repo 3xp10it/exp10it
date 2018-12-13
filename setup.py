@@ -30,7 +30,7 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.6.95"
+VERSION = "2.6.97"
 LICENSE = "MIT"
 os.system("uname -a > /tmp/exp10it_setup")
 with open("/tmp/exp10it_setup", "r+") as f:
@@ -41,25 +41,25 @@ if re.search(r"kali", sysinfo, re.I):
     if "libncurses5-dev" not in content:
         os.system("apt-get update && (echo y | apt-get install libncurses5-dev)")
 setup(
-    name=NAME,
-    version=VERSION,
-    description=DESCRIPTION,
-    long_description=LONG_DESCRIPTION,
-    classifiers=[
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python',
-        'Intended Audience :: Developers',
-        'Operating System :: OS Independent',
-    ],
-    keywords=KEYWORDS,
-    install_requires=['mechanicalsoup', 'bs4', 'selenium', 'readline',
-                      'colorama', 'requests', 'configparser', 'chardet', 'wget'],
-    author=AUTHOR,
-    author_email=AUTHOR_EMAIL,
-    url=URL,
-    license=LICENSE,
-    # packages=PACKAGES,
-    include_package_data=True,
-    zip_safe=True,
-    py_modules=['exp10it', 'updateapi'],
-)
+        name=NAME,
+        version=VERSION,
+        description=DESCRIPTION,
+        long_description=LONG_DESCRIPTION,
+        classifiers=[
+            'License :: OSI Approved :: MIT License',
+            'Programming Language :: Python',
+            'Intended Audience :: Developers',
+            'Operating System :: OS Independent',
+            ],
+        keywords=KEYWORDS,
+        install_requires=['mechanicalsoup', 'bs4', 'selenium', 'readline',
+            'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycrypto', 'pymysql'],
+        author=AUTHOR,
+        author_email=AUTHOR_EMAIL,
+        url=URL,
+        license=LICENSE,
+        # packages=PACKAGES,
+        include_package_data=True,
+        zip_safe=True,
+        py_modules=['exp10it', 'updateapi'],
+        )
