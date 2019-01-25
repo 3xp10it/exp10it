@@ -2192,6 +2192,14 @@ def get_request(url, by="MechanicalSoup", proxy_url="", cookie="", delay_switche
             'current_url': current_url}
         return return_value
 
+def get_today_date():
+    return time.strftime('%Y-%m-%d',time.localtime(time.time()))
+
+def get_now_time():
+    return time.strftime('%H:%M:%S',time.localtime(time.time()))
+
+def get_now_date_time():
+    return time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 
 def check_start_time(want_time):
     # eg:a="11:59:59"

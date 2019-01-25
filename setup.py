@@ -30,7 +30,7 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.6.97"
+VERSION = "2.6.98"
 LICENSE = "MIT"
 os.system("uname -a > /tmp/exp10it_setup")
 with open("/tmp/exp10it_setup", "r+") as f:
