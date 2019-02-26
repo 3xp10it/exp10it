@@ -1,4 +1,6 @@
+#coding=utf-8
 import codecs
+import platform
 import os
 import re
 
@@ -18,28 +20,32 @@ def read(fname):
     你也可以不用这个方法，自己手动写内容即可，
     PyPI上支持.rst格式的文件。暂不支持.md格式的文件，<BR>.rst文件PyPI会自动把它转为HTML形式显示在你包的信息页面上。
     """
-    return codecs.open(os.path.join(os.path.dirname(__file__), fname)).read()
+    return codecs.open(os.path.join(os.path.dirname(__file__), fname),encoding='utf-8').read()
 
 
 NAME = "exp10it"
 #PACKAGES = ['cms_identify', 'dicts', 'tools']
-DESCRIPTION = "This is a package about web security"
+DESCRIPTION = "This is a package about network security"
 LONG_DESCRIPTION = read("README.md")
-KEYWORDS = "web security package"
+KEYWORDS = "network security package"
 AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.6.98"
+VERSION = "2.7.05"
 LICENSE = "MIT"
-os.system("uname -a > /tmp/exp10it_setup")
-with open("/tmp/exp10it_setup", "r+") as f:
-    sysinfo = f.read()
-os.system("rm /tmp/exp10it_setup")
-if re.search(r"kali", sysinfo, re.I):
-    content=get_string_from_command("apt search libncurses5-dev")
-    if "libncurses5-dev" not in content:
-        os.system("apt-get update && (echo y | apt-get install libncurses5-dev)")
+require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pymysql']
+system=platform.system()
+if system!='Windows':
+    require_package_list=['mechanicalsoup', 'bs4', 'selenium','readline', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycrypto', 'pymysql']
+    os.system("uname -a > /tmp/exp10it_setup")
+    with open("/tmp/exp10it_setup", "r+") as f:
+        sysinfo = f.read()
+    os.system("rm /tmp/exp10it_setup")
+    if re.search(r"kali", sysinfo, re.I):
+        content=get_string_from_command("apt search libncurses5-dev")
+        if "libncurses5-dev" not in content:
+            os.system("apt-get update && (echo y | apt-get install libncurses5-dev)")
 setup(
         name=NAME,
         version=VERSION,
@@ -52,8 +58,7 @@ setup(
             'Operating System :: OS Independent',
             ],
         keywords=KEYWORDS,
-        install_requires=['mechanicalsoup', 'bs4', 'selenium', 'readline',
-            'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycrypto', 'pymysql'],
+        install_requires=require_package_list,
         author=AUTHOR,
         author_email=AUTHOR_EMAIL,
         url=URL,

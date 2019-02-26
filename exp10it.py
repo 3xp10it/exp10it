@@ -4201,3 +4201,35 @@ def start_ipproxypool():
 
 def start_scrapy_splash():
     os.system("docker run -p 8050:8050 scrapinghub/splash --max-timeout 3600")
+
+
+def start_web_server():
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    class ThreadingHttpServer(ThreadingMixIn, HTTPServer):
+        pass
+
+    class S(BaseHTTPRequestHandler):
+        def _set_headers(self):
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+
+        def do_GET(self):
+            global ready_lock
+            t1=datetime.datetime.now()
+            headers = str(self.headers)
+            if self.path!='/favicon.ico':
+                query_dict=parse_qs(self.path[2:])
+                self._set_headers()
+                return_value='it works...'
+                self.wfile.write(bytes(return_value, "utf-8"))
+
+    def run(server_class=ThreadingHttpServer, handler_class=S, port=8888):
+        server_address = ('', port)
+        httpd = server_class(server_address, handler_class)
+        print('Starting httpd...')
+        httpd.serve_forever()
+
+    run()
+
