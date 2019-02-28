@@ -12,11 +12,11 @@ import threading
 from concurrent import futures
 import selenium
 import requests
-import readline
 from requests.packages.urllib3.exceptions import InsecureRequestWarning, InsecurePlatformWarning
 from colorama import Fore, Style
 from functools import reduce
 import subprocess
+import base64
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
@@ -431,13 +431,6 @@ def combile_my_para_and_argv_para(command):
         final_command = final_command.replace("xxxxx", " ")
     return final_command
 
-
-
-'''
-采用AES对称加密算法
-'''
-import base64
-from Crypto.Cipher import AES
 # str不是16的倍数那就补足为16的倍数
 def add_to_16(value):
     while len(value) % 16 != 0:
@@ -445,6 +438,7 @@ def add_to_16(value):
     return str.encode(value)  # 返回bytes
 #加密方法
 def aes_enc(text,key):
+    from Crypto.Cipher import AES
     # 初始化加密器
     aes = AES.new(add_to_16(key), AES.MODE_ECB)
     #先进行aes加密
@@ -455,6 +449,7 @@ def aes_enc(text,key):
 #解密方法
 def aes_dec(text,key):
     # 初始化加密器
+    from Crypto.Cipher import AES
     aes = AES.new(add_to_16(key), AES.MODE_ECB)
     #优先逆向解密base64成bytes
     base64_decrypted = base64.decodebytes(text.encode(encoding='utf-8'))
@@ -463,7 +458,7 @@ def aes_dec(text,key):
     decrypted_text=decrypted_text.rstrip('\0')
     return decrypted_text
 
-def base64encodeStr(string):
+def base64encode(string):
     # 得到base64的字符串
     # 输入为str类型
     # 返回为str类型
@@ -474,7 +469,7 @@ def base64encodeStr(string):
     return base64Str
 
 
-def base64decodeStr(string):
+def base64decode(string):
     # 得到经过base64加密后字符串解密后的明文
     # 输入为str类型
     # 返回为str类型
@@ -891,6 +886,7 @@ def tab_complete_file_path():
     # works on linux,it seems windows not support readline module
     import platform
     import glob
+    import readline
 
     def tab_complete_for_file_path():
         class tab_completer(object):
@@ -949,7 +945,8 @@ def tab_complete_file_path():
 
 
 # execute the function to take effect
-tab_complete_file_path()
+if platform.system()!="Windows":
+    tab_complete_file_path()
 
 
 def seconds2hms(seconds):
@@ -3665,6 +3662,7 @@ def get_input_intime1(default_choose, timeout=10):
     # 第二个参数为设置超时后自动选择默认值的时间大小,单位为秒
     # 返回选择的值,返回值是选择的值或是默认选择值,选择的值为str类型,默认的选择值可为任意类型
 
+    import readline
     default_choose = [default_choose]
     timeout = [timeout]
     choosed = [0]
@@ -4202,9 +4200,19 @@ def start_ipproxypool():
 def start_scrapy_splash():
     os.system("docker run -p 8050:8050 scrapinghub/splash --max-timeout 3600")
 
-
-def start_web_server():
+def start_web_server(host,port,rules):
+    #eg.rules={'GET':get,'POST':post}
+    #def get(self):
+    #    from urllib.parse import parse_qs
+    #    headers = str(self.headers)
+    #    if self.path!='/favicon.ico':
+    #        query_dict=parse_qs(self.path[2:])
+    #        self._set_headers()
+    #        self.wfile.write(bytes(str(query_dict), "utf-8"))
+    #start_web_server(host='0.0.0.0',port=8888,rules=rules)
     from http.server import BaseHTTPRequestHandler, HTTPServer
+    from socketserver import ThreadingMixIn
+    from urllib.parse import parse_qs
 
     class ThreadingHttpServer(ThreadingMixIn, HTTPServer):
         pass
@@ -4216,17 +4224,13 @@ def start_web_server():
             self.end_headers()
 
         def do_GET(self):
-            global ready_lock
-            t1=datetime.datetime.now()
-            headers = str(self.headers)
-            if self.path!='/favicon.ico':
-                query_dict=parse_qs(self.path[2:])
-                self._set_headers()
-                return_value='it works...'
-                self.wfile.write(bytes(return_value, "utf-8"))
+            rules['GET'](self)
 
-    def run(server_class=ThreadingHttpServer, handler_class=S, port=8888):
-        server_address = ('', port)
+        def do_POST(self):
+            rules['POST'](self)
+
+    def run(server_class=ThreadingHttpServer, handler_class=S):
+        server_address = (host, int(port))
         httpd = server_class(server_address, handler_class)
         print('Starting httpd...')
         httpd.serve_forever()
