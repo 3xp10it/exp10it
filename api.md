@@ -20,10 +20,18 @@ def get_home_path():
     # 返回~目录的具体值,eg./var/root
     #a=get_string_from_command("cd ~ && pwd")
     # 后来发现os.path.expanduser函数可以认识~
-def base64Str(string):
+def aes_dec(text,key):
+    # 初始化加密器
+def base64encode(string):
     # 得到base64的字符串
     # 输入为str类型
     # 返回为str类型
+def base64decode(string):
+    # 得到经过base64加密后字符串解密后的明文
+    # 输入为str类型
+    # 返回为str类型
+def is_internal_ip(ip):
+    # 判断ip是不是内网ip
 def string2argv(string):
     # 将string转化成argv格式
     # 返回一个列表
@@ -120,10 +128,11 @@ def get_request(url, by="MechanicalSoup", proxy_url="", cookie="", delay_switche
     # has_form_action的值为True或False,True代表url对应的html中有表单可提交
 def check_start_time(want_time):
     # eg:a="11:59:59"
-def send_http_packet(string, http_or_https):
+def send_http_packet(string, http_or_https, proxies={}):
     # 发http请求包封装函数,string可以是burpsuite等截包工具中拦截到的包
-    # string要求是burpsuite中抓包抓到的字符串
-    # 返回的内容为html
+    # string要求是burpsuite中抓包抓到的字符串,也即已经经过urlencode
+    # proxy_url为代理地址,eg."http://127.0.0.1:8080"
+    # 返回的内容为一个字典,{'code':xxx,'html':'xxx'},其中code为int类型,html为str类型
 def keep_session(url, cookie):
     # 保持服务器上的session长久有效
 def get_urls_from_file(file):
@@ -199,7 +208,7 @@ def get_user_and_pass_form_from_html(html):
     #"user_form_name":"" 没有则相应返回值为"None",不是返回""(空字符串)
     #"pass_form_name":"" 没有则相应返回值为"None",不是返回""(空字符串)
     #"form_action_url":"" 没有则相应返回值为"None",不是返回""(空字符串)
-def get_url_has_csrf_token(url):
+def get_url_has_csrf_token(url, cookie=""):
     # test if url has csrf token
     # return a dict
     # return dict['has_csrf_token']=True for has
@@ -247,12 +256,6 @@ def get_yanzhengma_from_pic(img, cleanup=True, plus=''):
     # 打印识别出的文本,不删除txt文件,同时提供高级参数
 def get_string_from_url_or_picfile(url_or_picfile):
     # 从url或图片文件中得到验证码,不支持jpeg,支持png
-def mail_msg_to(msg, mailto='config', subject='test', user='config', password='config', format='plain'):
-    # 使用163的邮箱发送邮件
-    # msg是要发送的string
-    # mailto是发送的目标邮箱地址
-    # subject是主题名
-    # user,password是用户名密码,其中user要带上邮箱地址后缀
 def get_input_intime1(default_choose, timeout=10):
     # http://www.cnblogs.com/jefferybest/archive/2011/10/09/2204050.html
     # 在一定时间内得到选择的值,如果没有选择则返回默认选择
@@ -293,9 +296,6 @@ def get_pure_list(list):
     # 得到域名列表
 def save_url_to_file(url_list, name):
     # this is my write url to file function:
-def bing_search(query, search_type):
-    # the main function to search use bing api
-    # search_type: Web, Image, News, Video
 def get_ip_domains_list(ip):
     # 不再用bing接口查询旁站
 def get_root_domain(domain):
@@ -318,4 +318,16 @@ def get_cms_entry_from_start_url(start_url):
     # return:"http://192.168.1.10/dvwa/"
     # eg.start__url="http://192.168.1.10:8000"
     # return:"http://192.168.1.10:8000/"
+def start_ipproxypool():
+    # 默认在8000端口开服务
+def start_web_server(host,port,rules):
+    #eg.rules={'GET':get,'POST':post}
+    #def get(self):
+    #    from urllib.parse import parse_qs
+    #    headers = str(self.headers)
+    #    if self.path!='/favicon.ico':
+    #        query_dict=parse_qs(self.path[2:])
+    #        self._set_headers()
+    #        self.wfile.write(bytes(str(query_dict), "utf-8"))
+    #start_web_server(host='0.0.0.0',port=8888,rules=rules)
 ```
