@@ -4183,7 +4183,7 @@ def get_cms_entry_from_start_url(start_url):
 def start_ipproxypool():
     # 默认在8000端口开服务
     if not os.path.exists("IPProxyPool"):
-        cmd = "cd %s && git clone https://github.com/qiyeboy/IPProxyPool.git && pip install -r requirements.txt" % WORK_PATH
+        cmd = "cd %s && git clone https://github.com/qiyeboy/IPProxyPool.git && cd IPProxyPool && pip install -r requirements.txt" % WORK_PATH
         # input(cmd)
         os.system(cmd)
     else:

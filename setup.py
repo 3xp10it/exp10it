@@ -32,7 +32,7 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.7.16"
+VERSION = "2.7.19"
 LICENSE = "MIT"
 require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pymysql']
 system=platform.system()
@@ -42,7 +42,7 @@ if system!='Windows':
     with open("/tmp/exp10it_setup", "r+") as f:
         sysinfo = f.read()
     os.system("rm /tmp/exp10it_setup")
-    if re.search(r"kali", sysinfo, re.I):
+    if re.search(r"(kali)|(debain)|(ubuntu)", sysinfo, re.I):
         content=get_string_from_command("apt search libncurses5-dev")
         if "libncurses5-dev" not in content:
             os.system("apt-get update && (echo y | apt-get install libncurses5-dev)")
