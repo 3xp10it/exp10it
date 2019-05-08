@@ -32,20 +32,18 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.7.19"
+VERSION = "2.7.21"
 LICENSE = "MIT"
 require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pymysql']
-system=platform.system()
-if system!='Windows':
-    require_package_list=['mechanicalsoup', 'bs4', 'selenium','readline', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycrypto', 'pymysql']
-    os.system("uname -a > /tmp/exp10it_setup")
-    with open("/tmp/exp10it_setup", "r+") as f:
-        sysinfo = f.read()
-    os.system("rm /tmp/exp10it_setup")
-    if re.search(r"(kali)|(debain)|(ubuntu)", sysinfo, re.I):
+platform=platform.platform()
+if not re.search(r"windows",platform,re.I):
+    require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycrypto', 'pymysql']
+    if re.search(r"(centos)|(redhat)|(fedora)",platform,re.I):
+        os.system("echo y | yum install readline")
+    if re.search(r"(kali)|(debain)|(ubuntu)", platform, re.I):
         content=get_string_from_command("apt search libncurses5-dev")
         if "libncurses5-dev" not in content:
-            os.system("apt-get update && (echo y | apt-get install libncurses5-dev)")
+            os.system("apt-get update && (echo y | apt-get install libncurses5-dev) && pip3 install readline")
 setup(
         name=NAME,
         version=VERSION,
