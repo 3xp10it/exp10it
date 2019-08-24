@@ -28,7 +28,6 @@ def get_string_from_command(command):
     # 判断程序有没有已经安装可eg.get_string_from_command("sqlmap --help")
     return subprocess.getstatusoutput(command)[1]
 
-
 # platform.system()为操作系统种类,x86orx64为系统位数
 #"Linux,Darwin,Windows"
 def get_system_bits():
