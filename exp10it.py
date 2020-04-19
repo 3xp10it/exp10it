@@ -1,4 +1,5 @@
 import pdb
+import chardet
 import platform
 import os
 import re
@@ -20,6 +21,34 @@ import base64
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
+
+def beep():
+    system=platform.system()
+    if system=='Windows':
+        import winsound
+        winsound.Beep(2015, 3000)
+    elif system=='Darwin':
+        os.system("say "+'d'*6)
+
+def say(string):
+    system=platform.system()
+    if system=='Windows':
+        import win32com.client
+        speak = win32com.client.Dispatch('SAPI.SPVOICE')
+        speak.Speak(string)
+    elif system=='Darwin':
+        os.system("say "+string)
+
+def get_localtime_from_unixtime(timestamp):
+    time_local = time.localtime(int(timestamp))
+    #转换成新的时间格式(2016-05-05 20:28:54)
+    dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
+    return dt
+
+def get_unixtime_from_localtime(localtime):
+    timeArray = time.strptime(localtime, "%Y-%m-%d %H:%M:%S")
+    timestamp = int(time.mktime(timeArray))
+    return timestamp
 
 
 def get_string_from_command(command):
@@ -435,6 +464,7 @@ def add_to_16(value):
     while len(value) % 16 != 0:
         value += '\0'
     return str.encode(value)  # 返回bytes
+
 #加密方法
 def aes_enc(text,key):
     from Crypto.Cipher import AES
@@ -445,6 +475,7 @@ def aes_enc(text,key):
     #用base64转成字符串形式
     encrypted_text = str(base64.encodebytes(encrypt_aes), encoding='utf-8')  # 执行加密并转码返回bytes
     return encrypted_text
+
 #解密方法
 def aes_dec(text,key):
     # 初始化加密器
@@ -456,6 +487,97 @@ def aes_dec(text,key):
     decrypted_text = str(aes.decrypt(base64_decrypted),encoding='utf-8') # 执行解密密并转码返回str
     decrypted_text=decrypted_text.rstrip('\0')
     return decrypted_text
+
+def get_md5(string):
+    from hashlib import md5
+    return md5(string.encode('utf8')).hexdigest()
+
+def get_sha1(string):
+    from hashlib import sha1
+    s1=sha1()
+    s1.update(string.encode('utf8'))
+    return s1.hexdigest()
+
+def get_js_sha1(string):
+    #js在处理中文的sha1时与python等其他语言得到的结果不一样,要单独处理
+    import execjs
+    js=''' function add(x, y) {
+	return((x & 0x7FFFFFFF) + (y & 0x7FFFFFFF)) ^ (x & 0x80000000) ^ (y & 0x80000000);
+}
+ 
+function SHA1hex(num) {
+	var sHEXChars = "0123456789abcdef";
+	var str = "";
+	for(var j = 7; j >= 0; j--)
+		str += sHEXChars.charAt((num >> (j * 4)) & 0x0F);
+	return str;
+}
+ 
+function AlignSHA1(sIn) {
+	var nblk = ((sIn.length + 8) >> 6) + 1,
+		blks = new Array(nblk * 16);
+	for(var i = 0; i < nblk * 16; i++) blks[i] = 0;
+	for(i = 0; i < sIn.length; i++)
+		blks[i >> 2] |= sIn.charCodeAt(i) << (24 - (i & 3) * 8);
+	blks[i >> 2] |= 0x80 << (24 - (i & 3) * 8);
+	blks[nblk * 16 - 1] = sIn.length * 8;
+	return blks;
+}
+ 
+function rol(num, cnt) {
+	return(num << cnt) | (num >>> (32 - cnt));
+}
+ 
+function ft(t, b, c, d) {
+	if(t < 20) return(b & c) | ((~b) & d);
+	if(t < 40) return b ^ c ^ d;
+	if(t < 60) return(b & c) | (b & d) | (c & d);
+	return b ^ c ^ d;
+}
+ 
+function kt(t) {
+	return(t < 20) ? 1518500249 : (t < 40) ? 1859775393 :
+		(t < 60) ? -1894007588 : -899497514;
+}
+ 
+function SHA1(sIn) {
+	var x = AlignSHA1(sIn);
+	var w = new Array(80);
+	var a = 1732584193;
+	var b = -271733879;
+	var c = -1732584194;
+	var d = 271733878;
+	var e = -1009589776;
+	for(var i = 0; i < x.length; i += 16) {
+		var olda = a;
+		var oldb = b;
+		var oldc = c;
+		var oldd = d;
+		var olde = e;
+		for(var j = 0; j < 80; j++) {
+			if(j < 16) w[j] = x[i + j];
+			else w[j] = rol(w[j - 3] ^ w[j - 8] ^ w[j - 14] ^ w[j - 16], 1);
+			t = add(add(rol(a, 5), ft(j, b, c, d)), add(add(e, w[j]), kt(j)));
+			e = d;
+			d = c;
+			c = rol(b, 30);
+			b = a;
+			a = t;
+		}
+		a = add(a, olda);
+		b = add(b, oldb);
+		c = add(c, oldc);
+		d = add(d, oldd);
+		e = add(e, olde);
+	}
+	SHA1Value = SHA1hex(a) + SHA1hex(b) + SHA1hex(c) + SHA1hex(d) + SHA1hex(e);
+	return SHA1Value.toLowerCase();
+} '''
+    # 通过compile命令转成一个js对象
+    js_obj = execjs.compile(js)
+    res = js_obj.call('SHA1', string)
+    return res
+
 
 def base64encode(string):
     # 得到base64的字符串
@@ -1375,7 +1497,7 @@ def post_requests(url, data, headers):
         pass
     '''
 
-    return_value = requests.post(url, data, headers, timeout=10,verify=False)
+    return_value = requests.post(url, data, headers, timeout=30,verify=False)
     return return_value
 
 
@@ -1576,9 +1698,9 @@ def post_request(url, data, verify=True):
     browser.session.headers.update({'X-Forwarded-For': '%s' % x_forwarded_for})
 
     if verify is False:
-        page = browser.post(url, data=data, timeout=10, verify=False)
+        page = browser.post(url, data=data, timeout=30, verify=False)
     if verify is True:
-        page = browser.post(url, data=data, timeout=10)
+        page = browser.post(url, data=data, timeout=30)
     content = page.content
     import chardet
     bytes_encoding = chardet.detect(content)['encoding']
@@ -2120,7 +2242,7 @@ def get_request(url, by="MechanicalSoup", proxy_url="", cookie="", delay_switche
 
             # 添加verify=False用于访问形如https://forum.90sec.org等服务器公钥没有通过验证的url的访问
             result = browser.get(url,
-                    timeout=10, verify=False)
+                    timeout=30, verify=False)
             if url != result.url:
                 # redirect url
                 current_url = result.url
@@ -2218,37 +2340,52 @@ def send_http_packet(string, http_or_https, proxies={}):
     # 发http请求包封装函数,string可以是burpsuite等截包工具中拦截到的包
     # string要求是burpsuite中抓包抓到的字符串,也即已经经过urlencode
     # proxy_url为代理地址,eg."http://127.0.0.1:8080"
-    # 返回的内容为一个字典,{'code':xxx,'html':'xxx'},其中code为int类型,html为str类型
-    return_value = {'code': 0, 'html': ''}
-    string = re.sub(r"^\s", "", string)
-    uri_line = re.search(r"(^.+)", string).group(1)
-    header_dict = {}
-    header_list = re.findall(r"([^:\s]+): ([^\r\n]+)((\n)|(\r\n))", string)
-    for each in header_list:
-        header_dict[each[0]] = each[1]
-    url = http_or_https + "://" + re.search(r"Host: (\S+)", string, re.I).group(
-        1) + re.search(r" (\S+)", uri_line, re.I).group(1)
-    if string[:3] == "GET":
-        if proxies == {}:
-            res = requests.get(url, headers=header_dict,timeout=10,verify=False)
-        else:
-            res = requests.get(url, headers=header_dict, proxies=proxies,timeout=10,verify=False)
-        code = res.status_code
-        html = res.text
-    elif string[:4] == "POST":
-        post_string = re.search(r"((\r\n\r\n)|(\n\n))(.*)", string).group(4)
-        post_string_bytes = post_string.encode("utf8")
-        if proxies == {}:
-            res = requests.post(url, headers=header_dict,
-                                data=post_string_bytes,timeout=10,verify=False)
-        else:
-            res = requests.post(url, headers=header_dict,
-                                data=post_string_bytes, proxies=proxies,timeout=10,verify=False)
-        code = res.status_code
-        html = res.text
-    return_value['code'] = code
-    return_value['html'] = html
-    return return_value
+    # 返回的内容为一个字典,{'code':xxx,'headers':xxx,'html':'xxx'},其中code为int类型,headers是dict类型,html为str类型
+    retry_count=0
+    while True:
+        try:
+            return_value = {'code': 0,'headers': {},'html': ''}
+            string = re.sub(r"^\s", "", string)
+            uri_line = re.search(r"(^.+)", string).group(1)
+            header_dict = {}
+            header_list = re.findall(r"([^:\s]+): ([^\r\n]+)((\n)|(\r\n))", string)
+            for each in header_list:
+                header_dict[each[0]] = each[1]
+            url = http_or_https + "://" + re.search(r"Host: (\S+)", string, re.I).group(
+                1) + re.search(r" (\S+)", uri_line, re.I).group(1)
+            if string[:3] == "GET":
+                if proxies == {}:
+                    res = requests.get(url, headers=header_dict,timeout=30,verify=False)
+                else:
+                    res = requests.get(url, headers=header_dict, proxies=proxies,timeout=30,verify=False)
+            elif string[:4] == "POST":
+                post_string = re.search(r"((\r\n\r\n)|(\n\n))(.*)", string).group(4)
+                post_string_bytes = post_string.encode("utf8")
+                if proxies == {}:
+                    res = requests.post(url, headers=header_dict,
+                                        data=post_string_bytes,timeout=30,verify=False)
+                else:
+                    res = requests.post(url, headers=header_dict,
+                                        data=post_string_bytes, proxies=proxies,timeout=30,verify=False)
+            code = res.status_code
+            headers = res.headers
+            content = res.content
+            import chardet
+            bytes_encoding = chardet.detect(content)['encoding']
+            content = content.decode(encoding=bytes_encoding, errors="ignore")
+            res.close()
+            del(res) 
+            return_value['code'] = code
+            return_value['headers'] = headers
+            return_value['html'] = content
+            return return_value
+        except:
+            retry_count+=1
+            if retry_count>=5:
+                print("异常,访问了5次还是没有结果")
+                pdb.set_trace()
+                return None
+            continue
 
 
 def keep_session(url, cookie):
@@ -3654,7 +3791,7 @@ def get_string_from_url_or_picfile(url_or_picfile):
     return string
 
 
-def get_input_intime1(default_choose, timeout=10):
+def get_input_intime1(default_choose, timeout=30):
     # http://www.cnblogs.com/jefferybest/archive/2011/10/09/2204050.html
     # 在一定时间内得到选择的值,如果没有选择则返回默认选择
     # 第一个参数为默认选择值
@@ -3701,7 +3838,7 @@ def get_input_intime1(default_choose, timeout=10):
     return chioce[0]
 
 
-def get_input_intime(default_choose, timeout=10):
+def get_input_intime(default_choose, timeout=30):
     # http://www.cnblogs.com/jefferybest/archive/2011/10/09/2204050.html
     # 在一定时间内得到选择的值,如果没有选择则返回默认选择
     # 第一个参数为默认选择值
@@ -3792,7 +3929,7 @@ def collect_urls_from_url(url):
     import requests
     import chardet
     return_value = {}
-    rsp = requests.get(url,timeout=10,verify=False)
+    rsp = requests.get(url,timeout=30,verify=False)
     code = rsp.status_code
     content = rsp.content
     bytes_encoding = chardet.detect(content)['encoding']
@@ -4152,7 +4289,7 @@ def get_server_type(url):
     # 得到url对应web服务器的类型,eg.apache,iis,nginx,lighttpd
     # phpstudy中试验上面4种的php默认post参数最大个数为1000个
     import requests
-    r = requests.get(url,timeout=10,verify=False)
+    r = requests.get(url,timeout=30,verify=False)
     server_type = r.headers['server']
     return server_type
 
@@ -4206,6 +4343,7 @@ def start_web_server(host,port,rules):
     #    headers = str(self.headers)
     #    if self.path!='/favicon.ico':
     #        query_dict=parse_qs(self.path[2:])
+    #        #注意,下面这行_set_headers()是必须加上的,否则浏览器访问当前服务会异常
     #        self._set_headers()
     #        self.wfile.write(bytes(str(query_dict), "utf-8"))
     #start_web_server(host='0.0.0.0',port=8888,rules=rules)
