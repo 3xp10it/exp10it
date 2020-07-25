@@ -22,22 +22,42 @@ import base64
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
 
+def ctrl_c_debug():
+    def debug_signal_handler(signal, frame):
+        import pdb
+        pdb.set_trace()
+    import signal
+    signal.signal(signal.SIGINT, debug_signal_handler)
+
+def get_innertext_from_html(html):
+    import html2text
+    h=html2text.HTML2Text()
+    h.ignore_links=True
+    return h.handle(html)
+
 def beep():
+    import beepy
+    [beepy.beep(sound=1) for i in range(6)]
+    return
     system=platform.system()
     if system=='Windows':
         import winsound
         winsound.Beep(2015, 3000)
     elif system=='Darwin':
-        os.system("say "+'d'*6)
+        subprocess.Popen("say "+'d'*6,shell=True)
 
 def say(string):
-    system=platform.system()
-    if system=='Windows':
-        import win32com.client
-        speak = win32com.client.Dispatch('SAPI.SPVOICE')
-        speak.Speak(string)
-    elif system=='Darwin':
-        os.system("say "+string)
+    import subprocess
+    try:
+        system=platform.system()
+        if system=='Windows':
+            import win32com.client
+            speak = win32com.client.Dispatch('SAPI.SPVOICE')
+            speak.Speak(string)
+        elif system=='Darwin':
+            subprocess.Popen("say "+string,shell=True)
+    except:
+        print("say函数调用失败,这是正常现象,有时会失败,可忽略")
 
 def get_localtime_from_unixtime(timestamp):
     time_local = time.localtime(int(timestamp))
@@ -303,6 +323,78 @@ domain_suf_list = ['.aaa', '.aarp', '.abarth', '.abb', '.abbott', '.abbvie', '.a
                    '.weir', '.wf', '.whoswho', '.wien', '.wiki', '.williamhill', '.win', '.windows', '.wine', '.winners', '.wme',
                    '.wolterskluwer', '.woodside', '.work', '.works', '.world', '.wow', '.ws', '.wtc', '.wtf', '.xbox', '.xerox',
                    '.xfinity', '.xihuan', '.xin', '.xperia', '.xxx', '.xyz', '.yachts', '.yahoo', '.yamaxun', '.yandex', '.ye', '.yodobashi', '.yoga', '.yokohama', '.you', '.youtube', '.yt', '.yun', '.za', '.zappos', '.zara', '.zero', '.zip', '.zippo', '.zm', '.zone', '.zuerich', '.zw']
+
+
+def baidu_translate(content):
+    #百度翻译,比下面的有道翻译好用,翻译的结果更准
+    import http.client
+    import hashlib
+    import json
+    import urllib
+    import random
+    try_count=0
+    while True:
+        try_count+=1
+        if try_count>=6:
+            #尝试5次
+            return "百度翻译失败"
+        appid = '20151113000005349'
+        secretKey = 'osubCEzlGjzvw8qdQc41'
+        myurl = 'http://api.fanyi.baidu.com/api/trans/vip/translate'
+        q = content
+        fromLang = 'en' # 源语言
+        toLang = 'zh'   # 翻译后的语言
+        salt = random.randint(32768, 65536)
+        sign = appid + q + str(salt) + secretKey
+        sign = hashlib.md5(sign.encode()).hexdigest()
+        myurl = myurl + '?appid=' + appid + '&q=' + urllib.parse.quote(
+            q) + '&from=' + fromLang + '&to=' + toLang + '&salt=' + str(
+            salt) + '&sign=' + sign
+     
+        try:
+            rsp=requests.get(myurl)
+            jsonResponse = rsp.content.decode("utf-8")# 获得返回的结果，结果为json格式
+            js = json.loads(jsonResponse)  # 将json格式的结果转换字典结构
+            dst = str(js["trans_result"][0]["dst"])  # 取得翻译后的文本结果
+            return dst # 打印结果
+        except Exception as e:
+            #print(e)
+            pass
+        time.sleep(1)
+     
+
+def translate(word):
+    # 有道词典 api
+    import json
+    import requests
+    url = 'http://fanyi.youdao.com/translate?smartresult=dict&smartresult=rule&smartresult=ugc&sessionFrom=null'
+    # 传输的参数，其中 i 为需要翻译的内容
+    key = {
+        'type': "AUTO",
+        'i': word,
+        "doctype": "json",
+        "version": "2.1",
+        "keyfrom": "fanyi.web",
+        "ue": "UTF-8",
+        "action": "FY_BY_CLICKBUTTON",
+        "typoResult": "true"
+    }
+    # key 这个字典为发送给有道词典服务器的内容
+    response = requests.post(url, data=key)
+    # 判断服务器是否相应成功
+    if response.status_code == 200:
+        # 然后相应的结果
+        result=response.text
+        result=result.replace("true","'true'")
+        result=result.replace("false","'false'")
+        result=result.replace("null","'null'")
+        tgt_list=re.findall(r'''('|")tgt('|"): ?('|")([^\{\}]+)('|")}''',str(eval(result)))
+        return_value="".join([each[3] for each in tgt_list])
+        return return_value
+
+    else:
+        return "有道词典调用失败"
+
 
 
 def combile_my_para_and_argv_para(command):
@@ -1078,21 +1170,13 @@ def seconds2hms(seconds):
     return "%02d:%02d:%02d" % (h, m, s)
 
 
-def checkvpn():
-    # 检测vpn是否连接成功
-    import os
-    import re
-    # windows:-n 2
-    # linux:-c 2
-    # 如果不存在配置文件则要求可访问google才返回1
-    return 1
-    a = 'wget https://www.google.com/ --timeout=3 -O /tmp/google_test'
-    output = get_string_from_command(a)
-    os.system("rm /tmp/google_test")
-    if re.search(r"200 OK", output, re.I):
-        return 1
-    else:
+def checkvpn(proxies={}):
+    # 查看是否能连通google
+    try:
+        rsp=requests.get("https://www.google.com",timeout=10,proxies=proxies)
+    except:
         return 0
+    return 1
 
 
 class Xcdn(object):
@@ -2319,6 +2403,14 @@ def get_now_time():
 def get_now_date_time():
     return time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 
+def get_localtime_from_utctime(utctime):
+    import datetime
+    #eg.utctime = "2017-07-28T08:28:47Z"
+    UTC_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+    utc_time = datetime.datetime.strptime(utctime, UTC_FORMAT)
+    local_time = utc_time + datetime.timedelta(hours=8)
+    return str(local_time)
+
 def check_start_time(want_time):
     # eg:a="11:59:59"
     import time
@@ -2383,9 +2475,16 @@ def send_http_packet(string, http_or_https, proxies={}):
             retry_count+=1
             if retry_count>=5:
                 print("异常,访问了5次还是没有结果")
-                pdb.set_trace()
+                print("当前请求包是:\n"+string)
                 return None
+            time.sleep(3)
             continue
+
+
+def set_string_to_clipboard(string):
+    import pyperclip
+    pyperclip.copy(string)
+    pyperclip.paste()
 
 
 def keep_session(url, cookie):
@@ -4369,7 +4468,7 @@ def start_web_server(host,port,rules):
     def run(server_class=ThreadingHttpServer, handler_class=S):
         server_address = (host, int(port))
         httpd = server_class(server_address, handler_class)
-        print('Starting httpd...')
+        print('Starting httpd on '+host+':'+str(port))
         httpd.serve_forever()
 
     run()

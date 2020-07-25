@@ -32,12 +32,12 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.7.43"
+VERSION = "2.7.67"
 LICENSE = "MIT"
-require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pymysql']
+require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pymysql','pyperclip','html2text','beepy']
 platform=platform.platform()
 if not re.search(r"windows",platform,re.I):
-    require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycrypto', 'pymysql']
+    require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycrypto', 'pymysql','pyperclip','html2text','beepy']
     if re.search(r"(centos)|(redhat)|(fedora)",platform,re.I):
         os.system("echo y | yum install readline")
     if re.search(r"(kali)|(debain)|(ubuntu)", platform, re.I):
