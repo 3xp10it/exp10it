@@ -1173,7 +1173,7 @@ def seconds2hms(seconds):
 def checkvpn(proxies={}):
     # 查看是否能连通google
     try:
-        rsp=requests.get("https://www.google.com",timeout=10,proxies=proxies)
+        rsp=requests.get("https://www.google.com",timeout=30,proxies=proxies)
     except:
         return 0
     return 1
@@ -2428,10 +2428,11 @@ def check_start_time(want_time):
     print("到点,现在时刻:%s" % a)
 
 
-def send_http_packet(string, http_or_https, proxies={}):
+def send_http_packet(string, http_or_https, proxies={},encoding="chardet"):
     # 发http请求包封装函数,string可以是burpsuite等截包工具中拦截到的包
     # string要求是burpsuite中抓包抓到的字符串,也即已经经过urlencode
     # proxy_url为代理地址,eg."http://127.0.0.1:8080"
+    # encoding用于解码服务器返回的内容,默认使用chardet检测出服务器的编码是什么,但有时候chardet检测的不对,这种情况需要手动设置encoding的值
     # 返回的内容为一个字典,{'code':xxx,'headers':xxx,'html':'xxx'},其中code为int类型,headers是dict类型,html为str类型
     retry_count=0
     while True:
@@ -2462,8 +2463,11 @@ def send_http_packet(string, http_or_https, proxies={}):
             code = res.status_code
             headers = res.headers
             content = res.content
-            import chardet
-            bytes_encoding = chardet.detect(content)['encoding']
+            if encoding=='chardet':
+                import chardet
+                bytes_encoding = chardet.detect(content)['encoding']
+            else:
+                bytes_encoding=encoding
             content = content.decode(encoding=bytes_encoding, errors="ignore")
             res.close()
             del(res) 
@@ -2484,7 +2488,8 @@ def send_http_packet(string, http_or_https, proxies={}):
 def set_string_to_clipboard(string):
     import pyperclip
     pyperclip.copy(string)
-    pyperclip.paste()
+    if string!=pyperclip.paste():
+        pyperclip.copy(string)
 
 
 def keep_session(url, cookie):
