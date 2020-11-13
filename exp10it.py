@@ -2466,6 +2466,8 @@ def send_http_packet(string, http_or_https, proxies={},encoding="chardet"):
             if encoding=='chardet':
                 import chardet
                 bytes_encoding = chardet.detect(content)['encoding']
+                if bytes_encoding is None:
+                    bytes_encoding="utf8"
             else:
                 bytes_encoding=encoding
             content = content.decode(encoding=bytes_encoding, errors="ignore")
