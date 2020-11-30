@@ -35,6 +35,7 @@ URL = "http://3xp10it.cc"
 VERSION = "2.7.71"
 LICENSE = "MIT"
 require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pymysql','pyperclip','html2text','beepy']
+]
 platform=platform.platform()
 if not re.search(r"windows",platform,re.I):
     require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycrypto', 'pymysql','pyperclip','html2text','beepy']
