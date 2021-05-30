@@ -2403,6 +2403,39 @@ def get_now_time():
 def get_now_date_time():
     return time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 
+def get_detatime_from_given_time(given_time,given_time_format,detatime_type,detatime_value):
+    #获取给定时间若干时间之后的时间,given_time_format例如为"%Y-%m-%d %H:%M:%S"
+    given_time=datetime.datetime.strptime(given_time,given_time_format)
+    if detatime_type=='days':
+        result_time=given_time+datetime.timedelta(days=detatime_value)
+    elif detatime_type=='hours':
+        result_time=given_time+datetime.timedelta(hours=detatime_value)
+    elif detatime_type=='minutes':
+        result_time=given_time+datetime.timedelta(minutes=detatime_value)
+    elif detatime_type=='seconds':
+        result_time=given_time+datetime.timedelta(seconds=detatime_value)
+    elif detatime_type=='milliseconds':
+        #毫秒
+        result_time=given_time+datetime.timedelta(milliseconds=detatime_value)
+    elif detatime_type=='microseconds':
+        #微秒
+        result_time=given_time+datetime.timedelta(microseconds=detatime_value)
+    return result_time
+
+def get_detatime_between_t1_and_t2(t1,t2,time_format,result_type):
+    #获取给定时间若干时间之后的时间,time_format例如为"%Y-%m-%d %H:%M:%S"
+    t2=max(t1,t2)
+    t1=min(t1,t2)
+    t1=datetime.datetime.strptime(t1,time_format)
+    t2=datetime.datetime.strptime(t2,time_format)
+    if result_type=='days':
+        return (t2-t1).days
+    elif result_type=='seconds':
+        return (t2-t1).total_seconds()
+    elif result_type=='microseconds':
+        #微秒(us),1ms=1000us
+        return (t2-t1).microseconds
+
 def get_localtime_from_utctime(utctime):
     import datetime
     #eg.utctime = "2017-07-28T08:28:47Z"
