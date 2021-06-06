@@ -2424,10 +2424,10 @@ def get_detatime_from_given_time(given_time,given_time_format,detatime_type,deta
 
 def get_detatime_between_t1_and_t2(t1,t2,time_format,result_type):
     #获取给定时间若干时间之后的时间,time_format例如为"%Y-%m-%d %H:%M:%S"
-    t2=max(t1,t2)
-    t1=min(t1,t2)
-    t1=datetime.datetime.strptime(t1,time_format)
-    t2=datetime.datetime.strptime(t2,time_format)
+    _t2=max(t1,t2)
+    _t1=min(t1,t2)
+    t1=datetime.datetime.strptime(_t1,time_format)
+    t2=datetime.datetime.strptime(_t2,time_format)
     if result_type=='days':
         return (t2-t1).days
     elif result_type=='seconds':
