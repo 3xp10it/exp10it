@@ -37,7 +37,10 @@ def get_innertext_from_html(html):
 
 def beep():
     import beepy
-    [beepy.beep(sound=1) for i in range(6)]
+    try:
+        [beepy.beep(sound=1) for i in range(6)]
+    except:
+        pass
     return
     system=platform.system()
     if system=='Windows':
