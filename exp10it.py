@@ -585,7 +585,7 @@ def aes_dec(text,key):
 
 def get_md5(string):
     from hashlib import md5
-    return md5(string.encode('utf8')).hexdigest()
+    return md5(string.encode('utf8',errors="surrogateescape")).hexdigest()
 
 def get_sha1(string):
     from hashlib import sha1

@@ -32,13 +32,18 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.7.77"
+VERSION = "2.7.79"
 LICENSE = "MIT"
 #beepy在linux下可能会安装失败,有需要的情况下要手动安装
 require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pymysql','pyperclip','html2text']
 platform=platform.platform()
 if re.search(r"windows",platform,re.I) or re.search(r"darwin",platform,re.I):
-    require_package_list.append("beepy")
+    #require_package_list.append("beepy")
+    try:
+        #有的windows无法安装beepy
+        os.system("pip3 install beepy")
+    except:
+        pass
 if not re.search(r"windows",platform,re.I):
     require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycrypto', 'pymysql','pyperclip','html2text']
     if re.search(r"(centos)|(redhat)|(fedora)",platform,re.I):
