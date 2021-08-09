@@ -2406,6 +2406,17 @@ def get_now_time():
 def get_now_date_time():
     return time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 
+
+def get_ts_date_to_format_date(ts_date):
+    ts_date=str(ts_date)
+    date=ts_date[:4]+"-"+ts_date[4:6]+"-"+ts_date[6:]
+    return date
+
+
+def get_format_date_to_ts_date(format_date):
+    _=format_date.split("-")
+    return _[0]+_[1]+_[2]
+
 def get_detatime_from_given_time(given_time,given_time_format,detatime_type,detatime_value):
     #获取给定时间若干时间之后的时间,given_time_format例如为"%Y-%m-%d %H:%M:%S"
     given_time=datetime.datetime.strptime(given_time,given_time_format)
