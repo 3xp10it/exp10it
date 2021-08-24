@@ -32,7 +32,7 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.7.80"
+VERSION = "2.7.81"
 LICENSE = "MIT"
 #beepy在linux下可能会安装失败,有需要的情况下要手动安装
 require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pymysql','pyperclip','html2text']
