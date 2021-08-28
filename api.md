@@ -20,8 +20,14 @@ def get_home_path():
     # 返回~目录的具体值,eg./var/root
     #a=get_string_from_command("cd ~ && pwd")
     # 后来发现os.path.expanduser函数可以认识~
+def baidu_translate(content):
+    #百度翻译,比下面的有道翻译好用,翻译的结果更准
+def translate(word):
+    # 有道词典 api
 def aes_dec(text,key):
     # 初始化加密器
+def get_js_sha1(string):
+    #js在处理中文的sha1时与python等其他语言得到的结果不一样,要单独处理
 def base64encode(string):
     # 得到base64的字符串
     # 输入为str类型
@@ -57,8 +63,8 @@ def tab_complete_file_path():
 def seconds2hms(seconds):
     # 将秒数转换成时分秒
     # 返回类型为str类型
-def checkvpn():
-    # 检测vpn是否连接成功
+def checkvpn(proxies={}):
+    # 查看是否能连通google
 def figlet2file(logo_str, file_abs_path, print_or_not):
     # 输出随机的logo文字到文件或屏幕,第二个参数为0时,只输出到屏幕
     # apt-get install figlet
@@ -126,13 +132,18 @@ def get_request(url, by="MechanicalSoup", proxy_url="", cookie="", delay_switche
     # title如果没有则返回None,有则返回str类型
     # content如果没有则返回""
     # has_form_action的值为True或False,True代表url对应的html中有表单可提交
+def get_detatime_from_given_time(given_time,given_time_format,detatime_type,detatime_value):
+    #获取给定时间若干时间之后的时间,given_time_format例如为"%Y-%m-%d %H:%M:%S"
+def get_detatime_between_t1_and_t2(t1,t2,time_format,result_type):
+    #获取给定时间若干时间之后的时间,time_format例如为"%Y-%m-%d %H:%M:%S"
 def check_start_time(want_time):
     # eg:a="11:59:59"
-def send_http_packet(string, http_or_https, proxies={}):
+def send_http_packet(string, http_or_https, proxies={},encoding="chardet"):
     # 发http请求包封装函数,string可以是burpsuite等截包工具中拦截到的包
     # string要求是burpsuite中抓包抓到的字符串,也即已经经过urlencode
     # proxy_url为代理地址,eg."http://127.0.0.1:8080"
-    # 返回的内容为一个字典,{'code':xxx,'html':'xxx'},其中code为int类型,html为str类型
+    # encoding用于解码服务器返回的内容,默认使用chardet检测出服务器的编码是什么,但有时候chardet检测的不对,这种情况需要手动设置encoding的值
+    # 返回的内容为一个字典,{'code':xxx,'headers':xxx,'html':'xxx'},其中code为int类型,headers是dict类型,html为str类型
 def keep_session(url, cookie):
     # 保持服务器上的session长久有效
 def get_urls_from_file(file):
@@ -256,13 +267,13 @@ def get_yanzhengma_from_pic(img, cleanup=True, plus=''):
     # 打印识别出的文本,不删除txt文件,同时提供高级参数
 def get_string_from_url_or_picfile(url_or_picfile):
     # 从url或图片文件中得到验证码,不支持jpeg,支持png
-def get_input_intime1(default_choose, timeout=10):
+def get_input_intime1(default_choose, timeout=30):
     # http://www.cnblogs.com/jefferybest/archive/2011/10/09/2204050.html
     # 在一定时间内得到选择的值,如果没有选择则返回默认选择
     # 第一个参数为默认选择值
     # 第二个参数为设置超时后自动选择默认值的时间大小,单位为秒
     # 返回选择的值,返回值是选择的值或是默认选择值,选择的值为str类型,默认的选择值可为任意类型
-def get_input_intime(default_choose, timeout=10):
+def get_input_intime(default_choose, timeout=30):
     # http://www.cnblogs.com/jefferybest/archive/2011/10/09/2204050.html
     # 在一定时间内得到选择的值,如果没有选择则返回默认选择
     # 第一个参数为默认选择值
@@ -327,6 +338,7 @@ def start_web_server(host,port,rules):
     #    headers = str(self.headers)
     #    if self.path!='/favicon.ico':
     #        query_dict=parse_qs(self.path[2:])
+    #        #注意,下面这行_set_headers()是必须加上的,否则浏览器访问当前服务会异常
     #        self._set_headers()
     #        self.wfile.write(bytes(str(query_dict), "utf-8"))
     #start_web_server(host='0.0.0.0',port=8888,rules=rules)
