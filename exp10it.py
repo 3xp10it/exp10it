@@ -18,6 +18,7 @@ from colorama import Fore, Style
 from functools import reduce
 import subprocess
 import base64
+import binascii
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
@@ -2416,6 +2417,9 @@ def get_ts_date_to_format_date(ts_date):
 def get_format_date_to_ts_date(format_date):
     _=format_date.split("-")
     return _[0]+_[1]+_[2]
+
+def str2hex(string,encoding="utf8"):
+    return binascii.b2a_hex(string.encode(encoding)).decode()
 
 def get_detatime_from_given_time(given_time,given_time_format,detatime_type,detatime_value):
     #获取给定时间若干时间之后的时间,given_time_format例如为"%Y-%m-%d %H:%M:%S"
