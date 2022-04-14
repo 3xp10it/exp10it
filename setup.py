@@ -1,4 +1,5 @@
 #coding=utf-8
+import pdb
 import codecs
 import platform
 import os
@@ -32,45 +33,50 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.7.87"
+VERSION = "2.7.95"
 LICENSE = "MIT"
 #beepy在linux下可能会安装失败,有需要的情况下要手动安装
 require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pymysql','pyperclip','html2text']
-platform=platform.platform()
-if re.search(r"windows",platform,re.I) or re.search(r"darwin",platform,re.I):
+system=platform.system()
+if system in ['Windows','Darwin']:
     #require_package_list.append("beepy")
     try:
         #有的windows无法安装beepy
         os.system("pip3 install beepy")
     except:
         pass
-if not re.search(r"windows",platform,re.I):
+if system=='Windows':
+    require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycryptodome', 'pymysql','pyperclip','html2text']
+elif system=='Darwin':
+    require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycryptodome', 'pymysql','pyperclip','html2text']
+else:
     require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycrypto', 'pymysql','pyperclip','html2text']
-    if re.search(r"(centos)|(redhat)|(fedora)",platform,re.I):
-        os.system("echo y | yum install readline")
-    if re.search(r"(kali)|(debain)|(ubuntu)", platform, re.I):
-        content=get_string_from_command("apt search libncurses5-dev")
-        if "libncurses5-dev" not in content:
-            os.system("apt-get update && (echo y | apt-get install libncurses5-dev) && pip3 install readline")
+
+if re.search(r"(centos)|(redhat)|(fedora)",platform.platform(),re.I):
+    os.system("echo y | yum install readline")
+if re.search(r"(kali)|(debain)|(ubuntu)", platform.platform(), re.I):
+    content=get_string_from_command("apt search libncurses5-dev")
+    if "libncurses5-dev" not in content:
+        os.system("apt-get update && (echo y | apt-get install libncurses5-dev) && pip3 install readline")
 setup(
-        name=NAME,
-        version=VERSION,
-        description=DESCRIPTION,
-        long_description=LONG_DESCRIPTION,
-        classifiers=[
-            'License :: OSI Approved :: MIT License',
-            'Programming Language :: Python',
-            'Intended Audience :: Developers',
-            'Operating System :: OS Independent',
-            ],
-        keywords=KEYWORDS,
-        install_requires=require_package_list,
-        author=AUTHOR,
-        author_email=AUTHOR_EMAIL,
-        url=URL,
-        license=LICENSE,
-        # packages=PACKAGES,
-        include_package_data=True,
-        zip_safe=True,
-        py_modules=['exp10it', 'updateapi'],
-        )
+    name=NAME,
+    version=VERSION,
+    description=DESCRIPTION,
+    long_description=LONG_DESCRIPTION,
+    classifiers=[
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Intended Audience :: Developers',
+        'Operating System :: OS Independent',
+        ],
+    keywords=KEYWORDS,
+    install_requires=require_package_list,
+    author=AUTHOR,
+    author_email=AUTHOR_EMAIL,
+    url=URL,
+    license=LICENSE,
+    # packages=PACKAGES,
+    include_package_data=True,
+    zip_safe=True,
+    py_modules=['exp10it', 'updateapi'],
+    )

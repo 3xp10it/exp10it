@@ -56,6 +56,7 @@ def say(string):
     try:
         system=platform.system()
         if system=='Windows':
+            #注意,windows如果无法播放声音可能是本地tts的问题,需要修复https://static-alpha.wallstcn.com/xgb-static/tts-shot.html 
             import win32com.client
             speak = win32com.client.Dispatch('SAPI.SPVOICE')
             speak.Speak(string)
@@ -111,6 +112,7 @@ def get_realtime_quotes_by_tx(stock_code):
         result=text.split("=")[1][1:-2]
         result=result.split("~")
         stock_name=result[1]
+        zf=float(result[32])
         open_price=float(result[5])
         close_price=float(result[3])
         pre_close=float(result[4])
@@ -118,7 +120,7 @@ def get_realtime_quotes_by_tx(stock_code):
         low=float(result[34])
         amount=float(result[57])
         volume=int(result[36])
-
+        timestamp=result[30]
         #买一价
         b1_p=float(result[9])
         #买一量
@@ -144,7 +146,7 @@ def get_realtime_quotes_by_tx(stock_code):
         a5_p=float(result[27])
         a5_v=int(result[28])
 
-        return {stock_code:{'stock_code':stock_code,'stock_name':stock_name,'open':open_price,'close':close_price,'pre_close':pre_close,'high':high,'low':low,'amount':amount,'volume':volume,'b1_p':b1_p,'b1_v':b1_v,'b2_p':b2_p,'b2_v':b2_v,'b3_p':b3_p,'b3_v':b3_v,'b4_p':b4_p,'b4_v':b4_v,'b5_p':b5_p,'b5_v':b5_v,'a1_p':a1_p,'a1_v':a1_v,'a2_p':a2_p,'a2_v':a2_v,'a3_p':a3_p,'a3_v':a3_v,'a4_p':a4_p,'a4_v':a4_v,'a5_p':a5_p,'a5_v':a5_v}}
+        return {stock_code:{'stock_code':stock_code,'stock_name':stock_name,'zf':zf,'open':open_price,'close':close_price,'pre_close':pre_close,'high':high,'low':low,'amount':amount,'volume':volume,'b1_p':b1_p,'b1_v':b1_v,'b2_p':b2_p,'b2_v':b2_v,'b3_p':b3_p,'b3_v':b3_v,'b4_p':b4_p,'b4_v':b4_v,'b5_p':b5_p,'b5_v':b5_v,'a1_p':a1_p,'a1_v':a1_v,'a2_p':a2_p,'a2_v':a2_v,'a3_p':a3_p,'a3_v':a3_v,'a4_p':a4_p,'a4_v':a4_v,'a5_p':a5_p,'a5_v':a5_v,'timestamp':timestamp}}
     else:
         #stock_code是股票列表
         _stock_code=",".join(['sh'+item if item[0]=='6' else 'sz'+item for item in stock_code])
@@ -158,6 +160,7 @@ def get_realtime_quotes_by_tx(stock_code):
             result=_[1][1:-2]
             result=result.split("~")
             stock_name=result[1]
+            zf=float(result[32])
             open_price=float(result[5])
             close_price=float(result[3])
             pre_close=float(result[4])
@@ -165,6 +168,7 @@ def get_realtime_quotes_by_tx(stock_code):
             low=float(result[34])
             amount=float(result[57])
             volume=int(result[36])
+            timestamp=result[30]
 
             #买一价
             b1_p=float(result[9])
@@ -191,7 +195,7 @@ def get_realtime_quotes_by_tx(stock_code):
             a5_p=float(result[27])
             a5_v=int(result[28])
 
-            _dict[stock_code]={'stock_code':stock_code,'stock_name':stock_name,'open':open_price,'close':close_price,'pre_close':pre_close,'high':high,'low':low,'amount':amount,'volume':volume,'b1_p':b1_p,'b1_v':b1_v,'b2_p':b2_p,'b2_v':b2_v,'b3_p':b3_p,'b3_v':b3_v,'b4_p':b4_p,'b4_v':b4_v,'b5_p':b5_p,'b5_v':b5_v,'a1_p':a1_p,'a1_v':a1_v,'a2_p':a2_p,'a2_v':a2_v,'a3_p':a3_p,'a3_v':a3_v,'a4_p':a4_p,'a4_v':a4_v,'a5_p':a5_p,'a5_v':a5_v}
+            _dict[stock_code]={'stock_code':stock_code,'stock_name':stock_name,'zf':zf,'open':open_price,'close':close_price,'pre_close':pre_close,'high':high,'low':low,'amount':amount,'volume':volume,'b1_p':b1_p,'b1_v':b1_v,'b2_p':b2_p,'b2_v':b2_v,'b3_p':b3_p,'b3_v':b3_v,'b4_p':b4_p,'b4_v':b4_v,'b5_p':b5_p,'b5_v':b5_v,'a1_p':a1_p,'a1_v':a1_v,'a2_p':a2_p,'a2_v':a2_v,'a3_p':a3_p,'a3_v':a3_v,'a4_p':a4_p,'a4_v':a4_v,'a5_p':a5_p,'a5_v':a5_v,'timestamp':timestamp}
         return _dict
 
 
@@ -4635,3 +4639,12 @@ def start_web_server(host,port,rules):
 
     run()
 
+
+def get_file_modify_time(file_abs_path):
+    if not os.path.exists(file_abs_path):
+        print(file_abs_path+"文件不存在,默认将返回值设置为'0000-00-00 00:00:00'")
+        return '0000-00-00 00:00:00'
+    file_modify_time=time.ctime(os.path.getmtime(file_abs_path))
+    file_modify_time=datetime.datetime.strptime(file_modify_time,'%a %b %d %H:%M:%S %Y')
+    file_modify_time=str(file_modify_time.strftime("%Y-%m-%d %H:%M:%S"))
+    return file_modify_time
