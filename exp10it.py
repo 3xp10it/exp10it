@@ -83,6 +83,13 @@ def get_string_from_command(command):
     # 判断程序有没有已经安装可eg.get_string_from_command("sqlmap --help")
     return subprocess.getstatusoutput(command)[1]
 
+def get_string_from_powershell_command(command):
+    # 用于获取执行powershell命令得到的结果
+    completed=subprocess.run(["powershell", "-Command", command], capture_output=True)
+    import chardet
+    bytes_encoding = chardet.detect(completed.stdout)['encoding']
+    return completed.stdout.decode(encoding=bytes_encoding, errors="ignore")
+
 # platform.system()为操作系统种类,x86orx64为系统位数
 #"Linux,Darwin,Windows"
 def get_system_bits():
@@ -2555,7 +2562,11 @@ def get_detatime_between_t1_and_t2(t1,t2,time_format,result_type):
     t1=datetime.datetime.strptime(_t1,time_format)
     t2=datetime.datetime.strptime(_t2,time_format)
     if result_type=='days':
-        return (t2-t1).days
+        return (t2-t1).total_seconds()/60/60/24
+    if result_type=='hours':
+        return (t2-t1).total_seconds()/60/60
+    if result_type=='minutes':
+        return (t2-t1).total_seconds()/60
     elif result_type=='seconds':
         return (t2-t1).total_seconds()
     elif result_type=='microseconds':
