@@ -4678,3 +4678,9 @@ def save_stock_code_list_to_sel_file(stock_code_list,filename):
     sel_all_hex=sel_head_hex+sel_body_hex
     with open(filename,"wb") as f:
         f.write(sel_all_hex)
+
+def get_4s5r_from_float(float_value,weishu):
+    #weishu为小数点后几位
+    float_value=Decimal(str(float_value))
+    float_value=float(float_value.quantize(Decimal('0.'+'0'*weishu), rounding=ROUND_HALF_UP))
+    return float_value
