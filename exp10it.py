@@ -4684,3 +4684,14 @@ def get_4s5r_from_float(float_value,weishu):
     float_value=Decimal(str(float_value))
     float_value=float(float_value.quantize(Decimal('0.'+'0'*weishu), rounding=ROUND_HALF_UP))
     return float_value
+
+
+def get_all_window_hwnd():
+    from win32gui import IsWindow,IsWindowEnabled,IsWindowVisible,EnumWindows,GetWindowText
+    window_hwnd_dict={}
+    def foo(hwnd,mouse):
+        if IsWindow(hwnd) and IsWindowEnabled(hwnd) and IsWindowVisible(hwnd):
+            title=GetWindowText(hwnd)
+            window_hwnd_dict[title]=hwnd
+    EnumWindows(foo,0)
+    return window_hwnd_dict
