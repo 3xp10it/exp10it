@@ -4662,6 +4662,7 @@ def get_file_modify_time(file_abs_path):
 
 
 def save_stock_code_list_to_sel_file(stock_code_list,filename):
+    stock_code_list=[stock_code for stock_code in stock_code_list if stock_code[0] in ['0','3','6']]
     count=len(stock_code_list)
     sel_head_hex=hex(count)[2:]
     sel_head_hex=((4-len(sel_head_hex))*'0'+sel_head_hex).upper()
@@ -4672,9 +4673,6 @@ def save_stock_code_list_to_sel_file(stock_code_list,filename):
             sel_body_hex+=(bytes.fromhex('0711')+stock_code.encode())
         elif stock_code[0] in ['0','3']:
             sel_body_hex+=(bytes.fromhex('0721')+stock_code.encode())
-        else:
-            print("有非正常股票,请删除后重新尝试")
-            sys.exit(0)
     sel_all_hex=sel_head_hex+sel_body_hex
     with open(filename,"wb") as f:
         f.write(sel_all_hex)
