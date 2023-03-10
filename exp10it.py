@@ -156,53 +156,58 @@ def get_realtime_quotes_by_tx(stock_code):
         return {stock_code:{'stock_code':stock_code,'stock_name':stock_name,'zf':zf,'open':open_price,'close':close_price,'pre_close':pre_close,'high':high,'low':low,'amount':amount,'volume':volume,'b1_p':b1_p,'b1_v':b1_v,'b2_p':b2_p,'b2_v':b2_v,'b3_p':b3_p,'b3_v':b3_v,'b4_p':b4_p,'b4_v':b4_v,'b5_p':b5_p,'b5_v':b5_v,'a1_p':a1_p,'a1_v':a1_v,'a2_p':a2_p,'a2_v':a2_v,'a3_p':a3_p,'a3_v':a3_v,'a4_p':a4_p,'a4_v':a4_v,'a5_p':a5_p,'a5_v':a5_v,'timestamp':timestamp}}
     else:
         #stock_code是股票列表
-        _stock_code=",".join(['sh'+item if item[0]=='6' else 'sz'+item for item in stock_code])
-        url="https://qt.gtimg.cn/q="+_stock_code
-        text=requests.get(url).text
-        hq_list=text.split("\n")[:-1]
+        stock_code_list=list(stock_code)
         _dict={}
-        for item in hq_list:
-            _=item.split("=")
-            stock_code=_[0][4:]
-            result=_[1][1:-2]
-            result=result.split("~")
-            stock_name=result[1]
-            zf=float(result[32])
-            open_price=float(result[5])
-            close_price=float(result[3])
-            pre_close=float(result[4])
-            high=float(result[33])
-            low=float(result[34])
-            amount=float(result[57])
-            volume=int(result[36])
-            timestamp=result[30]
+        while True:
+            _stock_code=",".join(['sh'+item if item[0]=='6' else 'sz'+item for item in stock_code_list[:800]])
+            url="https://qt.gtimg.cn/q="+_stock_code
+            text=requests.get(url).text
+            hq_list=text.split("\n")[:-1]
+            for item in hq_list:
+                _=item.split("=")
+                stock_code=_[0][4:]
+                result=_[1][1:-2]
+                result=result.split("~")
+                stock_name=result[1]
+                zf=float(result[32])
+                open_price=float(result[5])
+                close_price=float(result[3])
+                pre_close=float(result[4])
+                high=float(result[33])
+                low=float(result[34])
+                amount=float(result[57])
+                volume=int(result[36])
+                timestamp=result[30]
 
-            #买一价
-            b1_p=float(result[9])
-            #买一量
-            b1_v=int(result[10])
-            b2_p=float(result[11])
-            b2_v=int(result[12])
-            b3_p=float(result[13])
-            b3_v=int(result[14])
-            b4_p=float(result[15])
-            b4_v=int(result[16])
-            b5_p=float(result[17])
-            b5_v=int(result[18])
-            #卖一价
-            a1_p=float(result[19])
-            #卖一量
-            a1_v=int(result[20])
-            a2_p=float(result[21])
-            a2_v=int(result[22])
-            a3_p=float(result[23])
-            a3_v=int(result[24])
-            a4_p=float(result[25])
-            a4_v=int(result[26])
-            a5_p=float(result[27])
-            a5_v=int(result[28])
+                #买一价
+                b1_p=float(result[9])
+                #买一量
+                b1_v=int(result[10])
+                b2_p=float(result[11])
+                b2_v=int(result[12])
+                b3_p=float(result[13])
+                b3_v=int(result[14])
+                b4_p=float(result[15])
+                b4_v=int(result[16])
+                b5_p=float(result[17])
+                b5_v=int(result[18])
+                #卖一价
+                a1_p=float(result[19])
+                #卖一量
+                a1_v=int(result[20])
+                a2_p=float(result[21])
+                a2_v=int(result[22])
+                a3_p=float(result[23])
+                a3_v=int(result[24])
+                a4_p=float(result[25])
+                a4_v=int(result[26])
+                a5_p=float(result[27])
+                a5_v=int(result[28])
 
-            _dict[stock_code]={'stock_code':stock_code,'stock_name':stock_name,'zf':zf,'open':open_price,'close':close_price,'pre_close':pre_close,'high':high,'low':low,'amount':amount,'volume':volume,'b1_p':b1_p,'b1_v':b1_v,'b2_p':b2_p,'b2_v':b2_v,'b3_p':b3_p,'b3_v':b3_v,'b4_p':b4_p,'b4_v':b4_v,'b5_p':b5_p,'b5_v':b5_v,'a1_p':a1_p,'a1_v':a1_v,'a2_p':a2_p,'a2_v':a2_v,'a3_p':a3_p,'a3_v':a3_v,'a4_p':a4_p,'a4_v':a4_v,'a5_p':a5_p,'a5_v':a5_v,'timestamp':timestamp}
+                _dict[stock_code]={'stock_code':stock_code,'stock_name':stock_name,'zf':zf,'open':open_price,'close':close_price,'pre_close':pre_close,'high':high,'low':low,'amount':amount,'volume':volume,'b1_p':b1_p,'b1_v':b1_v,'b2_p':b2_p,'b2_v':b2_v,'b3_p':b3_p,'b3_v':b3_v,'b4_p':b4_p,'b4_v':b4_v,'b5_p':b5_p,'b5_v':b5_v,'a1_p':a1_p,'a1_v':a1_v,'a2_p':a2_p,'a2_v':a2_v,'a3_p':a3_p,'a3_v':a3_v,'a4_p':a4_p,'a4_v':a4_v,'a5_p':a5_p,'a5_v':a5_v,'timestamp':timestamp}
+            stock_code_list=stock_code_list[800:]
+            if stock_code_list==[]:
+                break
         return _dict
 
 
