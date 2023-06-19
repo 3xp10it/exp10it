@@ -33,7 +33,7 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.8.47"
+VERSION = "2.8.50"
 LICENSE = "MIT"
 #beepy在linux下可能会安装失败,有需要的情况下要手动安装
 require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pymysql','pyperclip','html2text']
@@ -46,11 +46,11 @@ if system in ['Windows','Darwin']:
     except:
         pass
 if system=='Windows':
-    require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycryptodome', 'pymysql','pyperclip','html2text','pywin32']
+    require_package_list=['aiohttp','mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycryptodome', 'pymysql','pyperclip','html2text','pywin32']
 elif system=='Darwin':
-    require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycryptodome', 'pymysql','pyperclip','html2text']
+    require_package_list=['aiohttp','mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycryptodome', 'pymysql','pyperclip','html2text']
 else:
-    require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycrypto', 'pymysql','pyperclip','html2text']
+    require_package_list=['aiohttp','mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycrypto', 'pymysql','pyperclip','html2text']
 
 if re.search(r"(centos)|(redhat)|(fedora)",platform.platform(),re.I):
     os.system("echo y | yum install readline")

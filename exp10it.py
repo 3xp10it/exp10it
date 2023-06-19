@@ -1,4 +1,5 @@
 import pdb
+import aiohttp
 import chardet
 import platform
 import os
@@ -2661,6 +2662,72 @@ def send_http_packet(string, http_or_https, proxies={},encoding="chardet"):
             time.sleep(3)
             continue
 
+async def async_send_http_packet(string, http_or_https, proxies={},encoding="chardet"):
+    # 发http请求包封装函数,string可以是burpsuite等截包工具中拦截到的包
+    # string要求是burpsuite中抓包抓到的字符串,也即已经经过urlencode
+    # proxy_url为代理地址,eg."http://127.0.0.1:8080"
+    # encoding用于解码服务器返回的内容,默认使用chardet检测出服务器的编码是什么,但有时候chardet检测的不对,这种情况需要手动设置encoding的值
+    # 返回的内容为一个字典,{'code':xxx,'headers':xxx,'html':'xxx'},其中code为int类型,headers是dict类型,html为str类型
+    retry_count=0
+    while True:
+        try:
+            return_value = {'code': 0,'headers': {},'html': ''}
+            string = re.sub(r"^\s", "", string)
+            uri_line = re.search(r"(^.+)", string).group(1)
+            header_dict = {}
+            header_list = re.findall(r"([^:\s]+): ([^\r\n]+)((\n)|(\r\n))", string)
+            for each in header_list:
+                header_dict[each[0]] = each[1]
+            url = http_or_https + "://" + re.search(r"Host: (\S+)", string, re.I).group(
+                1) + re.search(r" (\S+)", uri_line, re.I).group(1)
+            if string[:3] == "GET":
+                if proxies == {}:
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(url, headers=header_dict, timeout=30, ssl=False) as res:
+                            code = res.status
+                            headers = res.headers
+                            content = await res.read()
+                else:
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(url, headers=header_dict, proxy=proxies, timeout=30, ssl=False) as res:
+                            code = res.status
+                            headers = res.headers
+                            content = await res.read()
+            elif string[:4] == "POST":
+                post_string = re.search(r"((\r\n\r\n)|(\n\n))(.*)", string).group(4)
+                post_string_bytes = post_string.encode("utf8")
+                if proxies == {}:
+                    async with aiohttp.ClientSession() as session:
+                        async with session.post(url, headers=header_dict, data=post_string_bytes, timeout=30, ssl=False) as res:
+                            code = res.status
+                            headers = res.headers
+                            content = await res.read()
+                else:
+                    async with aiohttp.ClientSession() as session:
+                        async with session.post(url, headers=header_dict, data=post_string_bytes, proxy=proxies, timeout=30, ssl=False) as res:
+                            code = res.status
+                            headers = res.headers
+                            content = await res.read()
+            if encoding=='chardet':
+                import chardet
+                bytes_encoding = chardet.detect(content)['encoding']
+                if bytes_encoding is None:
+                    bytes_encoding="utf8"
+            else:
+                bytes_encoding=encoding
+            content = content.decode(encoding=bytes_encoding, errors="ignore")
+            return_value['code'] = code
+            return_value['headers'] = headers
+            return_value['html'] = content
+            return return_value
+        except:
+            retry_count+=1
+            if retry_count>=5:
+                print("异常,访问了5次还是没有结果")
+                print("当前请求包是:\n"+string)
+                return None
+            time.sleep(3)
+            continue
 
 def set_string_to_clipboard(string):
     import pyperclip
