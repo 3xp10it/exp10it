@@ -169,7 +169,13 @@ def get_realtime_quotes_by_tx(stock_code):
                 stock_code=_[0][4:]
                 result=_[1][1:-2]
                 result=result.split("~")
-                stock_name=result[1]
+                try:
+                    stock_name=result[1]
+                except:
+                    print("获取行情失败,股票是:"+stock_code)
+                    print("结果是:")
+                    print(result)
+                    print("url是:"+url)
                 zf=float(result[32])
                 open_price=float(result[5])
                 close_price=float(result[3])
