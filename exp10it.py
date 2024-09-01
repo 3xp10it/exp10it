@@ -111,10 +111,8 @@ def get_system_bits():
 
 def get_realtime_quotes_by_tx(stock_code):
     if isinstance(stock_code,str):
-        if stock_code[0]=='6':
-            _stock_code='sh'+stock_code
-        else:
-            _stock_code='sz'+stock_code
+
+        _stock_code=("sh"+stock_code) if stock_code[0]=='6' else ("sz"+stock_code) if stock_code[0] in ['0','3'] else ("bj"+stock_code) if stock_code[0] in ['4','8','9'] else stock_code 
         url="https://qt.gtimg.cn/q="+_stock_code
         text=requests.get(url).text
         result=text.split("=")[1][1:-2]
@@ -160,7 +158,7 @@ def get_realtime_quotes_by_tx(stock_code):
         stock_code_list=list(stock_code)
         _dict={}
         while True:
-            _stock_code=",".join(['sh'+item if item[0]=='6' else 'sz'+item for item in stock_code_list[:800]])
+            _stock_code=",".join([("sh"+stock_code) if stock_code[0]=='6' else ("sz"+stock_code) if stock_code[0] in ['0','3'] else ("bj"+stock_code) if stock_code[0] in ['4','8','9'] else stock_code for stock_code in stock_code_list[:800]])
             url="https://qt.gtimg.cn/q="+_stock_code
             text=requests.get(url).text
             hq_list=text.split("\n")[:-1]
