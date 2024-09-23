@@ -2608,7 +2608,8 @@ def check_start_time(want_time):
     print("到点,现在时刻:%s" % a)
 
 
-def send_http_packet(string, http_or_https, proxies={},encoding="chardet"):
+def send_http_packet(string, http_or_https, proxies={},encoding="chardet",allow_redirects=True):
+    #requests会自动处理302跳转,也即默认情况下302的响应内容无法获取,但有时候302的响应内容中会包含重要的响应头(如csrf-token),遇到这种情况要设置allow_redirects=False
     # 发http请求包封装函数,string可以是burpsuite等截包工具中拦截到的包
     # string要求是burpsuite中抓包抓到的字符串,也即已经经过urlencode
     # proxy_url为代理地址,eg."http://127.0.0.1:8080"
@@ -2628,18 +2629,18 @@ def send_http_packet(string, http_or_https, proxies={},encoding="chardet"):
                 1) + re.search(r" (\S+)", uri_line, re.I).group(1)
             if string[:3] == "GET":
                 if proxies == {}:
-                    res = requests.get(url, headers=header_dict,timeout=30,verify=False)
+                    res = requests.get(url, headers=header_dict,timeout=30,verify=False,allow_redirects=allow_redirects)
                 else:
-                    res = requests.get(url, headers=header_dict, proxies=proxies,timeout=30,verify=False)
+                    res = requests.get(url, headers=header_dict, proxies=proxies,timeout=30,verify=False,allow_redirects=allow_redirects)
             elif string[:4] == "POST":
                 post_string = re.search(r"((\r\n\r\n)|(\n\n))(.*)", string).group(4)
                 post_string_bytes = post_string.encode("utf8")
                 if proxies == {}:
                     res = requests.post(url, headers=header_dict,
-                                        data=post_string_bytes,timeout=30,verify=False)
+                                        data=post_string_bytes,timeout=30,verify=False,allow_redirects=allow_redirects)
                 else:
                     res = requests.post(url, headers=header_dict,
-                                        data=post_string_bytes, proxies=proxies,timeout=30,verify=False)
+                                        data=post_string_bytes, proxies=proxies,timeout=30,verify=False,allow_redirects=allow_redirects)
             code = res.status_code
             headers = res.headers
             content = res.content
@@ -4709,7 +4710,7 @@ def start_web_server(host,port,rules):
     class S(BaseHTTPRequestHandler):
         def _set_headers(self):
             self.send_response(200)
-            self.send_header('Content-type', 'text/html')
+            self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
 
         def do_GET(self):
