@@ -3034,7 +3034,7 @@ def blog():
     if(upa == 'n' or upa == 'N'):
         print('done!bye:D')
     else:
-        unsucceed = os.system("bash /usr/share/mytools/up.sh")
+        unsucceed = os.system("bash ~/mytools/up.sh")
         if(unsucceed == 0):
             os.system("firefox %s" % "http://3xp10it.cc")
 
