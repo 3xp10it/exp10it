@@ -2961,8 +2961,9 @@ def blog():
         return
     if platform.system() == "Darwin":
         a = get_string_from_command("gsed")
-        if re.search(r"command not found", a, re.I):
+        if re.search(r"command not found", a, re.I) or re.search(r"Unknow command", a, re.I):
             print("Please install gnu-sed,eg.brew install gnu-sed")
+            return
     date = datetime.date.today()
     print("please input blog article title:)")
     title = input()
@@ -3036,7 +3037,7 @@ def blog():
     else:
         unsucceed = os.system("bash ~/mytools/up.sh")
         if(unsucceed == 0):
-            os.system("firefox %s" % "http://3xp10it.cc")
+            os.system("open %s" % "http://3xp10it.cc")
 
 
 def get_remain_time(
@@ -4770,3 +4771,134 @@ def get_all_window_hwnd():
             window_hwnd_dict[title]=hwnd
     EnumWindows(foo,0)
     return window_hwnd_dict
+
+
+def handle_clipboard_update(handle_proc):
+    #本函数用于在剪切板变化时运行回调函数,本函数会向回调函数传入当前剪切板内容作为回调函数的参数,使用本函数前需要定义handle_proc,例如:
+    #def test(a):
+    #   print(a)
+    #handle_clipboard_update(test)
+    import ctypes
+    import ctypes.wintypes
+    import win32clipboard
+    import time
+
+    user32 = ctypes.windll.user32
+    kernel32 = ctypes.windll.kernel32
+
+
+    class WNDCLASS(ctypes.Structure):
+        _fields_ = [
+            ("style", ctypes.c_uint),
+            ("lpfnWndProc", ctypes.c_void_p),
+            ("cbClsExtra", ctypes.c_int),
+            ("cbWndExtra", ctypes.c_int),
+            ("hInstance", ctypes.c_void_p),
+            ("hIcon", ctypes.c_void_p),
+            ("hCursor", ctypes.c_void_p),
+            ("hbrBackground", ctypes.c_void_p),
+            ("lpszMenuName", ctypes.c_wchar_p),
+            ("lpszClassName", ctypes.c_wchar_p),
+        ]
+
+
+    class MSG(ctypes.Structure):
+        _fields_ = [
+            ("hwnd", ctypes.c_void_p),
+            ("message", ctypes.c_uint),
+            ("wParam", ctypes.c_void_p),
+            ("lParam", ctypes.c_void_p),
+            ("time", ctypes.c_long),
+            ("pt", ctypes.wintypes.POINT),
+        ]
+
+
+    def wnd_proc(hwnd, msg, wparam, lparam):
+        if msg == 0x031D:  # WM_CLIPBOARDUPDATE
+            print("Clipboard content has changed!")
+            try:
+                win32clipboard.OpenClipboard()
+                data = win32clipboard.GetClipboardData()
+                print("第1次读取剪切板结果:", data)
+            except Exception as e:
+                print("第1次读取剪切板失败:", e,",重新尝试")
+
+                try:
+                    win32clipboard.CloseClipboard()
+                except Exception as e:
+                    pass
+
+                try:
+                    win32clipboard.OpenClipboard()
+                    data = win32clipboard.GetClipboardData()
+                    print("第2次读取剪切板结果:"+data)
+                except Exception as e:
+                    print("第2次读取剪切板失败:",e,",重新尝试")
+
+                    try:
+                        win32clipboard.CloseClipboard()
+                    except Exception as e:
+                        pass
+
+                    try:
+                        win32clipboard.OpenClipboard()
+                        data = win32clipboard.GetClipboardData()
+                        print("第3次尝试读取剪切板结果:"+data)
+                    except Exception as e:
+                        print("第3次读取剪切板失败:",e,",不再尝试")
+                        data=""
+
+                        try:
+                            win32clipboard.CloseClipboard()
+                        except Exception as e:
+                            pass
+            handle_proc(data)
+        elif msg == 0x0010:  # WM_CLOSE
+            user32.DestroyWindow(hwnd)
+            user32.PostQuitMessage(0)
+        # 将 lparam 转换为适当的类型
+        return user32.DefWindowProcW(hwnd, msg, wparam, ctypes.cast(lparam, ctypes.c_void_p))
+
+
+    wnd_class = WNDCLASS()
+    wnd_class.lpszClassName = "ClipboardMonitor"
+    wnd_class.lpfnWndProc = ctypes.cast(ctypes.WINFUNCTYPE(ctypes.c_long, ctypes.c_void_p, ctypes.c_uint, ctypes.c_void_p, ctypes.c_void_p)(wnd_proc), ctypes.c_void_p)
+    wnd_class.hInstance = kernel32.GetModuleHandleW(None)
+    user32.RegisterClassW(ctypes.byref(wnd_class))
+    hwnd = user32.CreateWindowExW(0,wnd_class.lpszClassName,"Clipboard Monitor",0,0,0,0,0,0,0,wnd_class.hInstance,None,)
+    # 注册为剪贴板格式监听器
+    user32.AddClipboardFormatListener(hwnd)
+    msg = MSG()
+    while user32.GetMessageW(ctypes.byref(msg), None, 0, 0) > 0:
+        user32.TranslateMessage(ctypes.byref(msg))
+        user32.DispatchMessageW(ctypes.byref(msg))
+
+
+def set_system_volume(volume):
+    #调到音量5时,对应volume为0.05
+    from ctypes import cast, POINTER
+    from comtypes import CLSCTX_ALL
+    from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+    import pythoncom
+    pythoncom.CoInitialize()
+    devices = AudioUtilities.GetSpeakers()
+    interface = devices.Activate(
+        IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+    volume_object = cast(interface, POINTER(IAudioEndpointVolume))
+    volume_object.SetMasterVolumeLevelScalar(volume, None)
+    try:
+        pythoncom.CoUninitialize()
+    except:
+        print("pythoncom.CoUninitialize()失败")
+        pass
+
+def get_system_volume_at_macOS():
+    #获取系统音量大小,如果是5则返回0.05
+    volume=int(get_string_from_command('osascript -e "output volume of (get volume settings)"'))
+    return volume/100
+
+
+def set_system_volume_at_macOS(volume):
+    #调到音量5时,对应volume为0.05
+    volume=volume*100
+    os.system('osascript -e "set volume output volume %d --percent"' % volume)
