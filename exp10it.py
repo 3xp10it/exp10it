@@ -4873,6 +4873,27 @@ def handle_clipboard_update(handle_proc):
         user32.TranslateMessage(ctypes.byref(msg))
         user32.DispatchMessageW(ctypes.byref(msg))
 
+def get_system_volume():
+    #调到音量5时,对应volume为0.05
+    from pycaw.pycaw  import AudioUtilities, IAudioEndpointVolume  
+    # 初始化音频会话  
+    sessions = AudioUtilities.GetSpeakers()  
+    interface = sessions.Activate(IAudioEndpointVolume._iid_, 0, None)  
+    volume = interface.QueryInterface(IAudioEndpointVolume)  
+     
+    # 获取/设置音量  
+    current_volume = volume.GetMasterVolumeLevelScalar()  
+    is_muted = volume.GetMute()  
+    return current_volume,is_muted
+
+def unmute():
+    # 初始化音频会话
+    from pycaw.pycaw  import AudioUtilities, IAudioEndpointVolume  
+    sessions = AudioUtilities.GetSpeakers()
+    interface = sessions.Activate(IAudioEndpointVolume._iid_, 0, None)
+    volume = interface.QueryInterface(IAudioEndpointVolume)
+    # 取消静音
+    volume.SetMute(0, None)
 
 def set_system_volume(volume):
     #调到音量5时,对应volume为0.05
