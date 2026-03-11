@@ -1,4 +1,6 @@
 import pdb
+import tempfile
+import multiprocessing
 import aiohttp
 import chardet
 import platform
@@ -12,6 +14,7 @@ from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 import threading
 from concurrent import futures
+import lunardate
 import selenium
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning, InsecurePlatformWarning
@@ -87,12 +90,69 @@ def get_string_from_command(command):
     # 判断程序有没有已经安装可eg.get_string_from_command("sqlmap --help")
     return subprocess.getstatusoutput(command)[1]
 
-def get_string_from_powershell_command(command):
-    # 用于获取执行powershell命令得到的结果
-    completed=subprocess.run(["powershell", "-Command", command], capture_output=True)
-    import chardet
-    bytes_encoding = chardet.detect(completed.stdout)['encoding']
-    return completed.stdout.decode(encoding=bytes_encoding, errors="ignore")
+def get_string_from_powershell_command(command, max_retries=5):
+    for attempt in range(1, max_retries + 1):
+        #print(f"第 {attempt} 次尝试执行PowerShell命令...")
+        
+        try:
+            # 使用Popen和communicate，这是最可靠的方式
+            process = subprocess.Popen(
+                ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", command],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                encoding='utf-8',
+                errors='ignore'
+            )
+            
+            # 设置超时并等待
+            try:
+                stdout, stderr = process.communicate(timeout=5)
+                
+                # 检查命令是否成功执行
+                if process.returncode == 0:
+                    #print(f"第 {attempt} 次尝试成功")
+                    if stderr:
+                        print(f"PowerShell警告: {stderr}")
+                    return stdout
+                else:
+                    print(f"第 {attempt} 次尝试执行PowerShell命令失败，返回码: {process.returncode}")
+                    if stderr:
+                        print(f"PowerShell错误: {stderr}")
+                    
+            except subprocess.TimeoutExpired:
+                print(f"第 {attempt} 次尝试执行PowerShell命令超时，尝试强制终止...")
+                process.terminate()  # 先尝试正常终止
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    process.kill()  # 强制终止
+                    process.wait()
+                
+                # 如果不是最后一次尝试，等待一段时间再重试
+                if attempt < max_retries:
+                    import time
+                    time.sleep(2)  # 等待2秒再重试
+                    continue
+                else:
+                    print("已达到最大重试执行PowerShell命令次数")
+                    return ""
+                    
+        except Exception as e:
+            print(f"第 {attempt} 次尝试执行PowerShell命令出错: {e}")
+            import traceback
+            traceback.print_exc()
+            
+            # 如果不是最后一次尝试，等待一段时间再重试
+            if attempt < max_retries:
+                import time
+                time.sleep(2)  # 等待2秒再重试
+                continue
+            else:
+                print("已达到最大重试执行PowerShell命令次数")
+                return ""
+    
+    return ""  # 所有尝试都失败后返回空字符串
 
 # platform.system()为操作系统种类,x86orx64为系统位数
 #"Linux,Darwin,Windows"
@@ -2679,8 +2739,6 @@ def send_http_packet(string, http_or_https, proxies={},encoding="chardet",allow_
             else:
                 bytes_encoding=encoding
             content = content.decode(encoding=bytes_encoding, errors="ignore")
-            res.close()
-            del(res) 
             return_value['code'] = code
             return_value['headers'] = headers
             return_value['html'] = content
@@ -5106,6 +5164,93 @@ def set_system_volume(volume):
             # COM可能未初始化或已卸载
             pass
 
+def set_system_volume_in_process(volume, timeout=5):
+    """
+    通过独立子进程安全设置系统音量（彻底隔离COM环境）
+    参数: volume (float): 0.0 ~ 1.0
+    返回: bool
+    """
+    if not (0.0 <= volume <= 1.0):
+        raise ValueError("音量必须在0.0到1.0之间")
+    
+    # 构建安全脚本（使用参数传递避免f-string精度/转义问题）
+    script_code = '''
+import sys, json, ast
+try:
+    # 从命令行参数安全获取音量值
+    vol_str = sys.argv[1]
+    volume = float(vol_str)  # 已在主进程验证范围
+    
+    from comtypes import CoInitialize, CoUninitialize, CLSCTX_ALL
+    from ctypes import cast, POINTER
+    from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+
+    CoInitialize()
+    try:
+        devices = AudioUtilities.GetSpeakers()
+        interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+        volume_control = cast(interface, POINTER(IAudioEndpointVolume))
+        
+        volume_control.SetMasterVolumeLevelScalar(volume, None)
+        if volume > 0 and volume_control.GetMute():
+            volume_control.SetMute(False, None)
+        
+        print(json.dumps({"success": True, "volume": volume}))
+    finally:
+        CoUninitialize()
+except Exception as e:
+    print(json.dumps({"success": False, "error": str(e)}), file=sys.stderr)
+    sys.exit(1)
+'''
+    # 写入临时文件
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8') as tmp:
+        tmp.write(script_code)
+        tmp_path = tmp.name
+    
+    try:
+        # ✅ 关键修复：继承完整环境变量 + 增强关键变量
+        env = os.environ.copy()  # 保留所有系统环境变量
+        env["PYTHONUNBUFFERED"] = "1"  # 确保输出即时
+        env["PYTHONIOENCODING"] = "utf-8"  # 避免编码问题
+        
+        # 通过命令行参数传递音量（更安全）
+        result = subprocess.run(
+            [sys.executable, tmp_path, str(volume)],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            env=env,  # 使用增强后的环境
+            creationflags=subprocess.CREATE_NO_WINDOW  # Windows: 隐藏控制台窗口
+        )
+        
+        # 优先检查stderr（错误信息通常在此）
+        if result.stderr.strip():
+            try:
+                err_json = json.loads(result.stderr.strip())
+                if not err_json.get("success"):
+                    raise RuntimeError(f"音量设置失败: {err_json.get('error', '未知错误')}")
+            except json.JSONDecodeError:
+                raise RuntimeError(f"子进程错误: {result.stderr.strip()}")
+        
+        # 解析stdout
+        try:
+            output = json.loads(result.stdout.strip())
+            return output.get("success", False)
+        except json.JSONDecodeError:
+            if result.returncode == 0:
+                return True  # 无输出但成功退出
+            raise RuntimeError("子进程返回格式异常")
+            
+    finally:
+        # 安全清理临时文件（重试机制防占用）
+        for _ in range(3):
+            try:
+                if os.path.exists(tmp_path):
+                    os.unlink(tmp_path)
+                break
+            except OSError:
+                import time
+                time.sleep(0.1)
 
 def get_system_volume_at_macOS():
     #获取系统音量大小,如果是5则返回0.05
@@ -5117,3 +5262,14 @@ def set_system_volume_at_macOS(volume):
     #调到音量5时,对应volume为0.05
     volume=volume*100
     os.system('osascript -e "set volume output volume %d --percent"' % volume)
+
+
+def get_chuxi_date():
+    thisyear=datetime.datetime.now().year
+    nextyear=thisyear+1
+    today_date=get_today_date()
+    for year in [thisyear,nextyear]:
+        chuyi=str(lunardate.LunarDate(year,1,1,0).toSolarDate())
+        chuxi=str(get_detatime_from_given_time(chuyi,"%Y-%m-%d","days",-1))[:10]
+        if today_date<=chuxi:
+            return chuxi
