@@ -1,7 +1,8 @@
 import pdb
+import aiohttp
+import json
 import tempfile
 import multiprocessing
-import aiohttp
 import chardet
 import platform
 import os
@@ -24,9 +25,12 @@ import subprocess
 import base64
 import binascii
 from decimal import Decimal, ROUND_HALF_UP
-from requests.adapters import HTTPAdapter
 from urllib3.util.ssl_ import create_urllib3_context
 import ssl
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+import asyncio
+from typing import Optional
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
@@ -173,108 +177,173 @@ def get_system_bits():
     return x86orx64
 
 def get_realtime_quotes_by_tx(stock_code):
-    if isinstance(stock_code,str):
+    session = get_session()  # 复用 Session
 
-        _stock_code=("sh"+stock_code) if stock_code[0]=='6' else ("sz"+stock_code) if stock_code[0] in ['0','3'] else ("bj"+stock_code) if stock_code[0] in ['4','8','9'] else stock_code 
-        url="https://qt.gtimg.cn/q="+_stock_code
-        text=requests.get(url).text
-        result=text.split("=")[1][1:-2]
-        result=result.split("~")
-        stock_name=result[1]
-        zf=float(result[32])
-        open_price=float(result[5])
-        close_price=float(result[3])
-        pre_close=float(result[4])
-        high=float(result[33])
-        low=float(result[34])
-        amount=float(result[57])
-        volume=int(result[36])
-        timestamp=result[30]
-        #买一价
-        b1_p=float(result[9])
-        #买一量
-        b1_v=int(result[10])
-        b2_p=float(result[11])
-        b2_v=int(result[12])
-        b3_p=float(result[13])
-        b3_v=int(result[14])
-        b4_p=float(result[15])
-        b4_v=int(result[16])
-        b5_p=float(result[17])
-        b5_v=int(result[18])
-        #卖一价
-        a1_p=float(result[19])
-        #卖一量
-        a1_v=int(result[20])
-        a2_p=float(result[21])
-        a2_v=int(result[22])
-        a3_p=float(result[23])
-        a3_v=int(result[24])
-        a4_p=float(result[25])
-        a4_v=int(result[26])
-        a5_p=float(result[27])
-        a5_v=int(result[28])
-
-        return {stock_code:{'stock_code':stock_code,'stock_name':stock_name,'zf':zf,'open':open_price,'close':close_price,'pre_close':pre_close,'high':high,'low':low,'amount':amount,'volume':volume,'b1_p':b1_p,'b1_v':b1_v,'b2_p':b2_p,'b2_v':b2_v,'b3_p':b3_p,'b3_v':b3_v,'b4_p':b4_p,'b4_v':b4_v,'b5_p':b5_p,'b5_v':b5_v,'a1_p':a1_p,'a1_v':a1_v,'a2_p':a2_p,'a2_v':a2_v,'a3_p':a3_p,'a3_v':a3_v,'a4_p':a4_p,'a4_v':a4_v,'a5_p':a5_p,'a5_v':a5_v,'timestamp':timestamp}}
+    if isinstance(stock_code, str):
+        _stock_code = ("sh" + stock_code) if stock_code[0] == '6' else \
+                      ("sz" + stock_code) if stock_code[0] in ['0', '3'] else \
+                      ("bj" + stock_code) if stock_code[0] in ['4', '8', '9'] else stock_code
+        url = "https://qt.gtimg.cn/q=" + _stock_code
+        with session.get(url) as resp:
+            text = resp.text
+        result = text.split("=")[1][1:-2]
+        result = result.split("~")
+        stock_name = result[1]
+        zf = float(result[32])
+        open_price = float(result[5])
+        close_price = float(result[3])
+        pre_close = float(result[4])
+        high = float(result[33])
+        low = float(result[34])
+        amount = float(result[57])
+        volume = int(result[36])
+        timestamp = result[30]
+        b1_p = float(result[9])
+        b1_v = int(result[10])
+        b2_p = float(result[11])
+        b2_v = int(result[12])
+        b3_p = float(result[13])
+        b3_v = int(result[14])
+        b4_p = float(result[15])
+        b4_v = int(result[16])
+        b5_p = float(result[17])
+        b5_v = int(result[18])
+        a1_p = float(result[19])
+        a1_v = int(result[20])
+        a2_p = float(result[21])
+        a2_v = int(result[22])
+        a3_p = float(result[23])
+        a3_v = int(result[24])
+        a4_p = float(result[25])
+        a4_v = int(result[26])
+        a5_p = float(result[27])
+        a5_v = int(result[28])
+        return {
+            stock_code: {
+                'stock_code': stock_code,
+                'stock_name': stock_name,
+                'zf': zf,
+                'open': open_price,
+                'close': close_price,
+                'pre_close': pre_close,
+                'high': high,
+                'low': low,
+                'amount': amount,
+                'volume': volume,
+                'b1_p': b1_p,
+                'b1_v': b1_v,
+                'b2_p': b2_p,
+                'b2_v': b2_v,
+                'b3_p': b3_p,
+                'b3_v': b3_v,
+                'b4_p': b4_p,
+                'b4_v': b4_v,
+                'b5_p': b5_p,
+                'b5_v': b5_v,
+                'a1_p': a1_p,
+                'a1_v': a1_v,
+                'a2_p': a2_p,
+                'a2_v': a2_v,
+                'a3_p': a3_p,
+                'a3_v': a3_v,
+                'a4_p': a4_p,
+                'a4_v': a4_v,
+                'a5_p': a5_p,
+                'a5_v': a5_v,
+                'timestamp': timestamp
+            }
+        }
     else:
-        #stock_code是股票列表
-        stock_code_list=list(stock_code)
-        _dict={}
+        stock_code_list = list(stock_code)
+        _dict = {}
         while True:
-            _stock_code=",".join([("sh"+stock_code) if stock_code[0]=='6' else ("sz"+stock_code) if stock_code[0] in ['0','3'] else ("bj"+stock_code) if stock_code[0] in ['4','8','9'] else stock_code for stock_code in stock_code_list[:800]])
-            url="https://qt.gtimg.cn/q="+_stock_code
-            text=requests.get(url).text
-            hq_list=text.split("\n")[:-1]
+            _stock_code = ",".join([
+                ("sh" + code) if code[0] == '6' else
+                ("sz" + code) if code[0] in ['0', '3'] else
+                ("bj" + code) if code[0] in ['4', '8', '9'] else code
+                for code in stock_code_list[:800]
+            ])
+            url = "https://qt.gtimg.cn/q=" + _stock_code
+            with session.get(url) as resp:
+                text = resp.text
+            hq_list = text.split("\n")[:-1]
             for item in hq_list:
-                _=item.split("=")
-                stock_code=_[0][4:]
-                result=_[1][1:-2]
-                result=result.split("~")
+                _ = item.split("=")
+                code = _[0][4:]  # 去掉前缀
+                result = _[1][1:-2]
+                result = result.split("~")
                 try:
-                    stock_name=result[1]
+                    stock_name = result[1]
                 except:
-                    print("获取行情失败,股票是:"+stock_code)
+                    print("获取行情失败,股票是:" + code)
                     print("结果是:")
                     print(result)
-                    print("url是:"+url)
-                zf=float(result[32])
-                open_price=float(result[5])
-                close_price=float(result[3])
-                pre_close=float(result[4])
-                high=float(result[33])
-                low=float(result[34])
-                amount=float(result[57])
-                volume=int(result[36])
-                timestamp=result[30]
-
-                #买一价
-                b1_p=float(result[9])
-                #买一量
-                b1_v=int(result[10])
-                b2_p=float(result[11])
-                b2_v=int(result[12])
-                b3_p=float(result[13])
-                b3_v=int(result[14])
-                b4_p=float(result[15])
-                b4_v=int(result[16])
-                b5_p=float(result[17])
-                b5_v=int(result[18])
-                #卖一价
-                a1_p=float(result[19])
-                #卖一量
-                a1_v=int(result[20])
-                a2_p=float(result[21])
-                a2_v=int(result[22])
-                a3_p=float(result[23])
-                a3_v=int(result[24])
-                a4_p=float(result[25])
-                a4_v=int(result[26])
-                a5_p=float(result[27])
-                a5_v=int(result[28])
-
-                _dict[stock_code]={'stock_code':stock_code,'stock_name':stock_name,'zf':zf,'open':open_price,'close':close_price,'pre_close':pre_close,'high':high,'low':low,'amount':amount,'volume':volume,'b1_p':b1_p,'b1_v':b1_v,'b2_p':b2_p,'b2_v':b2_v,'b3_p':b3_p,'b3_v':b3_v,'b4_p':b4_p,'b4_v':b4_v,'b5_p':b5_p,'b5_v':b5_v,'a1_p':a1_p,'a1_v':a1_v,'a2_p':a2_p,'a2_v':a2_v,'a3_p':a3_p,'a3_v':a3_v,'a4_p':a4_p,'a4_v':a4_v,'a5_p':a5_p,'a5_v':a5_v,'timestamp':timestamp}
-            stock_code_list=stock_code_list[800:]
-            if stock_code_list==[]:
+                    print("url是:" + url)
+                    continue
+                zf = float(result[32])
+                open_price = float(result[5])
+                close_price = float(result[3])
+                pre_close = float(result[4])
+                high = float(result[33])
+                low = float(result[34])
+                amount = float(result[57])
+                volume = int(result[36])
+                timestamp = result[30]
+                b1_p = float(result[9])
+                b1_v = int(result[10])
+                b2_p = float(result[11])
+                b2_v = int(result[12])
+                b3_p = float(result[13])
+                b3_v = int(result[14])
+                b4_p = float(result[15])
+                b4_v = int(result[16])
+                b5_p = float(result[17])
+                b5_v = int(result[18])
+                a1_p = float(result[19])
+                a1_v = int(result[20])
+                a2_p = float(result[21])
+                a2_v = int(result[22])
+                a3_p = float(result[23])
+                a3_v = int(result[24])
+                a4_p = float(result[25])
+                a4_v = int(result[26])
+                a5_p = float(result[27])
+                a5_v = int(result[28])
+                _dict[code] = {
+                    'stock_code': code,
+                    'stock_name': stock_name,
+                    'zf': zf,
+                    'open': open_price,
+                    'close': close_price,
+                    'pre_close': pre_close,
+                    'high': high,
+                    'low': low,
+                    'amount': amount,
+                    'volume': volume,
+                    'b1_p': b1_p,
+                    'b1_v': b1_v,
+                    'b2_p': b2_p,
+                    'b2_v': b2_v,
+                    'b3_p': b3_p,
+                    'b3_v': b3_v,
+                    'b4_p': b4_p,
+                    'b4_v': b4_v,
+                    'b5_p': b5_p,
+                    'b5_v': b5_v,
+                    'a1_p': a1_p,
+                    'a1_v': a1_v,
+                    'a2_p': a2_p,
+                    'a2_v': a2_v,
+                    'a3_p': a3_p,
+                    'a3_v': a3_v,
+                    'a4_p': a4_p,
+                    'a4_v': a4_v,
+                    'a5_p': a5_p,
+                    'a5_v': a5_v,
+                    'timestamp': timestamp
+                }
+            stock_code_list = stock_code_list[800:]
+            if not stock_code_list:
                 break
         return _dict
 
@@ -2670,108 +2739,174 @@ def check_start_time(want_time):
     print("到点,现在时刻:%s" % a)
 
 
-class TLSAdapter(HTTPAdapter):
-    def init_poolmanager(self, *args, **kwargs):
-        ctx = create_urllib3_context()
-        ctx.set_ciphers('DEFAULT@SECLEVEL=1')
-        kwargs['ssl_context'] = ctx
-        return super().init_poolmanager(*args, **kwargs)
+# 线程局部存储，每个线程独立 Session
+_thread_local = threading.local()
 
-def send_http_packet(string, http_or_https, proxies={},encoding="chardet",allow_redirects=True):
-    #requests会自动处理302跳转,也即默认情况下302的响应内容无法获取,但有时候302的响应内容中会包含重要的响应头(如csrf-token),遇到这种情况要设置allow_redirects=False
-    # 发http请求包封装函数,string可以是burpsuite等截包工具中拦截到的包
-    # string要求是burpsuite中抓包抓到的字符串,也即已经经过urlencode
-    # proxy_url为代理地址,eg."http://127.0.0.1:8080"
-    # encoding用于解码服务器返回的内容,默认使用chardet检测出服务器的编码是什么,但有时候chardet检测的不对,这种情况需要手动设置encoding的值
-    # 返回的内容为一个字典,{'code':xxx,'headers':xxx,'html':'xxx'},其中code为int类型,headers是dict类型,html为str类型
-    retry_count=0
-    while True:
+def get_session():
+    """返回线程局部的 requests.Session，带连接池和重试策略"""
+    if not hasattr(_thread_local, 'session'):
+        session = requests.Session()
+
+        # 配置重试策略
+        retry = Retry(
+            total=3,                     # 最多重试3次
+            backoff_factor=0.5,          # 重试间隔 0.5, 1, 2 秒
+            status_forcelist=[500, 502, 503, 504],  # 对服务端错误重试
+            allowed_methods=frozenset(['GET', 'POST']),
+            raise_on_status=False,       # 不因状态码引发异常
+        )
+        adapter = HTTPAdapter(
+            pool_connections=10,
+            pool_maxsize=20,
+            max_retries=retry,
+        )
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
+
+        _thread_local.session = session
+    return _thread_local.session
+
+def send_http_packet(string, http_or_https, proxies=None, encoding="chardet", allow_redirects=True):
+    """
+    发送原始 HTTP 报文（支持 GET/POST）
+
+    参数:
+        string: HTTP 报文原始字符串（包括请求行和头部）
+        http_or_https: 'http' 或 'https'
+        proxies: 代理字典，例如 {'http': 'http://127.0.0.1:8080', 'https': 'http://127.0.0.1:8080'}
+        encoding: 响应内容解码方式，'chardet' 表示自动检测
+        allow_redirects: 是否跟随重定向
+
+    返回:
+        dict: {'code': int, 'headers': dict, 'html': str}，失败返回 None
+    """
+    retry_count = 0
+    while retry_count < 5:
         try:
-            return_value = {'code': 0,'headers': {},'html': ''}
+            # ---------- 解析报文 ----------
             string = re.sub(r"^\s", "", string)
             uri_line = re.search(r"(^.+)", string).group(1)
+
+            # 解析头部
             header_dict = {}
             header_list = re.findall(r"([^:\s]+): ([^\r\n]+)((\n)|(\r\n))", string)
             for each in header_list:
                 header_dict[each[0]] = each[1]
-            url = http_or_https + "://" + re.search(r"Host: (\S+)", string, re.I).group(
-                1) + re.search(r" (\S+)", uri_line, re.I).group(1)
-            if string[:3] == "GET":
-                if http_or_https=="http":
-                    if proxies == {}:
-                        res = requests.get(url, headers=header_dict,timeout=30,verify=False,allow_redirects=allow_redirects)
-                    else:
-                        res = requests.get(url, headers=header_dict, proxies=proxies,timeout=30,verify=False,allow_redirects=allow_redirects)
-                elif http_or_https=="https":
-                    #有些服务器可能加了waf会验证TLS/SSL环节,requests的默认行为会被ban
-                    session = requests.Session()
-                    session.mount('https://', TLSAdapter())
-                    if proxies == {}:
-                        res = session.get(url, headers=header_dict,timeout=30,verify=False,allow_redirects=allow_redirects)
-                    else:
-                        res = session.get(url, headers=header_dict, proxies=proxies,timeout=30,verify=False,allow_redirects=allow_redirects)
-                    
-            elif string[:4] == "POST":
-                post_string = re.search(r"((\r\n\r\n)|(\n\n))(.*)", string).group(4)
-                post_string_bytes = post_string.encode("utf8")
-                if http_or_https=="http":
-                    if proxies == {}:
-                        res = requests.post(url, headers=header_dict,data=post_string_bytes,timeout=30,verify=False,allow_redirects=allow_redirects)
-                    else:
-                        res = requests.post(url, headers=header_dict,data=post_string_bytes, proxies=proxies,timeout=30,verify=False,allow_redirects=allow_redirects)
-                elif http_or_https=="https":
-                    #有些服务器可能加了waf会验证TLS/SSL环节,requests的默认行为会被ban
-                    session = requests.Session()
-                    session.mount('https://', TLSAdapter())
-                    if proxies == {}:
-                        res = session.post(url, headers=header_dict,data=post_string_bytes,timeout=30,verify=False,allow_redirects=allow_redirects)
-                    else:
-                        res = session.post(url, headers=header_dict,data=post_string_bytes, proxies=proxies,timeout=30,verify=False,allow_redirects=allow_redirects)
 
-            code = res.status_code
-            headers = res.headers
-            content = res.content
-            if encoding=='chardet':
+            # 获取 Host 和 URI
+            host_match = re.search(r"Host: (\S+)", string, re.I)
+            path_match = re.search(r" (\S+)", uri_line, re.I)
+            if not host_match or not path_match:
+                raise ValueError("无效的HTTP包格式：缺少Host或URI路径")
+
+            # 构建完整 URL
+            url = f"{http_or_https}://{host_match.group(1)}{path_match.group(1)}"
+
+            # 提取 POST 数据（如果有）
+            post_string_bytes = None
+            if string[:4] == "POST":
+                post_match = re.search(r"((\r\n\r\n)|(\n\n))(.*)", string)
+                if post_match:
+                    post_string_bytes = post_match.group(4).encode("utf8")
+
+            # ---------- 预处理头部 ----------
+            # 移除可能导致连接关闭的头，确保持久连接
+            if 'Connection' in header_dict and header_dict['Connection'].lower() == 'close':
+                del header_dict['Connection']
+
+            # ---------- 获取 Session ----------
+            session = get_session()
+
+            # 临时设置代理（避免影响其他请求）
+            original_proxies = session.proxies.copy()
+            if proxies:
+                session.proxies.update(proxies)
+
+            # 清空 Session 自动管理的 Cookie，仅使用报文中的显式 Cookie 头
+            session.cookies.clear()
+
+            # ---------- 发送请求 ----------
+            if string[:3] == "GET":
+                resp = session.get(
+                    url,
+                    headers=header_dict,
+                    timeout=30,
+                    verify=False,
+                    allow_redirects=allow_redirects
+                )
+            elif string[:4] == "POST":
+                resp = session.post(
+                    url,
+                    headers=header_dict,
+                    data=post_string_bytes,
+                    timeout=30,
+                    verify=False,
+                    allow_redirects=allow_redirects
+                )
+            else:
+                raise ValueError("不支持的HTTP方法，仅支持 GET 或 POST")
+
+            # ---------- 处理响应 ----------
+            code = resp.status_code
+            headers = dict(resp.headers)
+
+            # 读取原始字节内容
+            content = resp.content
+
+            # 解码
+            if encoding == 'chardet':
                 import chardet
                 bytes_encoding = chardet.detect(content)['encoding']
                 if bytes_encoding is None:
-                    bytes_encoding="utf8"
+                    bytes_encoding = "utf-8"
             else:
-                bytes_encoding=encoding
-            content = content.decode(encoding=bytes_encoding, errors="ignore")
-            return_value['code'] = code
-            return_value['headers'] = headers
-            return_value['html'] = content
-            return return_value
+                bytes_encoding = encoding
 
-        except:
-            retry_count+=1
-            if retry_count>=5:
-                print("异常,访问了5次还是没有结果")
-                print("当前请求包是:\n"+string)
+            html = content.decode(encoding=bytes_encoding, errors="ignore")
+
+            # 恢复代理配置（可选，避免累积）
+            session.proxies = original_proxies
+
+            return {'code': code, 'headers': headers, 'html': html}
+
+        except Exception as e:
+            # 错误时打印详细信息（可选）
+            # import traceback
+            # traceback.print_exc()
+            retry_count += 1
+            if retry_count >= 5:
+                print(f"请求异常，已重试5次失败，报文:\n{string[:500]}")  # 只打印前500字符避免刷屏
                 return None
             time.sleep(3)
-            continue
+    return None
 
-async def async_send_http_packet(string, http_or_https, proxies={}, encoding="chardet", allow_redirects=True):
-    # 发http请求包封装函数,string可以是burpsuite等截包工具中拦截到的包
-    # string要求是burpsuite中抓包抓到的字符串,也即已经经过urlencode
-    # proxy_url为代理地址,eg."http://127.0.0.1:8080"
-    # encoding用于解码服务器返回的内容,默认使用chardet检测出服务器的编码是什么,但有时候chardet检测的不对,这种情况需要手动设置encoding的值
-    # 返回的内容为一个字典,{'code':xxx,'headers':xxx,'html':'xxx'},其中code为int类型,headers是dict类型,html为str类型
-    
-    import asyncio
-    # 创建自定义 SSL 上下文
-    ssl_context = ssl.create_default_context()
-    # 设置兼容的密码套件（类似 requests 中的 TLSAdapter）
-    # 这里使用与之前类似的密码套件配置
-    ssl_context.set_ciphers('DEFAULT@SECLEVEL=1')
-    # 创建连接器，使用自定义 SSL 上下文
-    connector = aiohttp.TCPConnector(ssl=ssl_context)
-    
+
+
+
+# 全局单例 Session（在同一事件循环中安全）
+_async_session: Optional[aiohttp.ClientSession] = None
+_async_session_lock = asyncio.Lock()
+
+async def get_async_session() -> aiohttp.ClientSession:
+    """获取全局复用的 aiohttp ClientSession"""
+    global _async_session
+    async with _async_session_lock:
+        if _async_session is None or _async_session.closed:
+            # 创建 SSL 上下文（与原函数一致）
+            ssl_context = ssl.create_default_context()
+            ssl_context.set_ciphers('DEFAULT@SECLEVEL=1')
+            connector = aiohttp.TCPConnector(ssl=ssl_context)
+            _async_session = aiohttp.ClientSession(connector=connector)
+    return _async_session
+
+async def async_send_http_packet(string, http_or_https, proxies=None, encoding="chardet", allow_redirects=True):
+    """
+    异步HTTP请求封装（复用全局 aiohttp ClientSession）
+    """
     retry_count = 0
-    while True:
+    while retry_count < 5:
         try:
+            # 解析报文（同原逻辑）
             return_value = {'code': 0, 'headers': {}, 'html': ''}
             string = re.sub(r"^\s", "", string)
             uri_line = re.search(r"(^.+)", string).group(1)
@@ -2779,131 +2914,76 @@ async def async_send_http_packet(string, http_or_https, proxies={}, encoding="ch
             header_list = re.findall(r"([^:\s]+): ([^\r\n]+)((\n)|(\r\n))", string)
             for each in header_list:
                 header_dict[each[0]] = each[1]
-            
-            url = http_or_https + "://" + re.search(r"Host: (\S+)", string, re.I).group(1) + re.search(r" (\S+)", uri_line, re.I).group(1)
-            
-            # 使用自定义连接器
-            async with aiohttp.ClientSession(connector=connector) as session:
-                if string[:3] == "GET":
-                    if proxies == {}:
-                        async with session.get(url, headers=header_dict, timeout=30, ssl=False, allow_redirects=allow_redirects) as res:
-                            code = res.status
-                            headers = dict(res.headers)
-                            content = await res.read()
-                    else:
-                        async with session.get(url, headers=header_dict, proxy=proxies, timeout=30, ssl=False, allow_redirects=allow_redirects) as res:
-                            code = res.status
-                            headers = dict(res.headers)
-                            content = await res.read()
-                elif string[:4] == "POST":
-                    post_string = re.search(r"((\r\n\r\n)|(\n\n))(.*)", string).group(4)
-                    post_string_bytes = post_string.encode("utf8")
-                    if proxies == {}:
-                        async with session.post(url, headers=header_dict, data=post_string_bytes, timeout=30, ssl=False, allow_redirects=allow_redirects) as res:
-                            code = res.status
-                            headers = dict(res.headers)
-                            content = await res.read()
-                    else:
-                        async with session.post(url, headers=header_dict, data=post_string_bytes, proxy=proxies, timeout=30, ssl=False, allow_redirects=allow_redirects) as res:
-                            code = res.status
-                            headers = dict(res.headers)
-                            content = await res.read()
-            
-            if encoding == 'chardet':
-                import chardet
-                bytes_encoding = chardet.detect(content)['encoding']
-                if bytes_encoding is None:
-                    bytes_encoding = "utf8"
-            else:
-                bytes_encoding = encoding
-            
-            content = content.decode(encoding=bytes_encoding, errors="ignore")
-            return_value['code'] = code
-            return_value['headers'] = headers
-            return_value['html'] = content
-            return return_value
-            
+            host_match = re.search(r"Host: (\S+)", string, re.I)
+            path_match = re.search(r" (\S+)", uri_line, re.I)
+            if not host_match or not path_match:
+                raise ValueError("无效的HTTP包格式：缺少Host或URI路径")
+            url = f"{http_or_https}://{host_match.group(1)}{path_match.group(1)}"
+
+            # 获取全局 Session
+            session = await get_async_session()
+
+            # 处理代理（若代理可变，此处可动态设置；但 session 的代理是固定的，因此若代理变化需另行处理）
+            # 本函数中 proxies 参数被保留但未使用，因为全局 Session 已固定代理（默认为 None）。
+            # 若确实需要支持动态代理，可在此创建临时 Session，但会失去复用收益。
+            # 根据实际使用场景（news.py 中未传代理），此处忽略代理参数。
+
+            if string[:3] == "GET":
+                async with session.get(
+                    url,
+                    headers=header_dict,
+                    timeout=aiohttp.ClientTimeout(total=30),
+                    allow_redirects=allow_redirects
+                ) as res:
+                    await _process_async_response(res, return_value, encoding)
+                    return return_value
+
+            elif string[:4] == "POST":
+                post_match = re.search(r"((\r\n\r\n)|(\n\n))(.*)", string)
+                if not post_match:
+                    raise ValueError("无效的POST包格式")
+                post_string_bytes = post_match.group(4).encode("utf8")
+                async with session.post(
+                    url,
+                    headers=header_dict,
+                    data=post_string_bytes,
+                    timeout=aiohttp.ClientTimeout(total=30),
+                    allow_redirects=allow_redirects
+                ) as res:
+                    await _process_async_response(res, return_value, encoding)
+                    return return_value
+
         except Exception as e:
+            print(f"请求异常 [{retry_count+1}/5]: {str(e)}")
+            import traceback
+            traceback.print_exc()
             retry_count += 1
             if retry_count >= 5:
-                print("异常,访问了5次还是没有结果")
-                print(f"错误信息: {e}")
-                print("当前请求包是:\n" + string)
+                print("错误: 已重试5次仍失败")
+                print("当前请求包:\n" + string)
                 return None
             await asyncio.sleep(3)
-            continue
-        finally:
-            # 确保连接器被正确关闭
-            if 'connector' in locals():
-                await connector.close()
 
+    return None
 
-async def async_send_http_packet_old(string, http_or_https, proxies={},encoding="chardet"):
-    # 发http请求包封装函数,string可以是burpsuite等截包工具中拦截到的包
-    # string要求是burpsuite中抓包抓到的字符串,也即已经经过urlencode
-    # proxy_url为代理地址,eg."http://127.0.0.1:8080"
-    # encoding用于解码服务器返回的内容,默认使用chardet检测出服务器的编码是什么,但有时候chardet检测的不对,这种情况需要手动设置encoding的值
-    # 返回的内容为一个字典,{'code':xxx,'headers':xxx,'html':'xxx'},其中code为int类型,headers是dict类型,html为str类型
-    retry_count=0
-    while True:
-        try:
-            return_value = {'code': 0,'headers': {},'html': ''}
-            string = re.sub(r"^\s", "", string)
-            uri_line = re.search(r"(^.+)", string).group(1)
-            header_dict = {}
-            header_list = re.findall(r"([^:\s]+): ([^\r\n]+)((\n)|(\r\n))", string)
-            for each in header_list:
-                header_dict[each[0]] = each[1]
-            url = http_or_https + "://" + re.search(r"Host: (\S+)", string, re.I).group(
-                1) + re.search(r" (\S+)", uri_line, re.I).group(1)
-            if string[:3] == "GET":
-                if proxies == {}:
-                    async with aiohttp.ClientSession() as session:
-                        async with session.get(url, headers=header_dict, timeout=30, ssl=False) as res:
-                            code = res.status
-                            headers = res.headers
-                            content = await res.read()
-                else:
-                    async with aiohttp.ClientSession() as session:
-                        async with session.get(url, headers=header_dict, proxy=proxies, timeout=30, ssl=False) as res:
-                            code = res.status
-                            headers = res.headers
-                            content = await res.read()
-            elif string[:4] == "POST":
-                post_string = re.search(r"((\r\n\r\n)|(\n\n))(.*)", string).group(4)
-                post_string_bytes = post_string.encode("utf8")
-                if proxies == {}:
-                    async with aiohttp.ClientSession() as session:
-                        async with session.post(url, headers=header_dict, data=post_string_bytes, timeout=30, ssl=False) as res:
-                            code = res.status
-                            headers = res.headers
-                            content = await res.read()
-                else:
-                    async with aiohttp.ClientSession() as session:
-                        async with session.post(url, headers=header_dict, data=post_string_bytes, proxy=proxies, timeout=30, ssl=False) as res:
-                            code = res.status
-                            headers = res.headers
-                            content = await res.read()
-            if encoding=='chardet':
-                import chardet
-                bytes_encoding = chardet.detect(content)['encoding']
-                if bytes_encoding is None:
-                    bytes_encoding="utf8"
-            else:
-                bytes_encoding=encoding
-            content = content.decode(encoding=bytes_encoding, errors="ignore")
-            return_value['code'] = code
-            return_value['headers'] = headers
-            return_value['html'] = content
-            return return_value
-        except:
-            retry_count+=1
-            if retry_count>=5:
-                print("异常,访问了5次还是没有结果")
-                print("当前请求包是:\n"+string)
-                return None
-            time.sleep(3)
-            continue
+# =============== 辅助函数（异步安全处理响应） ===============
+async def _process_async_response(res, return_value, encoding):
+    """在async with块内处理响应，避免连接提前关闭"""
+    return_value['code'] = res.status
+    return_value['headers'] = dict(res.headers)  # 转普通字典
+    
+    # 读取原始内容（必须在async with块内！）
+    content = await res.read()
+    
+    # 智能编码处理
+    if encoding == 'chardet':
+        detect_result = chardet.detect(content)
+        bytes_encoding = detect_result['encoding'] or 'utf-8'
+    else:
+        bytes_encoding = encoding
+    
+    return_value['html'] = content.decode(encoding=bytes_encoding, errors="replace")
+
 
 def set_string_to_clipboard(string):
     import pyperclip
@@ -5046,21 +5126,17 @@ def handle_clipboard_update(handle_proc):
 
 def get_system_volume():
     #调到音量5时,对应volume为0.05
-    from pycaw.pycaw  import AudioUtilities, IAudioEndpointVolume  
-    import pythoncom
-    # 初始化音频会话  
-    pythoncom.CoInitialize()
-    sessions = AudioUtilities.GetSpeakers()  
-    interface = sessions.Activate(IAudioEndpointVolume._iid_, 0, None)  
-    volume = interface.QueryInterface(IAudioEndpointVolume)  
-    # 获取/设置音量  
-    current_volume = volume.GetMasterVolumeLevelScalar()  
-    is_muted = volume.GetMute()  
-    try:
-        pythoncom.CoUninitialize()
-    except:
-        print("pythoncom.CoUninitialize()失败")
-        pass
+    from pycaw.pycaw import AudioUtilities
+    device = AudioUtilities.GetSpeakers()
+    volume = device.EndpointVolume
+    current_volume=volume.GetMasterVolumeLevelScalar()
+    is_muted=volume.GetMute()
+    return current_volume,is_muted
+    #try:
+    #    pythoncom.CoUninitialize()
+    #except:
+    #    print("pythoncom.CoUninitialize()失败")
+    #    pass
     return current_volume,is_muted
 
 def unmute():
@@ -5111,59 +5187,30 @@ def unmute():
             if e.hresult != -2147417846:  # 0x80010106 (RPC_E_NOT_REGISTERED)
                 print(f"COM反初始化失败: {str(e)}")
 
-def set_system_volume(volume):
-    #调到音量5时,对应volume为0.05
+def set_system_volume(volume_value):
+    #调到音量5时,对应volume_value为0.05
     """
     设置Windows系统音量 (使用pycaw库)
     
     参数:
-        volume (float): 音量级别，范围0.0（静音）到1.0（最大音量）
+        volume_value (float): 音量级别，范围0.0（静音）到1.0（最大音量）
     
     异常:
         ValueError: 音量超出范围
         RuntimeError: 音量设置失败
     """
     # 验证音量范围
-    if not (0.0 <= volume <= 1.0):
+    if not (0.0 <= volume_value <= 1.0):
         raise ValueError("音量必须在0.0到1.0之间")
     
-    from comtypes import CoInitialize, CoUninitialize
-    from comtypes import CLSCTX_ALL
-    from ctypes import cast, POINTER
-    from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
-    
-    try:
-        # 初始化COM库（线程安全方式）
-        CoInitialize()
-        
-        # 获取默认音频设备
-        devices = AudioUtilities.GetSpeakers()
-        interface = devices.Activate(
-            IAudioEndpointVolume._iid_, 
-            CLSCTX_ALL, 
-            None
-        )
-        
-        # 获取音量控制接口
-        volume_control = cast(interface, POINTER(IAudioEndpointVolume))
-        
-        # 设置音量
-        volume_control.SetMasterVolumeLevelScalar(volume, None)
-        
-        # 如果设置音量>0时系统静音，则自动取消静音
-        if volume > 0 and volume_control.GetMute():
-            volume_control.SetMute(False, None)
-            
-    except Exception as e:
-        raise RuntimeError(f"音量设置失败: {str(e)}")
-    finally:
-        # 确保清理COM资源
-        try:
-            CoUninitialize()
-        except:
-            # COM可能未初始化或已卸载
-            pass
+    from pycaw.pycaw import AudioUtilities
+    device = AudioUtilities.GetSpeakers()
+    volume = device.EndpointVolume
+    volume.SetMasterVolumeLevelScalar(volume_value, None)
+    if volume.GetMute() and volume_value>0:
+        volume.SetMute(False, None)
 
+    
 def set_system_volume_in_process(volume, timeout=5):
     """
     通过独立子进程安全设置系统音量（彻底隔离COM环境）
@@ -5175,29 +5222,22 @@ def set_system_volume_in_process(volume, timeout=5):
     
     # 构建安全脚本（使用参数传递避免f-string精度/转义问题）
     script_code = '''
-import sys, json, ast
+import sys, json
 try:
     # 从命令行参数安全获取音量值
     vol_str = sys.argv[1]
-    volume = float(vol_str)  # 已在主进程验证范围
+    volume_value = float(vol_str)  # 已在主进程验证范围
     
-    from comtypes import CoInitialize, CoUninitialize, CLSCTX_ALL
-    from ctypes import cast, POINTER
-    from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
-
-    CoInitialize()
-    try:
-        devices = AudioUtilities.GetSpeakers()
-        interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-        volume_control = cast(interface, POINTER(IAudioEndpointVolume))
-        
-        volume_control.SetMasterVolumeLevelScalar(volume, None)
-        if volume > 0 and volume_control.GetMute():
-            volume_control.SetMute(False, None)
-        
-        print(json.dumps({"success": True, "volume": volume}))
-    finally:
-        CoUninitialize()
+    if not (0.0 <= volume_value <= 1.0):
+        raise ValueError("音量必须在0.0到1.0之间")
+    
+    from pycaw.pycaw import AudioUtilities
+    device = AudioUtilities.GetSpeakers()
+    volume = device.EndpointVolume
+    volume.SetMasterVolumeLevelScalar(volume_value, None)
+    if volume.GetMute() and volume_value>0:
+        volume.SetMute(False, None)
+    print(json.dumps({"success": True, "volume": volume_value}))
 except Exception as e:
     print(json.dumps({"success": False, "error": str(e)}), file=sys.stderr)
     sys.exit(1)

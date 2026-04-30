@@ -33,24 +33,26 @@ AUTHOR = "quanyechavshuo"
 AUTHOR_EMAIL = "quanyechavshuo@gmail.com"
 URL = "http://3xp10it.cc"
 
-VERSION = "2.8.84"
+VERSION = "2.8.93"
 LICENSE = "MIT"
 #beepy在linux下可能会安装失败,有需要的情况下要手动安装
 require_package_list=['mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pymysql','pyperclip','html2text']
 system=platform.system()
-if system in ['Windows','Darwin']:
-    #require_package_list.append("beepy")
-    try:
-        #有的windows无法安装beepy
-        os.system("pip3 install beepy")
-    except:
-        pass
-if system=='Windows':
-    require_package_list=['aiohttp','mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycryptodome', 'pymysql','pyperclip','html2text','pywin32','lunardate']
-elif system=='Darwin':
-    require_package_list=['aiohttp','mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycryptodome', 'pymysql','pyperclip','html2text','lunardate']
-else:
-    require_package_list=['aiohttp','mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycrypto', 'pymysql','pyperclip','html2text','lunardate']
+#if system in ['Windows','Darwin']:
+#    #require_package_list.append("beepy")
+#    try:
+#        #有的windows无法安装beepy
+#        os.system("pip3 install beepy")
+#    except:
+#        pass
+#if system=='Windows':
+#    require_package_list=['aiohttp','mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycryptodome', 'pymysql','pyperclip','html2text','pywin32','lunardate','beepy','pycaw==20251023; sys_platform == "win32"']
+#elif system=='Darwin':
+#    require_package_list=['aiohttp','mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycryptodome', 'pymysql','pyperclip','html2text','lunardate','beepy']
+#else:
+#    require_package_list=['aiohttp','mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget', 'pycrypto; sys_platform == "linux"', 'pymysql','pyperclip','html2text','lunardate']
+
+require_package_list=['aiohttp','mechanicalsoup', 'bs4', 'selenium', 'colorama', 'requests', 'configparser', 'chardet', 'wget','pycryptodome; sys_platform == "win32" or sys_platform == "darwin"','pycrypto; sys_platform == "linux"','pymysql','pyperclip','html2text','lunardate','beepy; sys_platform == "win32" or sys_platform == "darwin"','pywin32; sys_platform == "win32"','pycaw==20251023; sys_platform == "win32"']
 
 if re.search(r"(centos)|(redhat)|(fedora)",platform.platform(),re.I):
     os.system("echo y | yum install readline")
