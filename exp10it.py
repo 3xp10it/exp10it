@@ -111,7 +111,7 @@ def get_string_from_powershell_command(command, max_retries=5):
             
             # 设置超时并等待
             try:
-                stdout, stderr = process.communicate(timeout=5)
+                stdout, stderr = process.communicate(timeout=30)
                 
                 # 检查命令是否成功执行
                 if process.returncode == 0:
@@ -128,7 +128,7 @@ def get_string_from_powershell_command(command, max_retries=5):
                 print(f"第 {attempt} 次尝试执行PowerShell命令超时，尝试强制终止...")
                 process.terminate()  # 先尝试正常终止
                 try:
-                    process.wait(timeout=5)
+                    process.wait(timeout=10)
                 except subprocess.TimeoutExpired:
                     process.kill()  # 强制终止
                     process.wait()
