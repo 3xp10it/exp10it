@@ -1,9 +1,7 @@
 import pdb
-import aiohttp
 import json
 import tempfile
 import multiprocessing
-import chardet
 import platform
 import os
 import re
@@ -12,14 +10,10 @@ import random
 import time
 import datetime
 from urllib.parse import urlparse
-from bs4 import BeautifulSoup
 import threading
 from concurrent import futures
-import lunardate
-import selenium
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning, InsecurePlatformWarning
-from colorama import Fore, Style
 from functools import reduce
 import subprocess
 import base64
@@ -31,6 +25,87 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 import asyncio
 from typing import Optional
+import importlib
+
+
+# ===================== 延迟导入（懒加载）=====================
+# aiohttp / chardet / BeautifulSoup(bs4) / selenium / lunardate / colorama 这几个
+# 原来在模块级导入，实测让 `import exp10it` 从 ~9MB 涨到 27MB。
+# 但它们各自只被极少数函数用到（chardet 5 个、bs4 4 个、aiohttp 2 个、
+# selenium 1 个、lunardate 1 个、colorama 0 个），绝大多数脚本根本碰不到。
+#
+# 改成代理对象后：**名字保持不变**（from exp10it import * / chardet.detect() 照旧可用），
+# 只有真正调用到相关函数时才 import。纯用 get_now_time()、get_md5() 这类工具的脚本
+# 不再为它们付内存。
+#
+# 注意：代理是透明转发，不要对它做 isinstance(x, BeautifulSoup)、type(chardet) 这类判断。
+
+
+class _LazyModule(object):
+    """模块代理：第一次访问属性时才 import 真模块（线程安全）。"""
+
+    def __init__(self, name):
+        object.__setattr__(self, "_name", name)
+        object.__setattr__(self, "_mod", None)
+        object.__setattr__(self, "_lock", threading.Lock())
+
+    def _load(self):
+        mod = object.__getattribute__(self, "_mod")
+        if mod is not None:
+            return mod
+        with object.__getattribute__(self, "_lock"):
+            mod = object.__getattribute__(self, "_mod")
+            if mod is None:
+                mod = importlib.import_module(object.__getattribute__(self, "_name"))
+                object.__setattr__(self, "_mod", mod)
+        return mod
+
+    def __getattr__(self, name):
+        return getattr(self._load(), name)
+
+    def __repr__(self):
+        return "<lazy module %r>" % object.__getattribute__(self, "_name")
+
+
+class _LazyAttr(object):
+    """属性代理：第一次使用时才 import 所属模块并取出那个类/函数/常量。"""
+
+    def __init__(self, module, attr):
+        object.__setattr__(self, "_module", module)
+        object.__setattr__(self, "_attr", attr)
+        object.__setattr__(self, "_obj", None)
+        object.__setattr__(self, "_lock", threading.Lock())
+
+    def _load(self):
+        obj = object.__getattribute__(self, "_obj")
+        if obj is not None:
+            return obj
+        with object.__getattribute__(self, "_lock"):
+            obj = object.__getattribute__(self, "_obj")
+            if obj is None:
+                mod = importlib.import_module(object.__getattribute__(self, "_module"))
+                obj = getattr(mod, object.__getattribute__(self, "_attr"))
+                object.__setattr__(self, "_obj", obj)
+        return obj
+
+    def __call__(self, *args, **kwargs):
+        return self._load()(*args, **kwargs)
+
+    def __getattr__(self, name):
+        return getattr(self._load(), name)
+
+    def __repr__(self):
+        return "<lazy attr %s.%s>" % (object.__getattribute__(self, "_module"),
+                                      object.__getattribute__(self, "_attr"))
+
+
+aiohttp       = _LazyModule("aiohttp")                # async_send_http_packet / get_async_session
+chardet       = _LazyModule("chardet")                # send_http_packet / get_request 等 5 个
+selenium      = _LazyModule("selenium")               # get_request
+lunardate     = _LazyModule("lunardate")              # get_chuxi_date
+BeautifulSoup = _LazyAttr("bs4", "BeautifulSoup")     # collect_urls_from_html / get_request 等 4 个
+Fore          = _LazyAttr("colorama", "Fore")         # 当前没有任何函数使用
+Style         = _LazyAttr("colorama", "Style")        # 当前没有任何函数使用
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
